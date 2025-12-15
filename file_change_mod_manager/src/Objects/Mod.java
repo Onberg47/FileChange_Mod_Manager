@@ -1,19 +1,27 @@
+/**
+ * Author: Stephanos B
+ * Date: 15/12/2025
+*/
+
 package Objects;
 
 import java.util.Date;
 
 /**
- * Represents a Mod.
+ * Represents a Mod.JSON file for tracking contents and metadata of a Mod.
  * 
  * @author Stephanos B
  */
 public class Mod {
+
+    private String id; // Unique identifier for the Mod
     private String name; // User-friendly name, doubles as the filename for the ModFile
     private String version;
-    private Date downloadDate; // Used for update checks
-    private String[] contentsArr; // Array of contents inside the ModFile.
+    private ModFile[] contentsArr; // Array of contents inside the ModFile.
 
     // non-essential fields
+    private String gameID; // ID of the Game this Mod is for
+    private Date downloadDate; // Used for update checks
     private String description;
     private String downloadLink;
 
@@ -31,8 +39,24 @@ public class Mod {
     /**
      * Parameterized constructor for Mod without contents.
      * 
-     * @param name         The user-friendly name, doubles as the filename for the
-     *                     ModFile
+     * @param id          AUTO-GENERATED
+     * @param name        User-friendly name, doubles as the filename for the Mod
+     * @param version     AUTO-GENERATED
+     * @param description The description of the Mod.
+     */
+    public Mod(String name, String description) {
+        this.name = name;
+        this.version = version;
+        this.downloadDate = downloadDate;
+        this.description = description;
+        this.downloadLink = downloadLink;
+    }
+
+    /**
+     * Parameterized constructor for Mod without contents.
+     * 
+     * @param id           AUTO-GENERATED
+     * @param name         User-friendly name, doubles as the filename for the Mod
      * @param version      The version of the Mod.
      * @param downloadDate The download date of the Mod.
      * @param description  The description of the Mod.
@@ -49,8 +73,7 @@ public class Mod {
     /**
      * Fully Parameterized constructor for Mod with contents.
      * 
-     * @param name         The user-friendly name, doubles as the filename for the
-     *                     ModFile
+     * @param name         User-friendly name, doubles as the filename for the Mod
      * @param version      The version of the Mod.
      * @param downloadDate The download date of the Mod.
      * @param description  The description of the Mod.
@@ -58,7 +81,7 @@ public class Mod {
      * @param contentsArr  The contents array of the Mod.
      */
     public Mod(String name, String version, Date downloadDate, String description, String downloadLink,
-            String[] contentsArr) {
+            ModFile[] contentsArr) {
         this(name, version, downloadDate, description, downloadLink);
         this.contentsArr = contentsArr;
     }
@@ -67,6 +90,22 @@ public class Mod {
 
     public String getName() {
         return name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getGameID() {
+        return gameID;
+    }
+
+    public void setGameID(String gameID) {
+        this.gameID = gameID;
     }
 
     public void setName(String name) {
@@ -89,11 +128,11 @@ public class Mod {
         this.downloadDate = downloadDate;
     }
 
-    public String[] getContentsArr() {
+    public ModFile[] getContentsArr() {
         return contentsArr;
     }
 
-    public void setContentsArr(String[] contentsArr) {
+    public void setContentsArr(ModFile[] contentsArr) {
         this.contentsArr = contentsArr;
     }
 
@@ -113,7 +152,23 @@ public class Mod {
         this.downloadLink = downloadLink;
     }
 
-    /// /// /// Functions /// /// ///
+    /// /// /// Methods /// /// ///
+
+    /**
+     * Adds a ModContent of a file to the contents array.
+     * 
+     * @param content The ModContent to add.
+     */
+    public void addFile(ModFile content) {
+        if (this.contentsArr == null) {
+            this.contentsArr = new ModFile[] { content };
+        } else {
+            ModFile[] newArr = new ModFile[this.contentsArr.length + 1]; // initialize array if needed
+            System.arraycopy(this.contentsArr, 0, newArr, 0, this.contentsArr.length);
+            newArr[newArr.length - 1] = content;
+            this.contentsArr = newArr;
+        }
+    } // addContent()
 
     /**
      * Prints the contents of the Mod.
@@ -123,8 +178,8 @@ public class Mod {
     public String printContents() {
         String contents = "";
         if (contentsArr != null) {
-            for (String content : contentsArr) {
-                contents += content + "\n";
+            for (ModFile content : contentsArr) {
+                contents += content.toString() + "\n";
             }
         } else {
             contents = "No contents available.";

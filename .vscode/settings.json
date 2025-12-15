@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "file_change_mod_manager/lib/json-simple-1.1.1.jar"
+    ]
+}

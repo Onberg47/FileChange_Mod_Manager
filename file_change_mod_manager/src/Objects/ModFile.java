@@ -1,0 +1,107 @@
+/**
+ * Author: Stephanos B
+ * Date: 15/12/2025
+*/
+
+package Objects;
+
+/**
+ * Represents the File Contents of a Mod within the Mod.JSON file.
+ * 
+ * @author Stephanos B
+ */
+public class ModFile {
+
+    private String filePath; // Path of the content file within the Mod
+    private String hash; // SHA-256 stored as a hexadecimal string, of file contents
+    private String originalHash; // Hash of file BEFORE mod (for safe removal)
+    private FileOperation operation; // ADD, REPLACE, DELETE
+    private long size; // For info/validation
+
+    public enum FileOperation {
+        ADD, // File didn't exist before
+        REPLACE, // Overwrote existing file
+        DELETE // Removed vanilla file
+    }
+
+    public ModFile() {
+        this.filePath = "";
+        this.hash = "";
+        this.originalHash = "";
+        this.operation = FileOperation.ADD;
+        this.size = 0;
+    }
+
+    /**
+     * Standard parameterized constructor for ModContent.
+     * 
+     * @param filePath The path of the content file within the Mod.
+     * @param hash     The SHA-256 hash of the file contents.
+     */
+    public ModFile(String filePath, String hash) {
+        this.filePath = filePath;
+        this.hash = hash;
+        this.originalHash = "";
+        this.operation = FileOperation.ADD;
+        this.size = 0;
+    }
+
+    /// /// /// Getters and Setters /// /// ///
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public String getOriginalHash() {
+        return originalHash;
+    }
+
+    public void setOriginalHash(String originalHash) {
+        this.originalHash = originalHash;
+    }
+
+    public FileOperation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(FileOperation operation) {
+        this.operation = operation;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long originalSize) {
+        this.size = originalSize;
+    }
+
+    /// /// /// Methods /// /// ///
+
+    /**
+     * Returns a string representation of the ModContent.
+     * 
+     * @return A string representation of the ModContent.
+     */
+    @Override
+    public String toString() {
+        // return "ModContent [filePath=" + filePath + ", hash=" + hash + ",
+        // originalHash=" + originalHash + ", operation=" + operation + ", size=" + size
+        // + "]";
+        return String.format("filePath= %s, hash= %s, originalHash= %s, operation= %s, size= %d", filePath,
+                hash.substring(0, 8) + "...", originalHash.substring(0, 8) + "...", operation, size);
+    } // toString()
+
+} // Class
