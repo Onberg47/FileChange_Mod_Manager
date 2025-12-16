@@ -1,4 +1,4 @@
-/**
+/*
  * Author: Stephanos B
  * Date: 15/12/2025
 */
@@ -39,50 +39,28 @@ public class Mod {
     /**
      * Parameterized constructor for Mod without contents.
      * 
-     * @param id          AUTO-GENERATED
-     * @param name        User-friendly name, doubles as the filename for the Mod
+     * @param id          Unique identifier for the Mod.
+     * @param name        User-friendly name, doubles as the filename for the Mod.
      * @param version     AUTO-GENERATED
      * @param description The description of the Mod.
      */
-    public Mod(String name, String description) {
+    public Mod(String id, String name, String description) {
+        this.id = id;
         this.name = name;
-        this.version = version;
-        this.downloadDate = downloadDate;
         this.description = description;
-        this.downloadLink = downloadLink;
+        this.version = "0.0";
     }
 
     /**
-     * Parameterized constructor for Mod without contents.
+     * Parameterized constructor for Mod with contents.
      * 
-     * @param id           AUTO-GENERATED
-     * @param name         User-friendly name, doubles as the filename for the Mod
-     * @param version      The version of the Mod.
-     * @param downloadDate The download date of the Mod.
-     * @param description  The description of the Mod.
-     * @param downloadLink The download link of the Mod.
+     * @param name        User-friendly name, doubles as the filename for the Mod
+     * @param version     The version of the Mod.
+     * @param description The description of the Mod.
+     * @param contentsArr The file contents array of the Mod.
      */
-    public Mod(String name, String version, Date downloadDate, String description, String downloadLink) {
-        this.name = name;
-        this.version = version;
-        this.downloadDate = downloadDate;
-        this.description = description;
-        this.downloadLink = downloadLink;
-    }
-
-    /**
-     * Fully Parameterized constructor for Mod with contents.
-     * 
-     * @param name         User-friendly name, doubles as the filename for the Mod
-     * @param version      The version of the Mod.
-     * @param downloadDate The download date of the Mod.
-     * @param description  The description of the Mod.
-     * @param downloadLink The download link of the Mod.
-     * @param contentsArr  The contents array of the Mod.
-     */
-    public Mod(String name, String version, Date downloadDate, String description, String downloadLink,
-            ModFile[] contentsArr) {
-        this(name, version, downloadDate, description, downloadLink);
+    public Mod(String id, String name, String description, ModFile[] contentsArr) {
+        this(id, name, description);
         this.contentsArr = contentsArr;
     }
 

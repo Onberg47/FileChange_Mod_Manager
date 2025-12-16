@@ -1,28 +1,45 @@
-import java.io.File;
+/*
+ * Author Stephanos B
+ * Date: 16/12/2025
+ */
 
 import Objects.Mod;
 import Objects.ModFile;
 
+import java.io.File;
+
+import Objects.Game;
+
 /**
+ * Provides the core functionality for managing mods of a given game.
+ * 
  * Author: Stephanos B
  * Date: 15/12/2025
  */
 
 public class ModManager {
 
-    public static void main(String[] args) throws Exception {
-        // Create a test Mod with files
-        Mod mod = new Mod("Test Mod", "1.0");
-        mod.addFile(new ModFile("data/test.txt", "abc123"));
+    private Game game;
+    private static final String TEMP_DIR = "temp/"; // Temporary directory for mod operations
 
-        // Write to JSON
-        ModIO.writeMod(mod, new File("test.json"));
-        System.out.println("Written!");
+    /**
+     * Required constructor to specify the game to manage mods for.
+     * 
+     * @param game
+     */
+    public ModManager(Game game) {
+        this.game = game;
+    } // Constructor
 
-        // Read it back
-        Mod readMod = ModIO.readMod(new File("test.json"));
-        System.out.println("Read: " + readMod.getName());
-    }
+    /**
+     * Private default constructor for testing purposes only. Will be used to
+     * manually specify a Game instance.
+     */
+    private ModManager() {
+        this.game = new Game("testG", "Test Game", "test/game_root", "test/mod_storage/test01");
+    } // Private Constructor
+
+    /// /// /// Core Methods /// /// ///
 
     /**
      * Deploys the given Mod to the game directory.
@@ -65,5 +82,25 @@ public class ModManager {
         // TODO
         return null;
     } // getModByPath()
+
+    /// /// /// Json Methods /// /// ///
+
+    /**
+     * Creates a Mod.JSON file for the given Mod in the TEMP_DIR.
+     * 
+     * @param Mod Complete Mod object to create JSON for.
+     */
+    public void createModJson(Mod Mod) {
+        // creates a fully pathed file name.
+        String fileName = (TEMP_DIR + Mod.getName().toLowerCase().replaceAll(" ", "_") + ".json");
+
+        try {
+            // Write to JSON
+            ModIO.writeMod(Mod, new File(fileName));
+            System.out.println("Written!"); // TODO Remove Debug
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    } // createModJson()
 
 } // Class

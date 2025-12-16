@@ -1,4 +1,4 @@
-/**
+/*
  * Author: Stephanos B
  * Date: 15/12/2025
 */
@@ -11,17 +11,17 @@ package Objects;
  */
 public class Game {
 
-    private String id; // Unique identifier for the Game
-    private String name; // User-friendly name of the Game
-    private String installPath; // Path where the Game is installed
-    private String modsPath; // Path where the Mods are stored
+    private String id; // Unique identifier for the Game. Used as the directory name.
+    private String name; // User-friendly name of the Game for interfaces.
+    private String installPath; // Path where the Game is installed. (Should be absolute)
+    private String modsPath; // Path where the Mods are stored.
 
     /**
      * Parameterized constructor for Game.
      * 
-     * @param id          The unique identifier for the Game.
+     * @param id          The unique identifier for the Game. Used as the directory name.
      * @param name        The user-friendly name of the Game.
-     * @param installPath The installation path of the Game.
+     * @param installPath The installation path of the Game. (Should be absolute)
      * @param modsPath    The Mods storage path of the Game.
      */
     public Game(String id, String name, String installPath, String modsPath) {
@@ -53,6 +53,10 @@ public class Game {
         return installPath;
     }
 
+    /**
+     * 
+     * @param installPath The installation path of the Game. (Should be absolute)
+     */
     public void setInstallPath(String installPath) {
         this.installPath = installPath;
     }

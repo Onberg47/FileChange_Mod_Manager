@@ -1,5 +1,4 @@
-
-/**
+/*
  * Author: Stephanos B
  * Date: 15/12/2025
  */
@@ -40,8 +39,10 @@ public class ModIO {
     // WRITING
     public static void writeMod(Mod mod, File file) throws Exception {
         JSONObject json = new JSONObject();
+        json.put("id", mod.getId());
         json.put("name", mod.getName());
         json.put("version", mod.getVersion());
+        json.put("description", mod.getDescription());
 
         JSONArray files = new JSONArray();
         for (ModFile modFile : mod.getContentsArr()) {
