@@ -17,9 +17,20 @@ public class Game {
     private String modsPath; // Path where the Mods are stored.
 
     /**
+     * Used to ensure Json Keys are consistent.
+     */
+    public enum JsonFields {
+        id,
+        name,
+        installPath,
+        modsPath
+    }
+
+    /**
      * Parameterized constructor for Game.
      * 
-     * @param id          The unique identifier for the Game. Used as the directory name.
+     * @param id          The unique identifier for the Game. Used as the directory
+     *                    name.
      * @param name        The user-friendly name of the Game.
      * @param installPath The installation path of the Game. (Should be absolute)
      * @param modsPath    The Mods storage path of the Game.

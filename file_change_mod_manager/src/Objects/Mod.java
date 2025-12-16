@@ -14,16 +14,30 @@ import java.util.Date;
  */
 public class Mod {
 
-    private String id; // Unique identifier for the Mod
-    private String name; // User-friendly name, doubles as the filename for the ModFile
+    private String id; // Unique identifier for the Mod.
+    private String name; // User-friendly name, doubles as the filename for the ModFile.
     private String version;
     private ModFile[] contentsArr; // Array of contents inside the ModFile.
 
     // non-essential fields
-    private String gameID; // ID of the Game this Mod is for
-    private Date downloadDate; // Used for update checks
+    private String gameId; // ID of the Game this Mod is for.
+    private Date downloadDate; // Used for update checks.
     private String description;
     private String downloadLink;
+
+    /**
+     * Used to ensure Json Keys are consistent.
+     */
+    public enum JsonFields {
+        id,
+        name,
+        version,
+        description,
+        files,
+        gameId,
+        downloadDate,
+        downloadLink
+    }
 
     /**
      * Empty constructor for Mod.
@@ -44,10 +58,11 @@ public class Mod {
      * @param version     AUTO-GENERATED
      * @param description The description of the Mod.
      */
-    public Mod(String id, String name, String description) {
+    public Mod(String id, String name, String description, String gameId) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.gameId = gameId;
         this.version = "0.0";
     }
 
@@ -59,8 +74,8 @@ public class Mod {
      * @param description The description of the Mod.
      * @param contentsArr The file contents array of the Mod.
      */
-    public Mod(String id, String name, String description, ModFile[] contentsArr) {
-        this(id, name, description);
+    public Mod(String id, String name, String description, String gameId, ModFile[] contentsArr) {
+        this(id, name, description, gameId);
         this.contentsArr = contentsArr;
     }
 
@@ -78,12 +93,12 @@ public class Mod {
         this.id = id;
     }
 
-    public String getGameID() {
-        return gameID;
+    public String getGameId() {
+        return gameId;
     }
 
-    public void setGameID(String gameID) {
-        this.gameID = gameID;
+    public void setGameId(String gameID) {
+        this.gameId = gameID;
     }
 
     public void setName(String name) {

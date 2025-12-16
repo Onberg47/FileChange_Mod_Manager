@@ -88,3 +88,7 @@ Storage options:
 
 ## Important note: ##
 Mods don't need to track what game they are associated with, as they are only deployed inside the game's directory and the game records where it's stored Mods are located.
+
+---
+
+Read more on handling file paths and listing directory contents here: https://www.javaspring.net/blog/file-java-path/

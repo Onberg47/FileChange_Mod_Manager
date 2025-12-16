@@ -18,6 +18,17 @@ public class ModFile {
     private FileOperation operation; // ADD, REPLACE, DELETE
     private long size; // For info/validation
 
+    /**
+     * Used to ensure Json Keys are consistent.
+     */
+    public enum JsonFields {
+        filePath,
+        hash,
+        originalHash,
+        operation,
+        size
+    }
+
     public enum FileOperation {
         ADD, // File didn't exist before
         REPLACE, // Overwrote existing file
@@ -40,8 +51,8 @@ public class ModFile {
      */
     public ModFile(String filePath, String hash) {
         this.filePath = filePath;
-        this.hash = hash;
-        this.originalHash = "";
+        this.hash = hash.toLowerCase();
+        this.originalHash = hash.toLowerCase();
         this.operation = FileOperation.ADD;
         this.size = 0;
     }
@@ -61,7 +72,7 @@ public class ModFile {
     }
 
     public void setHash(String hash) {
-        this.hash = hash;
+        this.hash = hash.toLowerCase();
     }
 
     public String getOriginalHash() {
@@ -69,7 +80,7 @@ public class ModFile {
     }
 
     public void setOriginalHash(String originalHash) {
-        this.originalHash = originalHash;
+        this.originalHash = originalHash.toLowerCase();
     }
 
     public FileOperation getOperation() {

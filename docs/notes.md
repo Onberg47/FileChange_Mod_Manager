@@ -54,3 +54,29 @@ Program working direcotry:
 │   └── ghost-recon-breakpoint.png
 └── temp/                          # Working directory
 ```
+
+---
+
+```text
+.game_root/
+  # Mod data is deploy here.
+
+.mod_storage/
+  # Undeployed Mods are kept here.
+  ./Mod_id/
+    Mod_id.json
+    # Mod data is here.
+
+.program_dir/
+  config.json # Any program settings.
+  ./temp/
+    # Data is deployed from here.
+
+  ./games/
+    game_id.json # game's json file, kept outside the game's directory to make it easier to scan all known games.
+    ./game_id/
+      mod.json # all currently deployed Mod's Mod.JSON files are here.
+
+  ./icons/
+    game_id.png # could also store these as `../games/game_id/icon.png` instead.
+```
