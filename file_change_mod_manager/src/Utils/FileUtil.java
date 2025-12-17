@@ -5,10 +5,14 @@
 
 package Utils;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -101,5 +105,33 @@ public class FileUtil {
         }
         return null;
     } // private getDirectoryFiles()
-}
-// Class
+
+    /**
+     * 
+     * @param rootPath
+     * @throws IOException
+     */
+    public static void deleteDirectory(Path rootPath) throws IOException {
+        if (!Files.exists(rootPath))
+            return;
+
+        Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException {
+                Files.delete(file); // Delete individual files first
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+                    throws IOException {
+                if (exc != null)
+                    throw exc; // Propagate any errors from child processing
+                Files.delete(dir); // Delete now-empty directory
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    } // deleteDirectory()
+
+} // Class

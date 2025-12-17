@@ -50,6 +50,7 @@ public class ModFile {
      * @param hash     The SHA-256 hash of the file contents.
      */
     public ModFile(String filePath, String hash) {
+        this();
         this.filePath = filePath;
         this.hash = hash.toLowerCase();
         this.originalHash = hash.toLowerCase();

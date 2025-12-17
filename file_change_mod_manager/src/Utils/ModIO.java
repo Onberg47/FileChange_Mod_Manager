@@ -29,28 +29,34 @@ public class ModIO {
      * @throws Exception
      */
     public static Mod readMod(File file) throws Exception {
+
+        if (!file.exists()) {
+            throw new Exception("File path is invalid: " + file.getAbsolutePath());
+        }
+
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(new FileReader(file));
 
         Mod mod = new Mod();
-        mod.setId((String) json.get(Mod.JsonFields.id));
-        mod.setGameId((String) json.get(Mod.JsonFields.gameId));
-        mod.setVersion((String) json.get(Mod.JsonFields.version));
-        mod.setLoadOrder((int) json.get(Mod.JsonFields.loadOrder));
-        mod.setName((String) json.get(Mod.JsonFields.name));
-        mod.setDescription((String) json.get(Mod.JsonFields.description));
+        mod.setGameId((String) json.get(Mod.JsonFields.gameId.toString()));
+        mod.setVersion((String) json.get(Mod.JsonFields.version.toString()));
+        mod.setDownloadSource((String) json.get(Mod.JsonFields.downloadSource.toString()));
+        mod.setName((String) json.get(Mod.JsonFields.name.toString()));
+        mod.setDescription((String) json.get(Mod.JsonFields.description.toString()));
+        mod.setLoadOrder(((Long) json.get(Mod.JsonFields.loadOrder.toString())).intValue());
         // mod.setDownloadDate(); //TODO
-        mod.setDownloadLink((String) json.get(Mod.JsonFields.downloadLink));
+        mod.setDownloadLink((String) json.get(Mod.JsonFields.downloadLink.toString()));
 
-        JSONArray files = (JSONArray) json.get(Mod.JsonFields.files);
+        JSONArray files = (JSONArray) json.get(Mod.JsonFields.files.toString());
         for (Object obj : files) {
             JSONObject fileObj = (JSONObject) obj;
             ModFile modFile = new ModFile();
-            modFile.setFilePath((String) fileObj.get(ModFile.JsonFields.filePath));
-            modFile.setHash((String) fileObj.get(ModFile.JsonFields.hash));
+            modFile.setFilePath((String) fileObj.get("filePath"));
+            modFile.setHash((String) fileObj.get("hash"));
             mod.addFile(modFile);
         }
 
+        mod.generateModId(); // Do this last for saftey.
         return mod;
     } // readMod()
 
@@ -61,12 +67,14 @@ public class ModIO {
      * @param file The file to write the Mod.JSON to.
      * @throws Exception
      */
+    @SuppressWarnings("unchecked") // type-safe warning comes from how JSONObject works internally!
     public static void writeMod(Mod mod, File file) throws Exception {
         JSONObject json = new JSONObject();
 
         json.put(Mod.JsonFields.id, mod.getId());
         json.put(Mod.JsonFields.gameId, mod.getGameId());
         json.put(Mod.JsonFields.version, mod.getVersion());
+        json.put(Mod.JsonFields.downloadSource, mod.getDownloadSource().getCode());
         json.put(Mod.JsonFields.loadOrder, mod.getLoadOrder());
         json.put(Mod.JsonFields.name, mod.getName());
         json.put(Mod.JsonFields.description, mod.getDescription());
@@ -84,6 +92,8 @@ public class ModIO {
 
         try (FileWriter fw = new FileWriter(file)) {
             fw.write(json.toJSONString());
+            // Jsoner.prettyPrint(new StringReader(json.toJSONString()),fw," ", "\n"); //
+            // Requires another Lib to print pritty.
         }
     } // writeMod()
 

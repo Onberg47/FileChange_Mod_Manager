@@ -1,6 +1,8 @@
 {
     "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "file_change_mod_manager/lib/json-simple-1.1.1.jar"
+        "/home/hdd700/Programming/java/JarProjects/FileChange_Mod_Manager/file_change_mod_manager/lib/json-simple-1.1.1.jar"
+    ],
+    "java.project.sourcePaths": [
+        "file_change_mod_manager/src"
     ]
 }

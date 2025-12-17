@@ -5,6 +5,7 @@
 
 package Objects;
 
+import java.text.DateFormat;
 import java.util.Date;
 
 /**
@@ -44,19 +45,34 @@ public class Mod {
         downloadLink
     } // JsonFields enum
 
+    /**
+     * Enum of potential mod sources. (Totally overkill)
+     * Each entry has a user-facing name and an code for operations.
+     */
     public enum ModSource {
-        NEXUS("nexus"),
-        MODDB("moddb"),
-        STEAMWORKS("steam"),
-        OTHER("other"),
-        default_("unkown");
+        NEXUS("nexus", "nexus mods"),
+        MODDB("moddb", "mod db"),
+        STEAMWORKS("steam", "steam workshop"),
+        OTHER("other", "other"),
+        default_("unkown", null);
 
-        private final String name;
+        private final String code, name;
 
-        ModSource(String string) {
-            this.name = string;
+        ModSource(String code, String name) {
+            this.code = code;
+            this.name = name;
         }
 
+        /**
+         * @return The code used to identiy the source
+         */
+        public String getCode() {
+            return code;
+        }
+
+        /**
+         * @return Name the user would enter/select
+         */
         public String getName() {
             return name;
         }
@@ -76,7 +92,7 @@ public class Mod {
         this.version = "1.0";
 
         this.description = "No description provided.";
-        this.downloadSource = ModSource.default_;
+        this.downloadSource = ModSource.OTHER;
         this.downloadDate = new Date(); // Set to current date/time
         this.downloadLink = "No link provided.";
     }
@@ -128,8 +144,21 @@ public class Mod {
         return id;
     }
 
-    public void setId(String id) {
+    /**
+     * Private to prevent explicit setting of the ID which may break naming rules.
+     */
+    private void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     * Cannot explicity set Mod Id. Use `generateModId()` to force Id regeneration.
+     * This method is only a reminder.
+     * 
+     * @deprecated
+     */
+    public void setId() {
+        // does nothing by design.
     }
 
     public String getGameId() {
@@ -158,6 +187,24 @@ public class Mod {
 
     public void setDownloadSource(ModSource downloadSource) {
         this.downloadSource = downloadSource;
+    }
+
+    /**
+     * Attempts to set the Download source to the corrosponding Enum entry.
+     * 
+     * @param source String of the name or id of the entry desired.
+     * @return The name of the found Enum entry or Null if no match was found and no
+     *         changes will be made.
+     */
+    public String setDownloadSource(String source) {
+        for (ModSource src : ModSource.values()) {
+            if (source.equalsIgnoreCase(src.getName())) {
+                this.setDownloadSource(src);
+                return src.name;
+            }
+        }
+        // this.setDownloadSource(ModSource.default_);
+        return null;
     }
 
     public Date getDownloadDate() {
@@ -204,7 +251,18 @@ public class Mod {
         String tmp = this.getName().toLowerCase().replaceAll("[^a-z0-9]", "_");
         String shortName = tmp.length() <= 6 ? tmp : tmp.substring(0, 6);
 
-        return source.getName() + "-" + shortName + "-" + String.format("%04d", version.hashCode() & 0xffff);
+        return source.getCode() + "-" + shortName + "-" + String.format("%04d", version.hashCode() & 0xffff);
+    } // generateModId()
+
+    /**
+     * Uses the Mod's Game_Id, Name, and Version (hashcode) Ensure all three are
+     * defined first otherwise default values are used.
+     * 
+     * @return The generated Mod Id.
+     */
+    public String generateModId() {
+        this.setId(generateModId(this.getDownloadSource()));
+        return this.getId();
     } // generateModId()
 
     /**
@@ -248,8 +306,8 @@ public class Mod {
     @Override
     public String toString() {
         return String.format(
-                "Mod Details:\nID: %s | Game ID: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s\nContents:\n%s",
-                id, gameId, name, description, loadOrder, downloadDate.toString(), downloadLink, printContents());
+                "Mod Details:\nID: %s | Game ID: %s\nVersion: %s\n Download Source: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s\nContents:\n%s",
+                id, gameId, version, downloadSource.getCode(), name, description, loadOrder, downloadDate.toString(), downloadLink, printContents());
     } // toString()
 
 } // Class
