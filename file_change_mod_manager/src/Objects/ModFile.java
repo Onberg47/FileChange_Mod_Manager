@@ -108,11 +108,10 @@ public class ModFile {
      */
     @Override
     public String toString() {
-        // return "ModContent [filePath=" + filePath + ", hash=" + hash + ",
-        // originalHash=" + originalHash + ", operation=" + operation + ", size=" + size
-        // + "]";
+
         return String.format("filePath= %s, hash= %s, originalHash= %s, operation= %s, size= %d", filePath,
-                hash.substring(0, 8) + "...", originalHash.substring(0, 8) + "...", operation, size);
+                hash.length() <= 6 ? hash : hash.substring(0, 6) + "...",
+                originalHash.length() <= 8 ? originalHash : originalHash.substring(0, 8) + "...", operation, size);
     } // toString()
 
 } // Class

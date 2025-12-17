@@ -10,6 +10,7 @@ import Objects.ModFile;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.Date;
 
 import org.json.simple.*;
 //import org.json.simple.parser.*;
@@ -35,8 +36,11 @@ public class ModIO {
         mod.setId((String) json.get(Mod.JsonFields.id));
         mod.setGameId((String) json.get(Mod.JsonFields.gameId));
         mod.setVersion((String) json.get(Mod.JsonFields.version));
+        mod.setLoadOrder((int) json.get(Mod.JsonFields.loadOrder));
         mod.setName((String) json.get(Mod.JsonFields.name));
         mod.setDescription((String) json.get(Mod.JsonFields.description));
+        // mod.setDownloadDate(); //TODO
+        mod.setDownloadLink((String) json.get(Mod.JsonFields.downloadLink));
 
         JSONArray files = (JSONArray) json.get(Mod.JsonFields.files);
         for (Object obj : files) {
@@ -63,8 +67,11 @@ public class ModIO {
         json.put(Mod.JsonFields.id, mod.getId());
         json.put(Mod.JsonFields.gameId, mod.getGameId());
         json.put(Mod.JsonFields.version, mod.getVersion());
+        json.put(Mod.JsonFields.loadOrder, mod.getLoadOrder());
         json.put(Mod.JsonFields.name, mod.getName());
         json.put(Mod.JsonFields.description, mod.getDescription());
+        json.put(Mod.JsonFields.downloadDate, mod.getDownloadDate().toString());
+        json.put(Mod.JsonFields.downloadLink, mod.getDownloadLink());
 
         JSONArray files = new JSONArray();
         for (ModFile modFile : mod.getContentsArr()) {

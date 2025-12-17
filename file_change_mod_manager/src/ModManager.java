@@ -6,12 +6,16 @@
 import Objects.Game;
 import Objects.Mod;
 import Objects.ModFile;
-
+import Objects.Mod.ModSource;
 import Utils.FileUtil;
 import Utils.ModIO;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+
+import javax.xml.transform.Source;
 
 /**
  * Provides the core functionality for managing mods of a given game.
@@ -50,33 +54,34 @@ public class ModManager {
      * 
      * @param modName The directory name of the mod located in ./temp, doubles as
      *                the mod's name.
+     * @return Complete Mod that was created. Allows quick access to the exact data
+     *         written without needing to read the JSON. (Mainly for data checking)
      */
-    public Mod compileNewMod(Path downloadedZip, Game game) throws Exception {
+    public Mod compileNewMod(String modName) throws Exception {
 
         // 1. Extract to temp/
         // Path tempDir = extractToTemp(downloadedZip);
+        Path tempDir = Path.of(TEMP_DIR + modName);
 
         // 2. Analyze files, generate ModFile objects with hashes
-        // List<ModFile> files = FileUtil.analyzeDirectory(tempDir);
+        List<ModFile> files = FileUtil.getDirectoryFiles(tempDir.toString());
+        Mod mod = new Mod(game.getId(), ModSource.OTHER, modName, files.toArray(new ModFile[0]));
 
         // 3. Prompt user for metadata (name, version, etc.)
         // ModMetadata meta = promptUserForMetadata(tempDir);
-
-        // 4. Generate modId (nexus-12345 or custom)
-        // String modId = generateModId(meta);
-
-        // 5. Create mod.json with all data
-        // Mod mod = new Mod(modId, meta, files);
+        mod.setDescription("Description for mod...");
+        mod.setDownloadLink("Link to modPage");
+        mod.setLoadOrder(1);
+        mod.setVersion("1.2");
 
         // 6. Move to .mod_storage/game_id/mod_id_version/
-        // Path storagePath = getModStoragePath(game, mod);
-        // Files.move(TEMP_DIR, storagePath);
+        Path storagePath = Path.of(game.getModsPath(), mod.getId());
+        Files.move(tempDir, storagePath);
 
         // 7. Save mod.json
-        // createModJson(mod, storagePath.resolve("mod.json"));
+        createModJson(mod, storagePath.resolve("mod.json"));
 
-        // return mod;
-        return null;
+        return mod;
     } // compileNewMod()
 
     /**
