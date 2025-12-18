@@ -29,9 +29,8 @@ public class ModIO {
      * @throws Exception
      */
     public static Mod readMod(File file) throws Exception {
-
         if (!file.exists()) {
-            throw new Exception("File path is invalid: " + file.getAbsolutePath());
+            throw new Exception("❌ File path is invalid: " + file.getAbsolutePath());
         }
 
         JSONParser parser = new JSONParser();

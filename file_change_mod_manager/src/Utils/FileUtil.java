@@ -31,12 +31,14 @@ public class FileUtil {
      * 
      * MAXIMUM DEPTH: 10 by default to prevent infinite recursion!
      * 
-     * @param dirPath The root path to scan from.
+     * @param dirPath  The root path to scan from.
+     * @param relative Relative root to be removed from the final paths.
+     *                 (relativize)
      * 
      * @return A list of ModFile objects representing the files found.
      */
-    public static List<ModFile> getDirectoryFiles(String dirPath) {
-        return getDirectoryFiles(dirPath, "", 0, 10);
+    public static List<ModFile> getDirectoryFiles(String dirPath, String relative) {
+        return getDirectoryFiles(dirPath, relative, "", 0, 10);
     } // getDirectoryFiles()
 
     /**
@@ -44,18 +46,22 @@ public class FileUtil {
      * indentation based on depth.
      * 
      * @param dirPath  The root path to scan from.
+     * @param relative Relative root to be removed from the final paths.
+     *                 (relativize)
      * @param maxDepth The maximum depth to recurse into directories. (default 10)
      * 
      * @return A list of ModFile objects representing the files found.
      */
-    public static List<ModFile> getDirectoryFiles(String dirPath, int maxDepth) {
-        return getDirectoryFiles(dirPath, "", 0, maxDepth);
+    public static List<ModFile> getDirectoryFiles(String dirPath, String relative, int maxDepth) {
+        return getDirectoryFiles(dirPath, relative, "", 0, maxDepth);
     } // getDirectoryFiles()
 
     /**
      * Internal recursive method to scan directories.
      * 
      * @param dirPath  The path of the directory to scan.
+     * @param relative Relative root to be removed from the final paths.
+     *                 (relativize)
      * @param prefix   The prefix path for indentation.
      * @param depth    The current depth of recursion counting and depth-based
      *                 indentation.
@@ -63,7 +69,8 @@ public class FileUtil {
      * 
      * @return A list of ModFile objects representing the files found.
      */
-    private static List<ModFile> getDirectoryFiles(String dirPath, String prefix, int depth, int maxDepth) {
+    private static List<ModFile> getDirectoryFiles(String dirPath, String relative, String prefix, int depth,
+            int maxDepth) {
         Path directoryPath = Paths.get(dirPath);
 
         try (Stream<Path> paths = Files.list(directoryPath)) {
@@ -71,9 +78,10 @@ public class FileUtil {
 
             for (Path path : (Iterable<Path>) paths::iterator) {
                 // Process each file
-                if (Files.isRegularFile(path)) {
 
-                    list.add(new ModFile(path.toString(), HashUtil.computeFileHash(path)));
+                if (Files.isRegularFile(path)) {
+                    list.add(
+                            new ModFile(Path.of(relative).relativize(path).toString(), HashUtil.computeFileHash(path)));
                     System.out.println(
                             String.format("%sFound File: %s", " ".repeat(depth * 3), prefix + path.getFileName()));
 
@@ -91,7 +99,7 @@ public class FileUtil {
                         break;
                     }
 
-                    list.addAll(getDirectoryFiles(path.toString(), tmpPrefix, depth + 1, maxDepth));
+                    list.addAll(getDirectoryFiles(path.toString(), relative, tmpPrefix, depth + 1, maxDepth));
                     // Recursive call
                 }
             } // for
@@ -107,8 +115,11 @@ public class FileUtil {
     } // private getDirectoryFiles()
 
     /**
+     * Uses {@code walkFileTree} to delete a populated directory.
      * 
-     * @param rootPath
+     * @param rootPath Directory to delete. Acts as root as all child paths are
+     *                 deleted.
+     * @reurn Silently returns if directory does not exsist.
      * @throws IOException
      */
     public static void deleteDirectory(Path rootPath) throws IOException {

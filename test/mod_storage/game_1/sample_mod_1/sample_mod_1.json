@@ -1,1 +1,0 @@
-{"id":"testG-01","gameId":"testG","name":"Sample Mod","version":"0.0","description":"Simply for testing.","files":[{"filePath":"example_file_1.txt","hash":"checksum1"},{"filePath":"data\/example_file_2.txt","hash":"checksum2"},{"filePath":"data\/example_file_3.txt","hash":"checksum3"}]}

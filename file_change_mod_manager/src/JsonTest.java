@@ -6,6 +6,7 @@
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import Objects.Game;
@@ -35,17 +36,24 @@ public class JsonTest {
         mod.addFile(new ModFile("data/test_img.png", "jwjhchf3sisjsw12fde3fcsfbw2"));
         // System.out.println(mod.toString());
 
-        ModIO.writeMod(mod, new File("dummy.json"));
-        System.out.println("\nWritten:\n" + mod.toString());
-
+        // ModIO.writeMod(mod, new File("dummy.json"));
+        // System.out.println("\nWritten:\n" + mod.toString());
         // Read it back
-        Mod readMod = ModIO.readMod(new File("dummy.json"));
-        System.out.println("\nRead: " + readMod.toString());
+        // Mod readMod = ModIO.readMod(new File("dummy.json"));
+        // System.out.println("\nRead: " + readMod.toString());
+
         // sampleModTest();
         // moveFromTempTest();
 
-        // ModManager modManager = new ModManager(game);
+        ModManager modManager = new ModManager(game);
         // modManager.compileNewMod("sample");
+        modManager.modTrash(ModIO.readMod(new File("temp/mod.json")));
+
+        /*
+         * Path temp = Path.of("temp/sample");
+         * Path src = Path.of("temp/sample/data/example_file_6.txt");
+         * System.out.println(temp.relativize(src));
+         */
 
         // Mod readMod = ModIO.readMod(new
         // File("test/mod_storage/game_1/nexus-sample-51449/mod.json"));
