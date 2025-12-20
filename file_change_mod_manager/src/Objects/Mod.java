@@ -5,7 +5,6 @@
 
 package Objects;
 
-import java.text.DateFormat;
 import java.util.Date;
 
 /**
@@ -15,19 +14,20 @@ import java.util.Date;
  */
 public class Mod {
 
-    private String gameId; // ID of the Game this Mod is for.
-    private String id; // Unique identifier for the Mod.
-                       // Convention: source(enum)-name(first 6 chars)-0000(AUTO INCREMENT)
-    private int loadOrder; // Load order priority. The higher the number, the later it loads. (default: 1)
-    private ModFile[] contentsArr; // Array of contents inside the ModFile.
-    private String version;
+    protected String gameId; // ID of the Game this Mod is for.
+    protected String id; // Unique identifier for the Mod.
+                         // Convention: source(enum)-name(first 6 chars)-0000(AUTO INCREMENT)
+    protected ModSource downloadSource;
+    protected String version;
 
-    private String name; // User-friendly name.
-    private String description;
+    protected String name; // User-friendly name.
+    protected String description;
+    protected int loadOrder; // Load order priority. The higher the number, the later it loads. (default: 1)
 
-    private ModSource downloadSource;
-    private Date downloadDate; // Used for update checks.
-    private String downloadLink;
+    protected Date downloadDate; // Used for update checks.
+    protected String downloadLink;
+
+    private Boolean forceIdUpdate = false; // When true the ID will be regenerated on get(Id)
 
     /**
      * Used to ensure Json Keys are consistent.
@@ -39,7 +39,6 @@ public class Mod {
         loadOrder,
         name,
         description,
-        files,
         downloadSource,
         downloadDate,
         downloadLink
@@ -98,7 +97,7 @@ public class Mod {
     }
 
     /**
-     * Essentials parameterized constructor for Mod WITHOUT contents.
+     * Essentials parameterized constructor for Mod.
      * 
      * @param gameId      The ID of the Game this Mod is for.
      * @param source      The source of the Mod, used for ID generation.
@@ -110,20 +109,35 @@ public class Mod {
         this.name = name;
         this.gameId = gameId;
         this.downloadSource = source;
-        this.id = generateModId(source); // NB: do this last to ensure using input data!
+        this.id = generateModId(source); // NB: Do this last to ensure using input data!
     }
 
     /**
-     * Essentials parameterized constructor for Mod WITH contents.
+     * Complete constructor with ALL fields, including the Auto-generated. Meant for
+     * Mod -> Child types initializing.
      * 
-     * @param gameId      The ID of the Game this Mod is for.
-     * @param source      The source of the Mod, used for ID generation.
-     * @param name        User-friendly name, doubles as the filename for the Mod.
-     * @param contentsArr The file contents array of the Mod.
+     * @param gameIdThe      ID of the Game this Mod is for.
+     * @param id             ID of the mod. Only copied to reduce overhead of
+     *                       regeneration.
+     * @param downloadSource
+     * @param version
+     * @param name
+     * @param description
+     * @param loadOrder
+     * @param downloadDate
+     * @param downloadLink
      */
-    public Mod(String gameId, ModSource source, String name, ModFile[] contentsArr) {
-        this(gameId, source, name);
-        this.contentsArr = contentsArr;
+    protected Mod(String gameId, String id, ModSource downloadSource, String version, String name, String description,
+            int loadOrder, Date downloadDate, String downloadLink) {
+        this.gameId = gameId;
+        this.id = id;
+        this.downloadSource = downloadSource;
+        this.version = version;
+        this.name = name;
+        this.description = description;
+        this.loadOrder = loadOrder;
+        this.downloadDate = downloadDate;
+        this.downloadLink = downloadLink;
     }
 
     /// /// /// Getters and Setters /// /// ///
@@ -141,7 +155,10 @@ public class Mod {
     }
 
     public String getId() {
-        return id;
+        if (forceIdUpdate)
+            return generateModId();
+        else
+            return id;
     }
 
     /**
@@ -167,10 +184,12 @@ public class Mod {
 
     public void setGameId(String gameID) {
         this.gameId = gameID;
+        forceIdUpdate = true;
     }
 
     public void setName(String name) {
         this.name = name;
+        forceIdUpdate = true;
     }
 
     public String getVersion() {
@@ -179,6 +198,7 @@ public class Mod {
 
     public void setVersion(String version) {
         this.version = version;
+        forceIdUpdate = true;
     }
 
     public ModSource getDownloadSource() {
@@ -187,6 +207,7 @@ public class Mod {
 
     public void setDownloadSource(ModSource downloadSource) {
         this.downloadSource = downloadSource;
+        forceIdUpdate = true;
     }
 
     /**
@@ -215,14 +236,6 @@ public class Mod {
         this.downloadDate = downloadDate;
     }
 
-    public ModFile[] getContentsArr() {
-        return contentsArr;
-    }
-
-    public void setContentsArr(ModFile[] contentsArr) {
-        this.contentsArr = contentsArr;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -243,11 +256,13 @@ public class Mod {
 
     /**
      * Generates a unique Mod ID based on the Mod's source, name, and version.
+     * Protected for internal use.
      * 
      * @param source The source of the Mod from the ModSource enum.
      * @return The generated Mod ID.
      */
-    private String generateModId(ModSource source) {
+    protected String generateModId(ModSource source) {
+        forceIdUpdate = false;
         String tmp = this.getName().toLowerCase().replaceAll("[^a-z0-9]", "_");
         String shortName = tmp.length() <= 6 ? tmp : tmp.substring(0, 6);
 
@@ -266,39 +281,6 @@ public class Mod {
     } // generateModId()
 
     /**
-     * Adds a ModContent of a file to the contents array.
-     * 
-     * @param content The ModContent to add.
-     */
-    public void addFile(ModFile content) {
-        if (this.contentsArr == null) {
-            this.contentsArr = new ModFile[] { content };
-        } else {
-            ModFile[] newArr = new ModFile[this.contentsArr.length + 1]; // initialize array if needed
-            System.arraycopy(this.contentsArr, 0, newArr, 0, this.contentsArr.length);
-            newArr[newArr.length - 1] = content;
-            this.contentsArr = newArr;
-        }
-    } // addContent()
-
-    /**
-     * Prints the contents of the Mod.
-     * 
-     * @return A string representation of the contents of the Mod.
-     */
-    public String printContents() {
-        String contents = "";
-        if (contentsArr != null) {
-            for (ModFile content : contentsArr) {
-                contents += content.toString() + "\n";
-            }
-        } else {
-            contents = "No contents available.";
-        }
-        return contents;
-    } // printContents()
-
-    /**
      * Overrides toString() to provide a string representation of the Mod object.
      * 
      * @return A string representation of the Mod object.
@@ -307,7 +289,8 @@ public class Mod {
     public String toString() {
         return String.format(
                 "Mod Details:\nID: %s | Game ID: %s\nVersion: %s\n Download Source: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s\nContents:\n%s",
-                id, gameId, version, downloadSource.getCode(), name, description, loadOrder, downloadDate.toString(), downloadLink, printContents());
+                getId(), gameId, version, downloadSource.getCode(), name, description, loadOrder,
+                downloadDate.toString(), downloadLink);
     } // toString()
 
 } // Class

@@ -26,6 +26,13 @@ public class Game {
         modsPath
     }
 
+    public Game() {
+        id = "unkown01";
+        name = "Unkown Game";
+        installPath = null; // Null because it must be set.
+        modsPath = null;
+    }
+
     /**
      * Parameterized constructor for Game.
      * 

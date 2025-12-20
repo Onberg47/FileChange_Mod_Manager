@@ -16,7 +16,7 @@ public class ModFile {
     private String hash; // SHA-256 stored as a hexadecimal string, of file contents
     private String originalHash; // Hash of file BEFORE mod (for safe removal)
     private FileOperation operation; // ADD, REPLACE, DELETE
-    private long size; // For info/validation
+    private long size = 0; // For info/validation
 
     /**
      * Used to ensure Json Keys are consistent.
@@ -49,13 +49,13 @@ public class ModFile {
      * @param filePath The path of the content file within the Mod.
      * @param hash     The SHA-256 hash of the file contents.
      */
-    public ModFile(String filePath, String hash) {
+    public ModFile(String filePath, String hash, long size) {
         this();
         this.filePath = filePath;
         this.hash = hash.toLowerCase();
         this.originalHash = hash.toLowerCase();
         this.operation = FileOperation.ADD;
-        this.size = 0;
+        this.size = size;
     }
 
     /// /// /// Getters and Setters /// /// ///

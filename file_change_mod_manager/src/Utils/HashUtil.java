@@ -22,7 +22,8 @@ public class HashUtil {
         MD5("MD5", 32); // Faster but less secure, non-issue for file integrity
 
         private final String algorithm;
-        private final int hexLength;
+        @SuppressWarnings("unused")
+        private final int hexLength; //TODO Redundant, remove?
 
         HashAlgorithm(String algorithm, int hexLength) {
             this.algorithm = algorithm;

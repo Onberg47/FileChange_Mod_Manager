@@ -2,14 +2,14 @@ Updated `ModFile.json` contents:
 
 ```json
 {
-  "name": "Example Mod",
-  "id": "example-mod-unique-id",
-  "version": "1.1.0",
-  "author": "Mod Author",
-  "description": "A few words about the mod",
-  "installDate": "2024-12-13T19:26:00Z", // ISO 8601
+  "id": "other-Exampl-xxxxxx", // [Auto generated]
+  "gameId": "example_game_id", // Reference to game.
+  "downloadSource": "other",   // Mod's Origin. (used for ID creation)
+  "version": "1.1.0",          // Mod's version. (used for ID creation)
   "loadOrder": 5,
-  "gameId": "example_game_id", // Reference to game
+  "name": "Example Mod",
+  "description": "A few words about the mod...",
+  "downloadDate": "2024-12-13T19:26:00Z", // ISO 8601
   "files": [
     {
       "relativePath": "data/config.xml",
@@ -80,3 +80,6 @@ Program working direcotry:
   ./icons/
     game_id.png # could also store these as `../games/game_id/icon.png` instead.
 ```
+
+---
+

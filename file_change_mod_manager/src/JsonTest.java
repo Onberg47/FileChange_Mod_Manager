@@ -4,6 +4,7 @@
  */
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,6 +13,7 @@ import java.util.List;
 import Objects.Game;
 import Objects.Mod;
 import Objects.ModFile;
+import Objects.ModManifest;
 import Objects.Mod.ModSource;
 import Utils.FileUtil;
 import Utils.ModIO;
@@ -21,19 +23,20 @@ import Utils.ModIO;
  * 
  * @author Stephanos B
  */
+@SuppressWarnings("unused")
 public class JsonTest {
 
-    public static final Game game = new Game("game_1", "Test Game", "test/game_root", "test/mod_storage/game_1");
+    public static final Game game = new Game("game_1", "Test Game", "test/game_root", "mod_manager/mod_storage/game_1");
 
     public static void main(String[] args) throws Exception {
 
-        Mod mod = new Mod(game.getId(), ModSource.NEXUS, "Test Mod");
+        ModManifest mod = new ModManifest(game.getId(), ModSource.NEXUS, "Test Mod");
         mod.setVersion("2.0");
         mod.setLoadOrder(3);
         mod.setDownloadSource("steam workshop");
         mod.setDescription("A mod for testing purposes.");
-        mod.addFile(new ModFile("data/test.txt", "abc123"));
-        mod.addFile(new ModFile("data/test_img.png", "jwjhchf3sisjsw12fde3fcsfbw2"));
+        mod.addFile(new ModFile("data/test.txt", "abc123", 111));
+        mod.addFile(new ModFile("data/test_img.png", "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
         // System.out.println(mod.toString());
 
         // ModIO.writeMod(mod, new File("dummy.json"));
@@ -46,8 +49,9 @@ public class JsonTest {
         // moveFromTempTest();
 
         ModManager modManager = new ModManager(game);
-        // modManager.compileNewMod("sample");
-        modManager.modTrash(ModIO.readMod(new File("temp/mod.json")));
+        // modManager.modCompileNew("sample");
+        modManager.deployMod("other-mega_s-51449", false);
+        // modManager.modTrash("other-mega_s-51449");
 
         /*
          * Path temp = Path.of("temp/sample");
@@ -56,7 +60,7 @@ public class JsonTest {
          */
 
         // Mod readMod = ModIO.readMod(new
-        // File("test/mod_storage/game_1/nexus-sample-51449/mod.json"));
+        // File("mod_manager/mod_storage/game_1/nexus-sample-51449/mod.json"));
         // System.out.println("Read: " + readMod.getName());
 
         /*
@@ -72,19 +76,28 @@ public class JsonTest {
     /**
      * Creates a sample Game and Mod to perfrom a full Mod JSON creation test.
      */
+    @SuppressWarnings("unused")
     private static void sampleModTest() {
 
         // Create a sample Mod with multiple files
-        Mod sampleMod = new Mod(game.getId(), ModSource.OTHER, "Sample Mod");
+        ModManifest sampleMod = new ModManifest(game.getId(), ModSource.OTHER, "Sample Mod");
         sampleMod.setDescription("This is a sample mod for testing the Mod JSON creation.");
-        sampleMod.addFile(new ModFile("example_file_1.txt", "checksum1"));
-        sampleMod.addFile(new ModFile("data/example_file_2.txt", "checksum2"));
-        sampleMod.addFile(new ModFile("data/example_file_3.txt", "checksum3"));
+        sampleMod.addFile(new ModFile("example_file_1.txt", "checksum1", 111));
+        sampleMod.addFile(new ModFile("data/example_file_2.txt", "checksum2", 222));
+        sampleMod.addFile(new ModFile("data/example_file_3.txt", "checksum3", 333));
 
+        @SuppressWarnings("unused")
         ModManager modManager = new ModManager(game);
         Path storagePath = Path.of(game.getModsPath(), sampleMod.getId());
 
-        System.out.println(modManager.createModJson(sampleMod, storagePath.resolve("mod.json")));
+        try {
+            // Write to JSON
+            ModIO.writeModManifest(sampleMod, new File(storagePath.resolve("mod.json").toString()));
+            System.out.println("✔ Written!"); // Debug
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
 
         // modManager.createModJson(sampleMod, Path.of(game.getModsPath()));
 
@@ -95,16 +108,17 @@ public class JsonTest {
      * location.
      * Will delete previous data if the mod's directory is already present.
      */
+    @SuppressWarnings("unused")
     private static void moveFromTempTest() {
 
-        Mod mod = new Mod(game.getId(), ModSource.NEXUS, "Test Mod");
+        ModManifest mod = new ModManifest(game.getId(), ModSource.NEXUS, "Test Mod");
         mod.setVersion("2.0");
         mod.setDownloadSource("steam workshop");
         mod.setDescription("A mod for testing purposes.");
-        mod.addFile(new ModFile("data/test.txt", "abc123"));
-        mod.addFile(new ModFile("data/test_img.png", "jwjhchf3sisjsw12fde3fcsfbw2"));
+        mod.addFile(new ModFile("data/test.txt", "abc123", 111));
+        mod.addFile(new ModFile("data/test_img.png", "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
 
-        Path tempDir = Path.of("temp/", "mod_a");
+        Path tempDir = Path.of("mod_manager/.temp/", "mod_a");
         Path storagePath = Path.of(game.getModsPath(), mod.getId());
 
         try {
