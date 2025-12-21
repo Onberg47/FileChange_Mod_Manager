@@ -38,8 +38,8 @@ public class ModFile {
     public ModFile() {
         this.filePath = "";
         this.hash = "";
-        this.originalHash = "";
-        this.operation = FileOperation.ADD;
+        // this.originalHash = "";
+        // this.operation = FileOperation.ADD;
         this.size = 0;
     }
 
@@ -53,8 +53,8 @@ public class ModFile {
         this();
         this.filePath = filePath;
         this.hash = hash.toLowerCase();
-        this.originalHash = hash.toLowerCase();
-        this.operation = FileOperation.ADD;
+        // this.originalHash = hash.toLowerCase();
+        // this.operation = FileOperation.ADD;
         this.size = size;
     }
 
@@ -109,10 +109,8 @@ public class ModFile {
      */
     @Override
     public String toString() {
-
-        return String.format("filePath= %s, hash= %s, originalHash= %s, operation= %s, size= %d", filePath,
-                hash.length() <= 6 ? hash : hash.substring(0, 6) + "...",
-                originalHash.length() <= 8 ? originalHash : originalHash.substring(0, 8) + "...", operation, size);
+        return String.format("filePath= %s, hash= %s, size= %d", filePath,
+                hash.length() <= 6 ? hash : hash.substring(0, 6) + "...", size);
     } // toString()
 
 } // Class

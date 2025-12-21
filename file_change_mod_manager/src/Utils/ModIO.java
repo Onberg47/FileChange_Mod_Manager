@@ -94,7 +94,6 @@ public class ModIO {
             modFile.setSize((long) fileObj.get(ModFile.JsonFields.size.toString()));
             mod.addFile(modFile);
         }
-
         mod.generateModId(); // Do this last for saftey.
         return mod;
     } // readModManifest()

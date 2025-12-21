@@ -69,6 +69,10 @@ public class ModManifest extends Mod {
 
     /// /// /// Getters and Setters /// /// ///
 
+    /**
+     * 
+     * @return Array of ModFiles.
+     */
     public ModFile[] getContentsArr() {
         return contentsArr;
     }

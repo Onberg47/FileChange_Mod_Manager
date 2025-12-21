@@ -18,8 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -28,14 +27,17 @@ import java.util.Scanner;
  * Author: Stephanos B
  * Date: 15/12/2025
  */
-
 public class ModManager {
 
     private Game game;
     // TODO: remove `mod_manager/` from paths before packaging!
-    private static final String TEMP_DIR = "mod_manager/.temp/"; // Temporary directory for mod operations.
-    private static final String TRASH_DIR = "mod_manager/.temp/trash/"; // Trash directory.
-    private static final String MANIFEST_DIR = ".mod_manifests/"; // Where in the game_root are manifests stored.
+    private static final Path TEMP_DIR = Path.of("mod_manager/.temp/"); // Temporary directory for mod operations.
+    private static final Path TRASH_DIR = Path.of("mod_manager/.temp/trash/"); // Trash directory.
+    private static final Path MANIFEST_DIR = Path.of(".mod_manifests/"); // Where in the game_root are manifests stored.
+
+    private final Path GAME_PATH; // cannot be determined prior to constuctor but is final
+
+    // private int indentLevel = 0;
 
     /**
      * Required constructor to specify the game to manage mods for.
@@ -44,6 +46,7 @@ public class ModManager {
      */
     public ModManager(Game game) {
         this.game = game;
+        GAME_PATH = Path.of(game.getInstallPath());
     } // Constructor
 
     /// /// /// Core Methods /// /// ///
@@ -57,16 +60,18 @@ public class ModManager {
      * @return Complete Mod that was created. Allows quick access to the exact data
      *         written without needing to read the JSON. (Mainly for data checking)
      */
-    public Mod modCompileNew(String dirName) throws Exception {
+    public Mod modCompileNew(String dirName) {
         /// /// 1. Verify Directory is valid.
-        Path tempDir = Path.of(TEMP_DIR, dirName);
+        // Path tempDir = Path.of(TEMP_DIR, dirName);
+        Path tempDir = TEMP_DIR.resolve(dirName);
 
         if (!Files.isDirectory(tempDir)) {
             // If path leads to a zip, attempt to extract.
             // Path tempDir = extractToTemp(downloadedZip);
         } else if (!Files.exists(tempDir)) {
             // Verify the dirName given is a valid directory.
-            throw new Exception("❌ No such directory found: " + tempDir.toString());
+            System.err.println("❌ No such directory found: " + tempDir.toString());
+            return null;
         }
         System.out.println("📦 Collecting info: " + tempDir.getFileName()); // TODO Debugging
 
@@ -79,14 +84,14 @@ public class ModManager {
         System.out.println("\n📦 Compiling mod: " + tempDir.getFileName()); // TODO Debugging
 
         /// /// 3. Analyze exsisting files, generate ModFile objects with hashes
-        mod.setContentsArr(FileUtil.getDirectoryFiles(tempDir.toString(), tempDir.toString()).toArray(new ModFile[0]));
+        mod.setContentsArr(FileUtil.getDirectoryModFiles(tempDir, tempDir).toArray(new ModFile[0]));
 
         /// /// 4. Once the Mod is complete, the Mod.JSON file can be created.
         System.out.println("📦 Writing manifest..."); // TODO Debugging
         Path storagePath = Path.of(game.getModsPath(), mod.getId()); // Path where the Mods will be stored.
 
         try {
-            Path path = tempDir.resolve(MANIFEST_DIR, mod.getId() + ".json");
+            Path path = tempDir.resolve(MANIFEST_DIR.toString(), mod.getId() + ".json");
             Files.createDirectories(path.getParent());
             // Write to JSON
             ModIO.writeModManifest(mod, new File(path.toString()));
@@ -94,7 +99,7 @@ public class ModManager {
 
         } catch (FileNotFoundException e) {
             System.out.println("❌ Failed to write Manifest: "
-                    + storagePath.resolve(MANIFEST_DIR, mod.getId() + ".json").toString());
+                    + storagePath.resolve(MANIFEST_DIR.toString(), mod.getId() + ".json").toString());
             return null;
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,16 +118,14 @@ public class ModManager {
             // ((Integer)mod.getLoadOrder()).toString());
             Files.move(tempDir, storagePath);
             System.out.println("✔");
-
+            return mod;
         } catch (IOException e) {
             // thrown by deleteDirectory()
             System.err.println("❌ Failed to move or delete exsisting Mod data at path: " + storagePath.toString());
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
-
-        return mod;
+        return null;
     } // modCompileNew()
 
     /**
@@ -135,14 +138,14 @@ public class ModManager {
     public void modTrash(String modID) {
         /// /// 1. Find the Mod's manifest from it's ID and read it.
         ModManifest mod;
-        Path manifestPath = Path.of(game.getInstallPath(), MANIFEST_DIR).resolve(modID + ".json");
+        Path manifestPath = GAME_PATH.resolve(MANIFEST_DIR.toString(), modID + ".json");
+        // TODO better date format
 
         try {
             mod = ModIO.readModManifest(manifestPath.toFile());
             System.out.println("\tManifest of Mod: " + mod.getName() + " found! ✔");
         } catch (Exception e) {
-            System.err.println("❌ Mod manifest does not exsists! " + manifestPath.toString());
-            e.printStackTrace();
+            System.err.println("❌ Mod manifest does not exsists! " + manifestPath.toString() + "\n" + e.getMessage());
             return;
         }
 
@@ -150,7 +153,7 @@ public class ModManager {
         System.out.println("🗑 Removing mod: " + mod.getName() + "\n\tMoving files...");
         try {
             Path src;
-            Path target = Path.of(TRASH_DIR, mod.getId());
+            Path target = TRASH_DIR.resolve(mod.getId() + "__" + new Date().toString());
             Path maxPath = Path.of("");
             Path dataPath;
 
@@ -158,13 +161,13 @@ public class ModManager {
             try {
                 FileUtil.deleteDirectory(target);
             } catch (IOException e) {
-                System.err.println("❗ Could not delete exsisting contents of Mod in trash! Continuing...");
-                e.printStackTrace();
+                System.err.println("❗ Could not delete exsisting contents of Mod in trash! " + "\n" + e.getMessage()
+                        + "\nContinuing...");
             }
 
             for (ModFile mf : mod.getContentsArr()) {
                 dataPath = Path.of(mf.getFilePath());
-                src = Path.of(game.getInstallPath(), dataPath.toString());
+                src = GAME_PATH.resolve(dataPath);
 
                 // Using another try_catch so file-moving errors won't interrupt.
                 try {
@@ -183,18 +186,17 @@ public class ModManager {
                         }
                     }
 
-                    System.out.print("\t\tTrying to move: " + src.toString() + " to " + target.resolve(dataPath));
+                    System.out.println("\t\tTrying to move: " + src.toString() + " to " + target.resolve(dataPath));
                     Files.move(src, target.resolve(dataPath));
-                    System.out.println("  ✔");
+                    System.out.println("✔");
                 } catch (IOException e) {
                     // catches Files.move() and Files.createDirectories()
-                    System.err.println("❌ Error moving file! " + dataPath);
-                    e.printStackTrace();
+                    System.err.println("❗ Error moving file! " + dataPath + "\n" + e.getMessage());
                 }
             } // for each
 
             System.out.println("\t\tCleaning game directories from: " + maxPath);
-            FileUtil.cleanDirectories(Path.of(game.getInstallPath()), maxPath);
+            FileUtil.cleanDirectories(GAME_PATH, maxPath); // Clean the mod content.
 
             System.out.println("\tMod files successfully trashed! ✔");
 
@@ -203,11 +205,12 @@ public class ModManager {
             target = target.resolve(MANIFEST_DIR);
             Files.createDirectories(target);
             Files.move(manifestPath, target.resolve(manifestPath.getFileName()));
-            FileUtil.cleanDirectories(Path.of(game.getInstallPath()), Path.of(MANIFEST_DIR));
-            System.out.println(" ✔");
-            ///
-            System.out.println("🗑 Mod successfully trashed! ✔");
 
+            // clean the .manifest/ if it's empty.
+            FileUtil.cleanDirectories(GAME_PATH, MANIFEST_DIR);
+            System.out.println(" ✔");
+
+            System.out.println("🗑 Mod successfully trashed! ✔");
         } catch (NullPointerException e) {
             // If the ModFiles array is empty, this will catch the null exception.
             System.err.println("❌ The Mod has no contents!");
@@ -215,7 +218,6 @@ public class ModManager {
             // Failed to move Manifest!
             e.printStackTrace();
         }
-
     } // removeMod()
 
     /**
@@ -230,21 +232,29 @@ public class ModManager {
      */
     public void deployMod(String modID, Boolean checkConflict) {
         ModManifest mod;
-        Path tempDir = Path.of(TEMP_DIR, modID);
+        Path tempDir = TEMP_DIR.resolve(modID);
         Path storedDir = Path.of(game.getModsPath(), modID);
 
         /// /// 1. Find the Mod's manifest from it's ID and read it.
         System.out.println("📦 Attempting to deploy mod...");
         try {
-            mod = ModIO.readModManifest(storedDir.resolve(MANIFEST_DIR, modID + ".json").toFile());
+            mod = ModIO.readModManifest(storedDir.resolve(MANIFEST_DIR.toString(), modID + ".json").toFile());
             System.out.println("\tManifest of Mod: " + mod.getName() + " found! ✔");
+
+            Path manPath = MANIFEST_DIR.resolve(modID + ".json");
+            Files.createDirectories(tempDir.resolve(manPath.getParent()));
+            Files.copy(storedDir.resolve(manPath), tempDir.resolve(manPath));
+
         } catch (FileNotFoundException e) {
             System.err.println(
-                    "❌ Mod manifest does not exsists! " + storedDir.resolve(MANIFEST_DIR, modID + ".json").toString());
+                    "❌ Mod manifest does not exsists! "
+                            + storedDir.resolve(MANIFEST_DIR.toString(), modID + ".json").toString());
+            return;
+        } catch (IOException e) {
+            System.err.println("❌ Error copying Mod manifest!" + "\n" + e.getMessage());
             return;
         } catch (Exception e) {
-            System.err.println("❌ Error reading Mod manifest file!");
-            e.printStackTrace();
+            System.err.println("❌ Error reading Mod manifest file!" + "\n" + e.getMessage());
             return;
         }
 
@@ -252,60 +262,55 @@ public class ModManager {
         /// were left behind.
         try {
             System.out.println("\tChecking conflicts...");
-            // Files.createDirectories(tempDir);
 
             // Try to copy each file from the Manifest to find missing/invalid entries.
-            File newFile; // File intended to be added.
+            File newFile; // File intended to be added from storage.
             for (ModFile mf : mod.getContentsArr()) {
                 newFile = new File(storedDir.resolve(mf.getFilePath()).toString());
                 if (!newFile.exists()) {
                     System.err.println(
                             "❌ File in manifest is missing! -> " + newFile.getPath() + "\nStopping deployment!");
                     return;
-                } else if (checkConflict && Files.exists(tempDir.resolve(mf.getFilePath()))) {
+                } else if (checkConflict && Files.exists(GAME_PATH.resolve(mf.getFilePath()))) {
                     System.out.println("\t\t❗ Conflict found for: " + mf.getFilePath());
 
-                    if (loadOrderCopy(mf.getFilePath(), mod.getLoadOrder())) {
-                        if (!Files.exists(tempDir.resolve(mf.getFilePath())))
-                            Files.createDirectories(newFile.toPath());
-                        Files.copy(newFile.toPath(), tempDir.resolve(mf.getFilePath()),
-                                StandardCopyOption.REPLACE_EXISTING); // TODO replace with
-                        // copyDirectoryContents()
+                    /*
+                     * If the file exists in game_root there will be a conflict.
+                     * This will only copy files with no conflicts OR if they have priority,
+                     * in which case they will overwrite when copied.
+                     * 
+                     * If the file should NOT be copied then continue to the next loop itteration,
+                     * skipping the copy lines.
+                     */
+                    if (!ifLoadPriority(mf.getFilePath(), mod.getLoadOrder())) {
+                        System.out.println("\t\t\tSkipping file: " + Path.of(mf.getFilePath()).getFileName());
+                        continue;
                     }
-                } else {
-                    // No conflict
-                    System.out.println(
-                            "\tCopying files from: " + newFile.toPath() + " to " + tempDir.resolve(mf.getFilePath()));
-                    Files.createDirectories(newFile.toPath().getParent());
-                    System.out.println("Creating: " + newFile.toPath().getParent().toString());
-
-                    Files.copy(newFile.toPath(), tempDir.resolve(mf.getFilePath()),
-                            StandardCopyOption.REPLACE_EXISTING); // TODO replace with
-                    // copyDirectoryContents()
                 }
-
+                System.out.println("\t\tCopying files from: " + newFile.toPath() + " to "
+                        + tempDir.resolve(mf.getFilePath()));
+                Files.createDirectories(tempDir.resolve(mf.getFilePath()).getParent());
+                Files.copy(newFile.toPath(), tempDir.resolve(mf.getFilePath()), StandardCopyOption.REPLACE_EXISTING);
             } // for each ModFile
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return;
         } catch (IOException e) {
-            System.err.println("❌ Failed to copy to Game_Root!");
-            e.printStackTrace();
+            System.err.println("❌ Failed to copy to Game_Root!" + "\n" + e.getMessage());
             return;
         }
 
         /// /// 3. Copy from temp/{mod_id} to game_root and clean temp.
         try {
-            // Files.createDirectories(tempDir.resolve(MANIFEST_DIR));
-            FileUtil.copyDirectoryContents(tempDir, Path.of(game.getInstallPath()));
-            System.out.println("\tMod copied to temp: " + Path.of(game.getInstallPath()));
-
-            System.out.println("Cleaning temp...");
+            FileUtil.copyDirectoryContents(tempDir, GAME_PATH, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("\tMod copied from temp to: " + GAME_PATH);
+            System.out.println("\tCleaning temp...");
             FileUtil.deleteDirectory(tempDir);
+
+            System.out.println("📦 Mod successfully deployed!");
         } catch (IOException e) {
-            System.err.println("❌ Failed to copy Mod files to temp!");
-            e.printStackTrace();
+            System.err.println("❌ Failed to copy Mod files to temp!" + "\n" + e.getMessage());
             return;
         }
 
@@ -318,7 +323,7 @@ public class ModManager {
      */
     public void deployGameState(Path gameStatePath) {
         if (!Files.exists(gameStatePath)) {
-            System.err.println("GameState file does not exsist! " + gameStatePath);
+            System.err.println("❌ GameState file does not exsist! " + gameStatePath);
             return;
         }
 
@@ -332,7 +337,7 @@ public class ModManager {
             } // for each Mod
 
         } catch (NullPointerException e) {
-            System.err.println("Nothing to do, GameState has no Mods!");
+            System.err.println("❌ Nothing to do, GameState has no Mods!");
             return;
         } catch (Exception e) {
             // TODO: handle exception
@@ -381,44 +386,47 @@ public class ModManager {
      * 
      * @param modFilePath Path of the ModFile being checked for conflicts.
      * @param loadOrder   Load order from the new Mod
-     * @return True if the mod has load priority over all other Mod currenlty
+     * @return True if the mod has load priority over all other Mod currently
      *         deployed.
      */
-    private boolean loadOrderCopy(String modFilePath, int loadOrder) {
-        /*
-         * If the file exsists in game_root there will be a conflit.
-         * This will only copy files with no conflicts OR if they have priorety,
-         * in which case they will overwrite when copied.
-         */
+    public boolean ifLoadPriority(String modFilePath, int loadOrder) {
+        File manifestDir = GAME_PATH.resolve(MANIFEST_DIR).toFile();
 
-        /// /// 1. Get all the deployed ModManifests.
-        List<ModManifest> deployedMods = new ArrayList<ModManifest>();
-        File[] files = Path.of(game.getInstallPath(), MANIFEST_DIR).toFile().listFiles();
+        // Check if directory exists and is readable
+        if (!manifestDir.exists() || !manifestDir.isDirectory()) {
+            System.err.println("❗ Manifest directory doesn't exist or isn't a directory");
+            return true; // If no manifests exist, this mod has priority
+        }
+
+        File[] files = manifestDir.listFiles();
+        if (files == null) {
+            System.err.println("❗ Cannot list files in manifest directory");
+            return true;
+        }
+
         for (File i : files) {
             try {
-                deployedMods.add(new ModManifest(ModIO.readModManifest(i)));
+                ModManifest manifest = ModIO.readModManifest(i);
+                for (ModFile tmpMF : manifest.getContentsArr()) {
+                    if (tmpMF.getFilePath().contentEquals(modFilePath)) {
+                        if (loadOrder > manifest.getLoadOrder())
+                            return false; // If the new Mod is loaded earlier and has an overruling mod, cease checking.
+                        else
+                            break; // After match is found, stop checking the same file.
+                    }
+                } // for each ModFile
+
+            } catch (NullPointerException e) {
+                System.err.println("❗ Contents array is null for " + i.getName());
+                continue;
             } catch (Exception e) {
-                System.err.println("\t\t❌ No exsisting deployed mods found!");
-                return false;
+                System.err.println("❌ Error processing manifest file " + i.getName() + ": "
+                        + e.getMessage());
+                e.printStackTrace();
+                return true;
             }
         } // for each File
-
-        /// /// 2. Check each ModManifest for conflicts.
-        for (ModManifest tmpManifest : deployedMods) {
-            System.out.println("\t\t\tChecking Manifest: " + tmpManifest.getId()); // TODO debugging
-            for (ModFile tmpMF : tmpManifest.getContentsArr()) {
-                if (tmpMF.getFilePath().contentEquals(modFilePath)) {
-
-                    if (loadOrder < tmpManifest.getLoadOrder())
-                        return false; // If the new Mod is loaded earlier and has an overruling mod, cease checking.
-                    else
-                        break; // After match is found, stop checking the same file.
-
-                }
-            } // for each ModFile
-        } // for each manifest
-
         return true; // If this is reached, the file has load priority over all other Mod.
-    } // loadOrderCopy()
+    }// ifLoadPriority()
 
 } // Class

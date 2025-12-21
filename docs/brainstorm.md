@@ -92,3 +92,39 @@ Mods don't need to track what game they are associated with, as they are only de
 ---
 
 Read more on handling file paths and listing directory contents here: https://www.javaspring.net/blog/file-java-path/
+
+```java
+
+/**
+ * Example of how I would normally do this using an Array and for each.
+ * @snippet
+ */
+List<ModManifest> deployedMods = new ArrayList<ModManifest>();
+File[] files = Path.of(game.getInstallPath(), MANIFEST_DIR).toFile().listFiles();
+for (File i : files) {
+    try {
+        deployedMods.add(new ModManifest(ModIO.readModManifest(i)));
+    } catch (Exception e) {
+        System.err.println("\t\t❌ No exsisting deployed mods found!");
+        return false;
+    }
+} // for each File
+
+/**
+ * Using Stream to avoid having an array to store Files[] for reading.
+ * @snippet
+ */
+try (Stream<Path> paths = Files.list(Path.of(game.getInstallPath(), MANIFEST_DIR))) {
+    deployedMods = paths.map(path -> {
+        try {
+            return new ModManifest(ModIO.readModManifest(path.toFile()));
+        } catch (Exception e) {
+            System.err.println("\t\t❌ No existing deployed mods found!");
+            return null;
+        }
+    }).filter(Objects::nonNull).toList();
+} catch (Exception e) {
+    System.err.println("\t\t❌ Error reading manifest directory!");
+    return false;
+}
+```

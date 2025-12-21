@@ -6,14 +6,16 @@
 package Utils;
 
 import java.io.IOException;
-import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import Objects.ModFile;
@@ -37,8 +39,8 @@ public class FileUtil {
      * 
      * @return A list of ModFile objects representing the files found.
      */
-    public static List<ModFile> getDirectoryFiles(String dirPath, String relative) {
-        return getDirectoryFiles(dirPath, relative, "", 0, 10);
+    public static List<ModFile> getDirectoryModFiles(Path dirPath, Path relative) {
+        return getDirectoryModFiles(dirPath, relative, "", 0, 10);
     } // getDirectoryFiles()
 
     /**
@@ -52,12 +54,13 @@ public class FileUtil {
      * 
      * @return A list of ModFile objects representing the files found.
      */
-    public static List<ModFile> getDirectoryFiles(String dirPath, String relative, int maxDepth) {
-        return getDirectoryFiles(dirPath, relative, "", 0, maxDepth);
+    public static List<ModFile> getDirectoryModFiles(Path dirPath, Path relative, int maxDepth) {
+        return getDirectoryModFiles(dirPath, relative, "", 0, maxDepth);
     } // getDirectoryFiles()
 
     /**
      * Internal recursive method to scan directories.
+     * My original imperative approach.
      * 
      * @param dirPath  The path of the directory to scan.
      * @param relative Relative root to be removed from the final paths.
@@ -69,18 +72,18 @@ public class FileUtil {
      * 
      * @return A list of ModFile objects representing the files found.
      */
-    private static List<ModFile> getDirectoryFiles(String dirPath, String relative, String prefix, int depth,
+    private static List<ModFile> getDirectoryModFiles(Path dirPath, Path relative, String prefix, int depth,
             int maxDepth) {
-        Path directoryPath = Paths.get(dirPath);
-
-        try (Stream<Path> paths = Files.list(directoryPath)) {
+        try (Stream<Path> paths = Files.list(dirPath)) {
             List<ModFile> list = new java.util.ArrayList<ModFile>();
 
             for (Path path : (Iterable<Path>) paths::iterator) {
                 // Process each file
 
                 if (Files.isRegularFile(path)) {
-                    list.add(new ModFile(Path.of(relative).relativize(path).toString(), HashUtil.computeFileHash(path),
+                    list.add(new ModFile(
+                            relative.relativize(path).toString(),
+                            HashUtil.computeFileHash(path),
                             Files.size(path)));
                     System.out.println(
                             String.format("%sFound File: %s", " ".repeat(depth * 3), prefix + path.getFileName()));
@@ -99,7 +102,7 @@ public class FileUtil {
                         break;
                     }
 
-                    list.addAll(getDirectoryFiles(path.toString(), relative, tmpPrefix, depth + 1, maxDepth));
+                    list.addAll(getDirectoryModFiles(path, relative, tmpPrefix, depth + 1, maxDepth));
                     // Recursive call
                 }
             } // for
@@ -111,8 +114,65 @@ public class FileUtil {
             // Hashing exception
             e.printStackTrace();
         }
-        return null;
-    } // private getDirectoryFiles()
+        return new ArrayList<>(); // only reached after a catch
+    } // private getDirectoryModFiles()
+
+    /**
+     * Internal recursive method to scan directories.
+     * A more advanced version that uses lambda and Steams.
+     * 
+     * @param dirPath  The path of the directory to scan.
+     * @param relative Relative root to be removed from the final paths.
+     *                 (relativize)
+     * @param prefix   The prefix path for indentation.
+     * @param depth    The current depth of recursion counting and depth-based
+     *                 indentation.
+     * @param maxDepth The maximum depth to recurse into directories.
+     * 
+     * @return A list of ModFile objects representing the files found.
+     */
+    @SuppressWarnings("unused")
+    private static List<ModFile> getDirectoryModFilesStream(Path dirPath, Path relative, String prefix, int depth,
+            int maxDepth) {
+        try (Stream<Path> paths = Files.list(dirPath)) {
+            return paths.flatMap(path -> {
+                try {
+                    if (Files.isRegularFile(path)) {
+                        // Create ModFile for regular file
+                        ModFile modFile = new ModFile(
+                                relative.relativize(path).toString(),
+                                HashUtil.computeFileHash(path),
+                                Files.size(path));
+                        System.out.println(
+                                String.format("%sFound File: %s", " ".repeat(depth * 3), prefix + path.getFileName()));
+                        return Stream.of(modFile);
+                    } else if (Files.isDirectory(path)) {
+                        // Create ModFile for directory (if needed) or recurse
+                        String tmpPrefix = prefix + path.getFileName().toString() + "/";
+                        System.out.println(String.format("%sFound directory: %s", " ".repeat(depth * 3), tmpPrefix));
+
+                        if (depth >= maxDepth) {
+                            System.err.println("❗ Maximum depth reached, stopping recursion.");
+                            return Stream.empty();
+                        }
+
+                        // Recursively process subdirectory
+                        return getDirectoryModFilesStream(path, relative, tmpPrefix, depth + 1,
+                                maxDepth).stream();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return Stream.empty();
+                }
+                return Stream.empty();
+            }).collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    } // getDirectoryModFilesStream()
+
+    /// ///
 
     /**
      * Uses {@code walkFileTree} to delete a populated directory.
@@ -145,36 +205,47 @@ public class FileUtil {
         });
     } // deleteDirectory()
 
-    public static void copyDirectoryContents(Path rootDir, Path targetDir) throws IOException {
-        if (!Files.exists(rootDir) || !Files.exists(targetDir))
-            return;
+    /**
+     * Copies all contents of a rootDirectory into another directory.
+     * 
+     * @param rootDir   Directory who's contents are to be copied.
+     * @param targetDir Directory contents are copied into.
+     * @throws IOException
+     * 
+     * @author Qwen3 Coder 30B
+     */
+    public static void copyDirectoryContents(Path rootDir, Path targetDir, StandardCopyOption copyOption)
+            throws IOException {
+        // Create target directory if it doesn't exist
+        Files.createDirectories(targetDir);
 
-        Files.list(rootDir)
-                .filter(Files::isDirectory)
-                //.filter(path -> path.toFile().getName().startsWith("pak_") && path.toFile().getName().endsWith("_"))
-                .forEach(sourceDir -> {
-                    try (Stream<Path> files = Files.walk(sourceDir).filter(Files::isRegularFile)) {
-                        files.forEach(file -> {
-                            try {
-                                // Get relative path from source directory
-                                String relPath = file.toAbsolutePath()
-                                        .toFile().getCanonicalPath()
-                                        .substring(sourceDir.toFile().getCanonicalPath().length() + 1);
-
-                                // Construct target path (output/relative-path)
-                                Path target = targetDir.resolve(relPath);
-
-                                // Copy the file (creates intermediate dirs if needed)
-                                Files.copy(file, target);
-                            } catch (IOException e) {
-                                System.err.println("Error copying file: " + e.getMessage() + "\n\tContinuing...");
-                            }
-                        });
-                    } catch (IOException e) {
-                        System.err.println("Fatal Error copying files! " + e.getStackTrace());
+        // Walk through all files and directories in rootDir
+        try (Stream<Path> paths = Files.walk(rootDir)) {
+            paths.forEach(sourcePath -> {
+                try {
+                    // Skip the root directory itself
+                    if (sourcePath.equals(rootDir)) {
                         return;
                     }
-                });
+
+                    // Calculate the relative path from rootDir
+                    Path relativePath = rootDir.relativize(sourcePath);
+
+                    // Create the corresponding target path
+                    Path targetPath = targetDir.resolve(relativePath);
+
+                    // If it's a directory, create it
+                    if (Files.isDirectory(sourcePath)) {
+                        Files.createDirectories(targetPath);
+                    } else {
+                        // If it's a file, copy it
+                        Files.copy(sourcePath, targetPath, copyOption);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
     } // copyDirectoryContents()
 
     /**
@@ -192,40 +263,46 @@ public class FileUtil {
      *         is invalid.
      */
     public static int cleanDirectories(Path relative, Path working) {
-        // The file might not exsist by the path to it might.
-        if (!Files.exists(relative.resolve(working)) && working.getParent() == null) {
-            System.err.println("❌ Invalid path! [realtive] -> [working] : " + relative + " -> " + working);
+        Path resolvedPath = relative.resolve(working);
+
+        // Validate that we're working with a valid path
+        if (!Files.exists(resolvedPath)) {
+            System.err.println("❌ Invalid path! [relative] -> [working] : " + relative + " -> " + working);
             return -1;
         }
 
-        int i = 0; // counts how many directories are removed.
-        boolean last = false; // is last itteration?
-        do {
-            if (working.getParent() == null) {
-                last = true;
-            }
+        int count = 0;
 
-            // System.out.println("Trying to delete: " + relative.resolve(working)); // TODO
+        // /a/b/c
+        // Walk up the directory tree from working path
+        while (working != null) {
+            Path currentPath = relative.resolve(working);
+
             try {
-                Files.deleteIfExists(relative.resolve(working));
-                i++;
-            } catch (DirectoryNotEmptyException e) {
-                // If the directory is no empty, returns because all subsequent parents are
-                // thereby not empty either.
-                System.err.println("❌ Directory " + relative + working + " is not empty.");
-                return i;
+                // Check if it's a directory and empty
+                if (Files.isDirectory(currentPath)) {
+                    // Check if directory is empty before attempting deletion
+                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(currentPath)) {
+                        if (!stream.iterator().hasNext()) {
+                            // Directory is empty, delete it
+                            Files.delete(currentPath);
+                            count++;
+                        } else {
+                            // Directory not empty, stop here
+                            break;
+                        }
+                    }
+                }
             } catch (IOException e) {
-                // Other error
-                e.printStackTrace();
+                System.err.println("❌ Error processing directory " + currentPath + ": " + e.getMessage());
                 return -1;
             }
 
+            // Move to parent directory
             working = working.getParent();
-            // System.out.println(" Now at: " + working); // TODO
+        } // while()
 
-        } while (!last);
-
-        return i;
+        return count;
     } // cleanDirectories()
 
 } // Class

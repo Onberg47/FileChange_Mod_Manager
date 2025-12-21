@@ -49,9 +49,15 @@ public class JsonTest {
         // moveFromTempTest();
 
         ModManager modManager = new ModManager(game);
-        // modManager.modCompileNew("sample");
-        modManager.deployMod("other-mega_s-51449", false);
-        // modManager.modTrash("other-mega_s-51449");
+        //modManager.modCompileNew("sample");
+        //modManager.deployMod("other-base_m-8888", true); // LoadOrder 0
+        modManager.deployMod("other-mega_s-51449", true); // LoadOrder 3
+
+        //modManager.ifLoadPriority("example_file_5.txt", 0);
+
+        
+        //modManager.modTrash("other-base_m-8888");
+        //modManager.modTrash("other-mega_s-51449");
 
         /*
          * Path temp = Path.of("temp/sample");
@@ -59,9 +65,8 @@ public class JsonTest {
          * System.out.println(temp.relativize(src));
          */
 
-        // Mod readMod = ModIO.readMod(new
-        // File("mod_manager/mod_storage/game_1/nexus-sample-51449/mod.json"));
-        // System.out.println("Read: " + readMod.getName());
+        //ModManifest readMod = ModIO.readModManifest(new File("mod_manager/mod_storage/game_1/other-base_m-8888/.mod_manifests/other-base_m-8888.json"));
+        //System.out.println("Read contents:\n" + readMod.printContents());
 
         /*
          * Path storagePath = Path.of(game.getModsPath(), mod.getId());
