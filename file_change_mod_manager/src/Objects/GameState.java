@@ -2,10 +2,15 @@
  * Author: Stephanos B
  * Date: 19/12/2025
 */
-package Objects;
+package objects;
 
 import java.util.Date;
 import java.util.List;
+
+import org.json.simple.JSONObject;
+
+import interfaces.JsonSerializable;
+import io.GameStateIO;
 
 /**
  * Object that is stored within the Game's Manifest directory. Used for
@@ -13,7 +18,7 @@ import java.util.List;
  * 
  * @author Stephanos B
  */
-public class GameState {
+public class GameState implements JsonSerializable {
 
     public enum JsonFields {
         lastModified,
@@ -22,6 +27,18 @@ public class GameState {
 
     private Date lastModified;
     private List<Mod> deployedMods;
+
+    /// /// /// Implements /// /// ///
+
+    @Override
+    public String getObjectType() {
+        return ObjectTypes.GAME_STATE;
+    }
+
+    @Override
+    public JSONObject toJsonObject() {
+        return GameStateIO.write(this); // keeps IO operations seperate
+    } // toJsonObject()
 
     /// /// /// Getters and Setters /// /// ///
 

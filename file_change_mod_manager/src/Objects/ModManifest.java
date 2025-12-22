@@ -3,7 +3,11 @@
  * Date: 15/12/2025
 */
 
-package Objects;
+package objects;
+
+import org.json.simple.JSONObject;
+
+import io.ModManifestIO;
 
 /**
  * Represents a Mod.JSON file for tracking contents and metadata of a Mod.
@@ -41,10 +45,9 @@ public class ModManifest extends Mod {
     /**
      * Essentials parameterized constructor for Mod WITHOUT contents.
      * 
-     * @param gameId      The ID of the Game this Mod is for.
-     * @param source      The source of the Mod, used for ID generation.
-     * @param name        User-friendly name, doubles as the filename for the Mod.
-     * @param description The description of the Mod.
+     * @param gameId The ID of the Game this Mod is for.
+     * @param source The source of the Mod, used for ID generation.
+     * @param name   User-friendly name, doubles as the filename for the Mod.
      */
     public ModManifest(String gameId, ModSource source, String name) {
         this();
@@ -66,6 +69,18 @@ public class ModManifest extends Mod {
         this(gameId, source, name);
         this.contentsArr = contentsArr;
     }
+
+    /// /// /// Implements /// /// ///
+
+    @Override
+    public String getObjectType() {
+        return ObjectTypes.MOD_MANIFEST;
+    }
+
+    @Override
+    public JSONObject toJsonObject() {
+        return ModManifestIO.write(this); // keeps IO operations seperate
+    } // toJsonObject()
 
     /// /// /// Getters and Setters /// /// ///
 

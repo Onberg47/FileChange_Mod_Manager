@@ -74,6 +74,7 @@ ModFile could be a JSON, sample data:
 ```
 
 ---
+---
 
 Storage options:
 
@@ -89,6 +90,7 @@ Storage options:
 ## Important note: ##
 Mods don't need to track what game they are associated with, as they are only deployed inside the game's directory and the game records where it's stored Mods are located.
 
+---
 ---
 
 Read more on handling file paths and listing directory contents here: https://www.javaspring.net/blog/file-java-path/
@@ -128,3 +130,54 @@ try (Stream<Path> paths = Files.list(Path.of(game.getInstallPath(), MANIFEST_DIR
     return false;
 }
 ```
+
+---
+---
+
+Ideas for how to rollback file versions when removing a mod:
+
+# Option 1.
+## Part 1
+When a mod is deployed, a file-conflict is found and the new mod is going to overwrite:
+if the file does NOT belong to another mod:
+true -> create a backup of that file.
+
+The idea is only the original game files need backups because I'm just going to accept using the Mod Storage directory for retrieving mod Files. I'll do Hash checks so if the file in storage no longer is what the deployed version of that mod expects then it'll know.
+
+So I'm thinking of storing the backups in either: `game_root/.backups/` or with my Mod Manifests as: `game_root/.mod_manifests/backup_files/`
+Then with the backups I plan to only store them as files (not with per-structed directories like the mods.) and a `manifest.json` that will store data about each file, reusing my ModFile class. The Path will be stored, so I can restore it from that.
+
+---
+
+## Part 2
+During the trash process, just before a ModFile is to be trashed...
+- Check if the hash is the same as the manifest of the mod being trashed
+-> If not the same leave it alone.
+   <<- // stop further checks
+-> If the same:
+   Check the deployed mod Manifests for ALL other mod with the same file.
+   - Find which of those mods has highest load priority and replace with that one's version of the file from Mod_Storage.
+   <<- // stop further checks
+If no deployed Mod has the file, Does the file have a backup in the `backup_manifest.json`?
+true -> replace with that backup and update backup_manifest to stop storing the now current file.
+
+---
+
+# Option 2. (Maybe better?)
+
+Part 1. Stays the same, we keep a backup of non-mod files that are overridden.
+
+Part 2. 
+Same hash check to verify if the current mod owns the file, if not we leave it alone.
+
+We now Store a `file-change-log` This tracks whenever a file is written or removed by a mod in chronological order.
+When we want to trash a mod, we fetch all logs for the file we're checking. If the last (most recent) write of that file is the same as the mod then we know we own it. (our hash check should ensure this is the case)
+Then when we want to know what Mod's version of the file to apply, we simply grab the modID of the previous mod to write that file.
+This hinges on trusting our Mods are deployed with correct loadOrder, a process I've already done.
+
+---
+
+Option 2, just seems like more work, keeping a JSON log (because we need to extract data), adding yet another JSON to manage ontop of the backup manifest. Whereas option 1 uses more computational head to determine through process.
+
+---
+---

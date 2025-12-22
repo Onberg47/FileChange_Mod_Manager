@@ -3,16 +3,21 @@
  * Date: 15/12/2025
 */
 
-package Objects;
+package objects;
 
 import java.util.Date;
+
+import org.json.simple.JSONObject;
+
+import interfaces.JsonSerializable;
+import io.ModIO;
 
 /**
  * Represents a Mod.JSON file for tracking contents and metadata of a Mod.
  * 
  * @author Stephanos B
  */
-public class Mod {
+public class Mod implements JsonSerializable {
 
     protected String gameId; // ID of the Game this Mod is for.
     protected String id; // Unique identifier for the Mod.
@@ -31,6 +36,8 @@ public class Mod {
 
     /**
      * Used to ensure Json Keys are consistent.
+     * 
+     * @author Stephanos B
      */
     public enum JsonFields {
         id,
@@ -82,7 +89,6 @@ public class Mod {
      * Empty constructor for Mod.
      */
     public Mod() {
-
         this.gameId = "unknown_game";
         this.name = "Unnamed Mod";
         this.id = "unknown-unnamed-0000";
@@ -139,6 +145,18 @@ public class Mod {
         this.downloadDate = downloadDate;
         this.downloadLink = downloadLink;
     }
+
+    /// /// /// Implements /// /// ///
+
+    @Override
+    public String getObjectType() {
+        return ObjectTypes.MOD;
+    }
+
+    @Override
+    public JSONObject toJsonObject() {
+        return ModIO.write(this); // keeps IO operations seperate
+    } // toJsonObject()
 
     /// /// /// Getters and Setters /// /// ///
 

@@ -3,7 +3,7 @@
  * Date: 16/12/2025
  */
 
-package Utils;
+package utils;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import Objects.ModFile;
+import objects.ModFile;
 
 /**
  * Provides utility methods for scanning files and directories.

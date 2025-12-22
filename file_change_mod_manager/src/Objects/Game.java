@@ -2,14 +2,19 @@
  * Author: Stephanos B
  * Date: 15/12/2025
 */
-package Objects;
+package objects;
+
+import org.json.simple.JSONObject;
+
+import interfaces.JsonSerializable;
+import io.GameIO;
 
 /**
  * Represents a Game. This sets the general parameters for the Mod deployment.
  * 
  * @author Stephanos B
  */
-public class Game {
+public class Game implements JsonSerializable {
 
     private String id; // Unique identifier for the Game. Used as the directory name.
     private String name; // User-friendly name of the Game for interfaces.
@@ -48,6 +53,18 @@ public class Game {
         this.installPath = installPath;
         this.modsPath = modsPath;
     }
+
+    /// /// /// Implements /// /// ///
+
+    @Override
+    public String getObjectType() {
+        return ObjectTypes.GAME;
+    }
+
+    @Override
+    public JSONObject toJsonObject() {
+        return GameIO.write(this); // keeps IO operations seperate
+    } // toJsonObject()
 
     /// /// /// Getters and Setters /// /// ///
 

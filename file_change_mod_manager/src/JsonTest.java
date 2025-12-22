@@ -8,15 +8,22 @@ import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
-import Objects.Game;
-import Objects.Mod;
-import Objects.ModFile;
-import Objects.ModManifest;
-import Objects.Mod.ModSource;
-import Utils.FileUtil;
-import Utils.ModIO;
+import io.JsonIO;
+import io.ModIO;
+import managers.ModManager;
+import objects.Game;
+import objects.Mod;
+import objects.ModFile;
+import objects.ModManifest;
+import objects.Mod.ModSource;
+import utils.FileUtil;
 
 /**
  * Test class for Mod JSON read/write functionality.
@@ -49,14 +56,11 @@ public class JsonTest {
         // moveFromTempTest();
 
         ModManager modManager = new ModManager(game);
-        //modManager.modCompileNew("sample");
-        //modManager.deployMod("other-base_m-8888", true); // LoadOrder 0
-        modManager.deployMod("other-mega_s-51449", true); // LoadOrder 3
+        //modManager.modCompileNew("base");
+        // modManager.deployMod("other-basemo-10808", true); // LoadOrder 0
+        //modManager.deployMod("other-mega_s-51449", true); // LoadOrder 3
 
-        //modManager.ifLoadPriority("example_file_5.txt", 0);
-
-        
-        //modManager.modTrash("other-base_m-8888");
+        // modManager.modTrash("other-basemo-10808");
         //modManager.modTrash("other-mega_s-51449");
 
         /*
@@ -65,7 +69,7 @@ public class JsonTest {
          * System.out.println(temp.relativize(src));
          */
 
-        //ModManifest readMod = ModIO.readModManifest(new File("mod_manager/mod_storage/game_1/other-base_m-8888/.mod_manifests/other-base_m-8888.json"));
+        //ModManifest readMod = (ModManifest) JsonIO.read(new File("mod_manager/mod_storage/game_1/other-base_m-8888/.mod_manifests/other-base_m-8888.json"), null);
         //System.out.println("Read contents:\n" + readMod.printContents());
 
         /*
@@ -97,7 +101,7 @@ public class JsonTest {
 
         try {
             // Write to JSON
-            ModIO.writeModManifest(sampleMod, new File(storagePath.resolve("mod.json").toString()));
+            JsonIO.write(sampleMod, new File(storagePath.resolve("mod.json").toString()));
             System.out.println("✔ Written!"); // Debug
         } catch (Exception e) {
             e.printStackTrace();

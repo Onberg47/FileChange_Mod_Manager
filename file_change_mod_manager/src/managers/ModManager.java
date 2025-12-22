@@ -1,16 +1,12 @@
+package managers;
 /*
  * Author Stephanos B
  * Date: 16/12/2025
  */
 
-import Objects.Game;
-import Objects.GameState;
-import Objects.Mod;
-import Objects.ModFile;
-import Objects.ModManifest;
-import Utils.FileUtil;
-import Utils.GameIO;
-import Utils.ModIO;
+import utils.DateUtil;
+import utils.FileUtil;
+import utils.HashUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,14 +14,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Scanner;
+
+import interfaces.JsonSerializable;
+import io.JsonIO;
+import objects.Game;
+import objects.GameState;
+import objects.Mod;
+import objects.ModFile;
+import objects.ModManifest;
 
 /**
  * Provides the core functionality for managing mods of a given game.
  * 
- * Author: Stephanos B
- * Date: 15/12/2025
+ * @author Stephanos B
  */
 public class ModManager {
 
@@ -34,6 +38,8 @@ public class ModManager {
     private static final Path TEMP_DIR = Path.of("mod_manager/.temp/"); // Temporary directory for mod operations.
     private static final Path TRASH_DIR = Path.of("mod_manager/.temp/trash/"); // Trash directory.
     private static final Path MANIFEST_DIR = Path.of(".mod_manifests/"); // Where in the game_root are manifests stored.
+    private static final Path BACKUP_DIR = MANIFEST_DIR.resolve("backups/"); // Where original game files are backed up
+                                                                             // if to be overridden.
 
     private final Path GAME_PATH; // cannot be determined prior to constuctor but is final
 
@@ -94,7 +100,7 @@ public class ModManager {
             Path path = tempDir.resolve(MANIFEST_DIR.toString(), mod.getId() + ".json");
             Files.createDirectories(path.getParent());
             // Write to JSON
-            ModIO.writeModManifest(mod, new File(path.toString()));
+            JsonIO.write(mod, new File(path.toString()));
             System.out.println("✔ Written! to: " + path.toString()); // Debug
 
         } catch (FileNotFoundException e) {
@@ -142,7 +148,7 @@ public class ModManager {
         // TODO better date format
 
         try {
-            mod = ModIO.readModManifest(manifestPath.toFile());
+            mod = (ModManifest) JsonIO.read(manifestPath.toFile(), JsonSerializable.ObjectTypes.MOD_MANIFEST);
             System.out.println("\tManifest of Mod: " + mod.getName() + " found! ✔");
         } catch (Exception e) {
             System.err.println("❌ Mod manifest does not exsists! " + manifestPath.toString() + "\n" + e.getMessage());
@@ -153,7 +159,7 @@ public class ModManager {
         System.out.println("🗑 Removing mod: " + mod.getName() + "\n\tMoving files...");
         try {
             Path src;
-            Path target = TRASH_DIR.resolve(mod.getId() + "__" + new Date().toString());
+            Path target = TRASH_DIR.resolve(mod.getId() + "__" + DateUtil.getNumericTimestamp());
             Path maxPath = Path.of("");
             Path dataPath;
 
@@ -238,7 +244,10 @@ public class ModManager {
         /// /// 1. Find the Mod's manifest from it's ID and read it.
         System.out.println("📦 Attempting to deploy mod...");
         try {
-            mod = ModIO.readModManifest(storedDir.resolve(MANIFEST_DIR.toString(), modID + ".json").toFile());
+            // mod = ModManifestIO.read(storedDir.resolve(MANIFEST_DIR.toString(), modID +
+            // ".json").toFile());
+            mod = (ModManifest) JsonIO.read(storedDir.resolve(MANIFEST_DIR.toString(), modID + ".json").toFile(),
+                    JsonSerializable.ObjectTypes.MOD_MANIFEST);
             System.out.println("\tManifest of Mod: " + mod.getName() + " found! ✔");
 
             Path manPath = MANIFEST_DIR.resolve(modID + ".json");
@@ -271,7 +280,8 @@ public class ModManager {
                     System.err.println(
                             "❌ File in manifest is missing! -> " + newFile.getPath() + "\nStopping deployment!");
                     return;
-                } else if (checkConflict && Files.exists(GAME_PATH.resolve(mf.getFilePath()))) {
+                }
+                if (checkConflict && Files.exists(GAME_PATH.resolve(mf.getFilePath()))) {
                     System.out.println("\t\t❗ Conflict found for: " + mf.getFilePath());
 
                     /*
@@ -282,11 +292,18 @@ public class ModManager {
                      * If the file should NOT be copied then continue to the next loop itteration,
                      * skipping the copy lines.
                      */
-                    if (!ifLoadPriority(mf.getFilePath(), mod.getLoadOrder())) {
+                    if (!ifLoadPriority(mf.getFilePath(), mod.getId(), mod.getLoadOrder())) {
                         System.out.println("\t\t\tSkipping file: " + Path.of(mf.getFilePath()).getFileName());
                         continue;
                     }
                 }
+                // Verify the file to be copied is still the same as what the manifest expects.
+                if (!HashUtil.verifyFileIntegrity(newFile.toPath(), mf.getHash(), mf.getSize())) {
+                    System.err.println("❌ File integrity failed! File found at " + newFile.getPath()
+                            + " does not match the Manifest!");
+                    return;
+                }
+
                 System.out.println("\t\tCopying files from: " + newFile.toPath() + " to "
                         + tempDir.resolve(mf.getFilePath()));
                 Files.createDirectories(tempDir.resolve(mf.getFilePath()).getParent());
@@ -329,7 +346,8 @@ public class ModManager {
 
         GameState gState = new GameState();
         try {
-            gState = GameIO.readGameState(gameStatePath.toFile());
+            // gState = GameStateIO.read(gameStatePath.toFile());
+            gState = (GameState) JsonIO.read(gameStatePath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
             gState.sortDeployedMods();
 
             for (Mod mod : gState.getDeployedMods()) {
@@ -372,7 +390,10 @@ public class ModManager {
         System.out.print("*Version (default 1.0): ");
         mod.setVersion(scanner.nextLine().trim());
 
-        // TODO Download date
+        // Download date
+        String dateString = new Date().toInstant().toString();
+        Instant instant = Instant.parse(dateString);
+        mod.setDownloadDate(Date.from(instant));
 
         System.out.print("Download URL (Mod page): ");
         mod.setDownloadLink(scanner.nextLine().trim());
@@ -381,15 +402,19 @@ public class ModManager {
         return mod;
     } // collectUserMetadata()
 
+    // TODO make private after enough testing is done
     /**
      * Decides if a ModFile should be deployed or not based on LoadOrder.
      * 
      * @param modFilePath Path of the ModFile being checked for conflicts.
+     * @param modID       The ID of the current Mod. Used to identify it's own
+     *                    manifest to avoid testing itself for conflicts (which will
+     *                    result in a conflict for every file)
      * @param loadOrder   Load order from the new Mod
      * @return True if the mod has load priority over all other Mod currently
      *         deployed.
      */
-    public boolean ifLoadPriority(String modFilePath, int loadOrder) {
+    public boolean ifLoadPriority(String modFilePath, String modID, int loadOrder) {
         File manifestDir = GAME_PATH.resolve(MANIFEST_DIR).toFile();
 
         // Check if directory exists and is readable
@@ -406,7 +431,11 @@ public class ModManager {
 
         for (File i : files) {
             try {
-                ModManifest manifest = ModIO.readModManifest(i);
+                if (i.getName().compareTo(modID + ".json") == 0) {
+                    continue; // skip checking itself.
+                }
+                // ModManifest manifest = ModManifestIO.read(i);
+                ModManifest manifest = (ModManifest) JsonIO.read(i, JsonSerializable.ObjectTypes.MOD_MANIFEST);
                 for (ModFile tmpMF : manifest.getContentsArr()) {
                     if (tmpMF.getFilePath().contentEquals(modFilePath)) {
                         if (loadOrder > manifest.getLoadOrder())

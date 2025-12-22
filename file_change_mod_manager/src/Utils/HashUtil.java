@@ -4,14 +4,20 @@
  * Date: 16/12/2025
  */
 
-package Utils;
+package utils;
 
 import java.security.MessageDigest;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HexFormat;
 
+/**
+ * Used for various Hashing operations.
+ * 
+ * @author Stephanos B
+ */
 public class HashUtil {
 
     /**
@@ -23,7 +29,7 @@ public class HashUtil {
 
         private final String algorithm;
         @SuppressWarnings("unused")
-        private final int hexLength; //TODO Redundant, remove?
+        private final int hexLength; // TODO Redundant, remove?
 
         HashAlgorithm(String algorithm, int hexLength) {
             this.algorithm = algorithm;
@@ -68,18 +74,29 @@ public class HashUtil {
                 digest.update(buffer, 0, bytesRead);
             }
         }
-
         byte[] hashBytes = digest.digest();
         // Convert byte array to hex string
         return HexFormat.of().formatHex(hashBytes);
-
-        // Alternative (Java 8+ compatible):
-        // StringBuilder hexString = new StringBuilder();
-        // for (byte b : hashBytes) {
-        // hexString.append(String.format("%02x", b));
-        // }
-        // return hexString.toString();
-
     } // computeFileHash()
+
+    public static boolean verifyFileIntegrity(Path filePath, String expectedHash, long expectedSize) {
+        try {
+            // Check size first (fast)
+            long actualSize = Files.size(filePath);
+            if (actualSize != expectedSize) {
+                return false;
+            }
+
+            // Check hash (slower but definitive)
+            String actualHash = computeFileHash(filePath); // Your hash calculation method
+            return actualHash.equals(expectedHash);
+
+        } catch (IOException e) {
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error Hashing the file! : " + e.getMessage());
+            return false;
+        }
+    } // verifyFileIntegrity()
 
 } // Class

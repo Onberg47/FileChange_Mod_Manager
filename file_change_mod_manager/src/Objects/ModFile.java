@@ -3,7 +3,7 @@
  * Date: 15/12/2025
 */
 
-package Objects;
+package objects;
 
 /**
  * Represents the File Contents of a Mod within the Mod.JSON file.
