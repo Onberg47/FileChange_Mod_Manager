@@ -13,6 +13,7 @@ import objects.ModManifest;
 /**
  * 
  * @author Stephanos B
+ * @apiNote See JsonIO.java for docs.
  */
 public class ModManifestIO {
 
@@ -35,11 +36,10 @@ public class ModManifestIO {
     } // read()
 
     /**
-     * Writes the given ModManifest object to a Mod.JSON file.
+     * Populates a JSONObject from the given Class
      * 
-     * @param obj  Complete ModManifest object to write.
-     * @param file The file to write the Mod.JSON to.
-     * @throws Exception
+     * @param obj Object to process.
+     * @return JSONObject ready to be written to a JSON file.
      */
     @SuppressWarnings("unchecked") // type-safe warning comes from how JSONObject works internally!
     public static JSONObject write(ModManifest obj) {

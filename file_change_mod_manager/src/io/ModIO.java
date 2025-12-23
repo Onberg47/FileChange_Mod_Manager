@@ -18,6 +18,7 @@ import objects.ModManifest;
  * Utility class to handle reading and writing Mod JSON files.
  * 
  * @author Stephanos B
+ * @apiNote See JsonIO.java for docs.
  */
 public class ModIO {
 
@@ -51,9 +52,10 @@ public class ModIO {
     } // read()
 
     /**
+     * Populates a JSONObject from the given Class
      * 
-     * @param obj
-     * @return
+     * @param obj Object to process.
+     * @return JSONObject ready to be written to a JSON file.
      */
     @SuppressWarnings("unchecked")
     public static JSONObject write(Mod obj) {

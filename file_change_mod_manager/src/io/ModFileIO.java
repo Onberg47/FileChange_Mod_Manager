@@ -11,6 +11,7 @@ import objects.ModFile;
 
 /**
  * @author Stephanos B
+ * @apiNote See JsonIO.java for docs.
  */
 public class ModFileIO {
 
@@ -36,9 +37,10 @@ public class ModFileIO {
     } // getModFiles()
 
     /**
+     * Populates a JSONObject from the given Class
      * 
-     * @param modFiles
-     * @return
+     * @param obj Object to process.
+     * @return JSONObject ready to be written to a JSON file.
      */
     @SuppressWarnings("unchecked") // type-safe warning comes from how JSONObject works internally!
     static JSONArray writeModFiles(ModFile[] modFiles) {

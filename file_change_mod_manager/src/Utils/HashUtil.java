@@ -46,7 +46,7 @@ public class HashUtil {
      * 
      * @param filePath Path to the file to hash.
      * @return Hexadecimal string of the file's hash.
-     * @throws Exception
+     * @throws Exception Hashing error
      */
     public static String computeFileHash(Path filePath) throws Exception {
         return computeFileHash(filePath, HashAlgorithm.MD5);
@@ -61,7 +61,7 @@ public class HashUtil {
      * @param filePath  Path to the file to hash.
      * @param algorithm The hash algorithm to use from the HashAlgorithm enum.
      * @return Hexadecimal string of the file's hash.
-     * @throws Exception
+     * @throws Exception Hashing error
      */
     public static String computeFileHash(Path filePath, HashAlgorithm algorithm) throws Exception {
         MessageDigest digest = MessageDigest.getInstance(algorithm.algorithm);
@@ -79,6 +79,13 @@ public class HashUtil {
         return HexFormat.of().formatHex(hashBytes);
     } // computeFileHash()
 
+    /**
+     * 
+     * @param filePath     Path to exsisting file to compare against
+     * @param expectedHash
+     * @param expectedSize
+     * @return
+     */
     public static boolean verifyFileIntegrity(Path filePath, String expectedHash, long expectedSize) {
         try {
             // Check size first (fast)

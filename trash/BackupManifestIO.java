@@ -15,6 +15,7 @@ import objects.ModManifest;
  * IO class for BackupManifests.
  * 
  * @author Stephanos B
+ * @apiNote See JsonIO.java for docs.
  */
 public class BackupManifestIO {
 
@@ -34,9 +35,10 @@ public class BackupManifestIO {
     } // read()
 
     /**
+     * Populates a JSONObject from the given Class
      * 
-     * @param obj
-     * @return
+     * @param obj Object to process.
+     * @return JSONObject ready to be written to a JSON file.
      */
     @SuppressWarnings("unchecked")
     public static JSONObject write(BackupManifest obj) {

@@ -14,7 +14,8 @@ public class JsonIO {
 
     /**
      * 
-     * @param file        {@code File.json} to attempt to read.
+     * @param file        {@code File.json} to attempt to read. Can handle missing
+     *                    extension.
      * @param type_string String defining the type of object expected in the file.
      *                    If Null it will auto-decide.
      * @return
@@ -25,8 +26,13 @@ public class JsonIO {
      *                                  file (path or extension)
      */
     public static JsonSerializable read(File file, String type_string) throws Exception {
-        if (!file.exists() || file.getName().endsWith(".json") == false) {
+        if (!file.exists()) {
             throw new Exception("❌ File path is not a valid .json path: " + file.getAbsolutePath());
+        }
+        if (file.getName().endsWith(".json") == false) {
+            // appends the `.json` extension if needed
+            file = file.toPath().getParent().resolve(
+                    (file.toPath().getFileName() + ".json")).toFile();
         }
 
         JSONParser parser = new JSONParser();
@@ -42,17 +48,29 @@ public class JsonIO {
                 return ModIO.read(json);
             case JsonSerializable.ObjectTypes.MOD_MANIFEST:
                 return ModManifestIO.read(json);
-            case JsonSerializable.ObjectTypes.BACKUP_MANIFEST:
-                return BackupManifestIO.read(json);
+            // case JsonSerializable.ObjectTypes.BACKUP_MANIFEST:
+            // return BackupManifestIO.read(json);
             case JsonSerializable.ObjectTypes.GAME:
+
                 return GameIO.read(json);
             case JsonSerializable.ObjectTypes.GAME_STATE:
                 return GameStateIO.read(json);
+
+            case JsonSerializable.ObjectTypes.FILE_LINEAGE:
+                return FileLineageIO.read(json);
+
             default:
                 throw new IllegalArgumentException("❌ Unknown object type: " + type_string);
         }
     } // read()
 
+    /**
+     * Writes a JSON file to the given location of the given Object.
+     * 
+     * @param object Any JsonSerializable implmenting object.
+     * @param file   File with Filename to write to. Can handle missing extension.
+     * @throws Exception
+     */
     public static void write(JsonSerializable object, File file) throws Exception {
         if (object == null) {
             throw new IllegalArgumentException("Object cannot be null");
@@ -62,12 +80,21 @@ public class JsonIO {
             throw new IllegalArgumentException("File cannot be null");
         }
 
+        if (!file.exists()) {
+            throw new Exception("❌ File path is not a valid .json path: " + file.getAbsolutePath());
+        }
+        if (file.getName().endsWith(".json") == false) {
+            // appends the `.json` extension if needed
+            file = file.toPath().getParent().resolve(
+                    (file.toPath().getFileName() + ".json")).toFile();
+        }
+
         JSONObject json = object.toJsonObject(); // Create JSONObject from the object
 
         // Write to file
         try (FileWriter writer = new FileWriter(file)) {
             json.writeJSONString(writer);
         }
-    }
+    } // write()
 
 } // Class

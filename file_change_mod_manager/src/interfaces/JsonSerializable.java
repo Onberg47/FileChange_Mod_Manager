@@ -27,6 +27,7 @@ public interface JsonSerializable {
         public static final String BACKUP_MANIFEST = "BackupManifest";
         public static final String GAME = "Game";
         public static final String GAME_STATE = "GameState";
+        public static final String FILE_LINEAGE = "FileLineage";
     }
 
 } // Class

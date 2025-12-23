@@ -18,6 +18,7 @@ import objects.ModManifest;
 /**
  * 
  * @author Stephanos B
+ * @apiNote See JsonIO.java for docs.
  */
 public class GameStateIO {
 
@@ -49,9 +50,10 @@ public class GameStateIO {
     } // read()
 
     /**
+     * Populates a JSONObject from the given Class
      * 
-     * @param obj
-     * @return
+     * @param obj Object to process.
+     * @return JSONObject ready to be written to a JSON file.
      */
     @SuppressWarnings("unchecked")
     public static JSONObject write(GameState obj) {
@@ -59,7 +61,7 @@ public class GameStateIO {
         json.put(JsonSerializable.ObjectTypeKey, obj.getObjectType()); // standard
 
         json.put(GameState.JsonFields.lastModified, obj.getLastModified());
-        
+
         JSONArray files = new JSONArray();
         // write each deployed Mod.
         for (Mod mod : obj.getDeployedMods()) {

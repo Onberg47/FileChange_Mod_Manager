@@ -142,4 +142,14 @@ public class JsonTest {
 
     } // moveFromTempTest()
 
+    private static void checkExtensionAdd() {
+        File file = Path.of("path/to/file/my_file").toFile();
+        if (file.getName().endsWith(".json") == false) {
+            // appends the `.json` extension if needed
+            file = file.toPath().getParent().resolve(
+                    (file.toPath().getFileName() + ".json")).toFile();
+        }
+        System.out.println("file: " + file.toString());
+    }
+
 } // Class

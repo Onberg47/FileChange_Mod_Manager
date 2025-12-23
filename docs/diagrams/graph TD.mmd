@@ -1,0 +1,46 @@
+graph TD
+    subgraph "Root Directories"
+        GameRoot[Game Installation<br/>C:/Games/MyGame/]
+        ModStorage[Mod Storage<br/>D:/ModManager/mods/]
+        ProgramData[Program Data<br/>~/.modmanager/]
+    end
+    
+    subgraph "Game Directory"
+        GR[GameRoot] --> GameFiles[Vanilla game files]
+        GR --> ModManagerDir[.modmanager/]
+        
+        ModManagerDir --> LineageDir[lineage/]
+        ModManagerDir --> BackupsDir[backups/]
+        ModManagerDir --> GameState[game_state.json]
+        
+        LineageDir --> LF1[data/weapons/gun.xml.json]
+        LineageDir --> LF2[textures/character.dds.json]
+        
+        BackupsDir --> BK1[gun.xml.abc123.backup]
+        BackupsDir --> BK2[character.dds.def456.backup]
+    end
+    
+    subgraph "Mod Storage"
+        MS[ModStorage] --> GameMods[ghost-recon/]
+        
+        GameMods --> ModA[weapon-pack_nexus-12345_v1.0/]
+        GameMods --> ModB[hd-textures_custom-001_v2.1/]
+        
+        ModA --> MA1[mod.json]
+        ModA --> MA2[files/]
+        MA2 --> MA3[data/weapons/]
+        MA2 --> MA4[textures/]
+    end
+    
+    subgraph "Program Data"
+        PD[ProgramData] --> Config[config.json]
+        PD --> GamesDir[games/]
+        
+        GamesDir --> GameConfig[ghost-recon.json]
+        GamesDir --> IconsDir[icons/]
+        IconsDir --> Icon[ghost-recon.png]
+    end
+    
+    style GameRoot fill:#e3f2fd
+    style ModStorage fill:#f3e5f5
+    style ProgramData fill:#e8f5e8

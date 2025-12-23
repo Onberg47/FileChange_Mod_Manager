@@ -34,9 +34,10 @@ public class GameIO {
     } // read()
 
     /**
+     * Populates a JSONObject from the given Class
      * 
-     * @param obj
-     * @return
+     * @param obj Object to process.
+     * @return JSONObject ready to be written to a JSON file.
      */
     @SuppressWarnings("unchecked")
     public static JSONObject write(Game obj) {

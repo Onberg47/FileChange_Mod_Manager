@@ -1,0 +1,62 @@
+%% Describes the code used to handle any file copy actions to the Game Files.
+
+
+flowchart TD
+    Start[Deploy Mod File] --> CheckDir{Target directory exists?}
+    
+    CheckDir -- No --> CreateDir[Create directory structure]
+    CreateDir --> CheckFile{File exists at target?}
+    
+    CheckDir -- Yes --> CheckFile
+    
+    CheckFile -- No --> SafeCopy[Copy file to target<br/>Create lineage if needed]
+    
+    CheckFile -- Yes --> CheckHash{Source & target<br/>hashes match?}
+    
+    CheckHash -- Yes --> Identical[Files identical<br/>No action needed]
+    
+    CheckHash -- No --> Conflict[File conflict detected!]
+    
+    Conflict --> CheckLineage{File has lineage?}
+    
+    CheckLineage -- No --> InitLineage[Initialize new FileLineage]
+    
+    InitLineage --> CheckBackup{Backup exists?}
+    
+    CheckBackup -- No --> CreateBackup[Create backup of original file<br/>Mark as 'Game' owner]
+    CreateBackup --> StackGame[Stack 'Game' as first entry]
+    
+    CheckBackup -- Yes --> SkipBackup[Backup already exists]
+    SkipBackup --> StackGame
+    
+    StackGame --> StackMod[Stack current Mod as new owner]
+    StackMod --> SafeCopy
+    
+    CheckLineage -- Yes --> PeekLineage[Peek top of lineage stack]
+    
+    PeekLineage --> ComparePriority{Current mod priority<br/>>= top owner priority?}
+    
+    ComparePriority -- No<br/>(Higher priority exists) --> InsertLesserOwner[Insert mod after higher priority owners]
+    
+    InsertLesserOwner --> SkipCopy[Skip copy - higher priority mod owns file]
+    
+    ComparePriority -- Yes --> ReplaceOwner[Replace top with current mod]
+    
+    ReplaceOwner --> SafeCopy
+    
+    SafeCopy --> End[File deployed successfully]
+    Identical --> End
+    SkipCopy --> End
+    
+    subgraph InsertLesserOwner Logic
+        direction LR
+        IL1[Pop top entry to temp stack] --> IL2{Popped entry has<br/>higher priority?}
+        IL2 -- Yes --> IL1
+        IL2 -- No --> IL3[Push current mod to lineage]
+        IL3 --> IL4[Push all from temp stack back]
+    end
+    
+    style Start fill:#e1f5fe
+    style Conflict fill:#ffebee
+    style SafeCopy fill:#e8f5e8
+    style End fill:#f3e5f5
