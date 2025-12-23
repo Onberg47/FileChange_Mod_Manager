@@ -59,3 +59,34 @@ Example of Mod manifest: Used to store both the Mods information and file data.
   ]
 }
 ```
+
+### File integrity and order of operations:
+
+Operations need to track file overrides, backups, mod-ownership, and load order.
+Here's a simplified logical breakdown of the process for when a file is deployed to the Game Directory:
+
+```mermaid
+flowchart TD
+    A[Start file deployment] --> B{File exists at target?}
+    B -- No --> C[Copy file, create lineage]
+    B -- Yes --> D{Hashes match?}
+    D -- Yes --> E[Files identical, skip]
+    D -- No --> F{File has lineage?}
+    
+    F -- No --> G[Create lineage & backup if needed]
+    G --> H[Stack Game then Mod]
+    H --> C
+    
+    F -- Yes --> I{Mod priority >= top owner?}
+    I -- No --> J[Insert mod after higher priority owners]
+    J --> K[Skip copy]
+    I -- Yes --> L[Replace top with Mod]
+    L --> C
+    
+    C --> M[File deployed]
+    E --> M
+    K --> M
+    
+    style A fill:#bbdefb
+    style M fill:#c8e6c9
+```
