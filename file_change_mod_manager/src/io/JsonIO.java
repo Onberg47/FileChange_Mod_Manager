@@ -1,6 +1,7 @@
 package io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InvalidObjectException;
@@ -29,11 +30,19 @@ public class JsonIO {
         if (!file.exists()) {
             throw new Exception("❌ File path is not a valid .json path: " + file.getAbsolutePath());
         }
-        if (file.getName().endsWith(".json") == false) {
+        if (!file.isFile()) { // Check if it's actually a file (not a directory)
+            throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
+        }
+        // Check if file has content (optional, depending on your needs)
+        if (file.length() == 0) {
+            throw new IllegalArgumentException("File is empty: " + file.getAbsolutePath());
+        }
+        if (file.getName().toLowerCase().endsWith(".json") == false) {
             // appends the `.json` extension if needed
             file = file.toPath().getParent().resolve(
                     (file.toPath().getFileName() + ".json")).toFile();
         }
+        // end of checks...
 
         JSONParser parser = new JSONParser();
         JSONObject json = (JSONObject) parser.parse(new FileReader(file));
@@ -71,28 +80,31 @@ public class JsonIO {
      * @param file   File with Filename to write to. Can handle missing extension.
      * @throws Exception
      */
+    @SuppressWarnings("unchecked")
     public static void write(JsonSerializable object, File file) throws Exception {
         if (object == null) {
             throw new IllegalArgumentException("Object cannot be null");
         }
-
-        if (file == null) {
-            throw new IllegalArgumentException("File cannot be null");
+        if (!file.exists()) { // Check if file exists
+            throw new FileNotFoundException("File does not exist: " + file.getAbsolutePath());
+        }
+        if (!file.isFile()) { // Check if it's actually a file (not a directory)
+            throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
         }
 
-        if (!file.exists()) {
-            throw new Exception("❌ File path is not a valid .json path: " + file.getAbsolutePath());
-        }
-        if (file.getName().endsWith(".json") == false) {
+        if (file.getName().toLowerCase().endsWith(".json") == false) {
             // appends the `.json` extension if needed
             file = file.toPath().getParent().resolve(
                     (file.toPath().getFileName() + ".json")).toFile();
         }
+        // end of checks...
 
         JSONObject json = object.toJsonObject(); // Create JSONObject from the object
+        json.put(JsonSerializable.ObjectTypeKey, object.getObjectType()); // always add the file-type written.
 
         // Write to file
-        try (FileWriter writer = new FileWriter(file)) {
+        try (
+                FileWriter writer = new FileWriter(file)) {
             json.writeJSONString(writer);
         }
     } // write()

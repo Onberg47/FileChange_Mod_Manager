@@ -7,7 +7,6 @@ package io;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import interfaces.JsonSerializable;
 import objects.ModManifest;
 
 /**
@@ -44,7 +43,6 @@ public class ModManifestIO {
     @SuppressWarnings("unchecked") // type-safe warning comes from how JSONObject works internally!
     public static JSONObject write(ModManifest obj) {
         JSONObject json = new JSONObject();
-        json.put(JsonSerializable.ObjectTypeKey, obj.getObjectType()); // standard
 
         // Write standard mod fields.
         json = ModIO.write(obj);

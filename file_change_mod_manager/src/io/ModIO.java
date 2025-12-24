@@ -10,7 +10,6 @@ import java.util.Date;
 
 import org.json.simple.*;
 
-import interfaces.JsonSerializable;
 import objects.Mod;
 import objects.ModManifest;
 
@@ -60,7 +59,6 @@ public class ModIO {
     @SuppressWarnings("unchecked")
     public static JSONObject write(Mod obj) {
         JSONObject json = new JSONObject();
-        json.put(JsonSerializable.ObjectTypeKey, obj.getObjectType()); // standard
 
         json.put(Mod.JsonFields.id, obj.getId());
         json.put(Mod.JsonFields.gameId, obj.getGameId());

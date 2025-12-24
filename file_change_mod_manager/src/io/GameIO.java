@@ -6,7 +6,6 @@ package io;
 
 import org.json.simple.*;
 
-import interfaces.JsonSerializable;
 import objects.Game;
 
 /**
@@ -42,7 +41,6 @@ public class GameIO {
     @SuppressWarnings("unchecked")
     public static JSONObject write(Game obj) {
         JSONObject json = new JSONObject();
-        json.put(JsonSerializable.ObjectTypeKey, obj.getObjectType()); // standard
 
         json.put(Game.JsonFields.id, obj.getId());
         json.put(Game.JsonFields.name, obj.getName());

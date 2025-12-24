@@ -23,6 +23,13 @@ public class FileLineage implements JsonSerializable {
 
     private Stack<FileVersion> stack = new Stack<FileVersion>();
 
+    /**
+     * Used to ensure Json Keys are consistent.
+     */
+    public enum JsonFields {
+        stack
+    }
+
     public FileLineage() {
     }
 

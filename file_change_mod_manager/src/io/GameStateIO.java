@@ -10,7 +10,6 @@ import java.util.Date;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import interfaces.JsonSerializable;
 import objects.GameState;
 import objects.Mod;
 import objects.ModManifest;
@@ -58,7 +57,6 @@ public class GameStateIO {
     @SuppressWarnings("unchecked")
     public static JSONObject write(GameState obj) {
         JSONObject json = new JSONObject();
-        json.put(JsonSerializable.ObjectTypeKey, obj.getObjectType()); // standard
 
         json.put(GameState.JsonFields.lastModified, obj.getLastModified());
 
