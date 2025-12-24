@@ -22,12 +22,12 @@ import objects.ModManifest;
 public class GameStateIO {
 
     /**
+     * Populate a the Object from a JSONObject.
      * 
-     * @param file
-     * @return
-     * @throws Exception
+     * @param json JSONObject to read from.
+     * @return The populated Object if successful.
      */
-    public static GameState read(JSONObject json) throws Exception {
+    static GameState read(JSONObject json) {
         GameState gState = new GameState();
 
         Object dateObj = json.get(Mod.JsonFields.downloadDate.toString());

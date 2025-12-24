@@ -17,13 +17,14 @@ import objects.Game;
 public class GameIO {
 
     /**
+     * Populate a the Object from a JSONObject.
      * 
-     * @param json
-     * @return
+     * @param json JSONObject to read from.
+     * @return The populated Object if successful.
      */
     static Game read(JSONObject json) {
-
         Game game = new Game();
+
         game.setId((String) json.get(Game.JsonFields.id.toString()));
         game.setName((String) json.get(Game.JsonFields.name.toString()));
         game.setInstallPath((String) json.get(Game.JsonFields.installPath.toString()));

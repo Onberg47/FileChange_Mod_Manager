@@ -1,0 +1,83 @@
+%% Author Stephanos B
+%% Date: 24/12/2025
+%% Describes the code used to handle any file copy actions to the Game Files.
+
+flowchart TD
+    Start(Deploy Mod File Logic:) --> CheckDir{Target directory exists?}
+    
+    CheckDir -- No
+        --> CreateDir[Create directory structure]
+        --> CheckFile{File exists at target?}
+    CheckDir -- Yes
+        --> CheckFile
+    
+    CheckFile -- Yes<br/>(conflict)
+        --> CheckLineage{File has lineage?}
+    
+        CheckLineage -- No<br/>(first deploy, must be game file)
+            --> CreateBackup[Create backup of original file]
+            --> InitLineageGAME[Initialize new FileLineage<br>Init with GAME]
+            --> PushVersionMod[Push Version from Mod]
+            --> CheckHash
+        
+        CheckLineage -- Yes
+        --> ReadLineage[Read exsisting Lineage]
+        --> InsertOwner
+
+        InsertOwner -- Equals 0<br>(is top)
+            --> CheckHash
+        
+        InsertOwner -- Not 0<br/>(Higher priority exists)
+            --> CopyFalse[Flag Copy FALSE]
+            --> CheckHash
+
+        CheckHash{Are File hashes equal?}
+        CheckHash -- No
+            --> WriteLineage
+        CheckHash -- Yes<br/>(Files identical)
+            --> CopyFalse2[Flag Copy FALSE]
+            --> WriteLineage
+
+        CheckFile -- No<br/>(no conflict)
+                --> InitLineageMod[Initialize new FileLineage<br>Init with Mod]
+                --> WriteLineage
+
+    WriteLineage[Write lineage to file] --> IfCopy
+
+    IfCopy{If Copy?}
+    IfCopy -- True
+        --> Copy[Perform Copy!] --> End
+    IfCopy -- False
+        --> End(File deployed successfully!)
+
+%% SubGraphs
+    subgraph InsertOwner
+        A(Insert Owner at highest position behind higher Load Orders)
+        --> Return[Return index inserted<br>0 = top]
+    end
+
+    subgraph Legend
+        IO_OP(IO operation)
+        Stack_INIT(Stack INIT) --> Stack_OP(Stack operation)
+        FileS_OP(FileSystem operation)
+    end
+
+%% Styles
+    style Start color:#FFFFFF, fill:#00C853, stroke:#00C853
+    style End color:#FFFFFF, fill:#e3223b, stroke:#930013
+    
+    style IO_OP color:#FFFFFF, fill:#ea38bc, stroke:#980d74
+    style ReadLineage color:#FFFFFF, fill:#ea38bc, stroke:#980d74
+    style WriteLineage color:#FFFFFF, fill:#ea38bc, stroke:#980d74
+    
+    style Stack_INIT color:#FFFFFF, fill:#17ae63, stroke:#0b7f45
+    style InitLineageGAME color:#FFFFFF, fill:#17ae63, stroke:#0b7f45
+    style InitLineageMod color:#FFFFFF, fill:#17ae63, stroke:#0b7f45
+    style Stack_OP color:#FFFFFF, fill:#2ab388, stroke:#26775e
+    style PushVersionMod color:#FFFFFF, fill:#2ab388, stroke:#26775e
+    style InsertOwner color:#FFFFFF, fill:#2ab388, stroke:#26775e
+    
+    style FileS_OP color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
+    style CreateDir color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
+    style CreateBackup color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
+    style Copy color:#FFFFFF, fill:#2962FF, stroke:#0b42d6

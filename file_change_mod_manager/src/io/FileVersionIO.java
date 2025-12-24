@@ -5,6 +5,7 @@
 package io;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.json.simple.JSONObject;
 import objects.FileVersion;
@@ -19,30 +20,31 @@ import objects.Mod;
 public class FileVersionIO {
 
     /**
+     * Populate a the Object from a JSONObject.
      * 
-     * 
-     * @param file The ModManifest file to read.
-     * @return The ModManifest object if successful.
-     * @throws Exception
+     * @param json JSONObject to read from.
+     * @return The populated Object if successful.
      */
-    static FileVersion read(JSONObject json) throws Exception {
-
-        FileVersion fl = new FileVersion();
-
+    static FileVersion read(JSONObject json) {
         FileVersion fileV = new FileVersion();
+
         fileV.setModId((String) json.get(FileVersion.JsonFields.modId.toString()));
         fileV.setHash((String) json.get(FileVersion.JsonFields.hash.toString()));
 
-        Object dateObj = json.get(Mod.JsonFields.downloadDate.toString());
-        try {
-            String dateString = (String) dateObj;
-            LocalDateTime lDate = LocalDateTime.parse(dateString);
-            fileV.setTimestamp(lDate);
-        } catch (Exception e) {
-            System.err.println("❗ Warning: Could not parse timestamp: " + dateObj.toString());
+        Object dateObj = json.get(FileVersion.JsonFields.timestamp.toString()); // Fixed field name
+        if (dateObj != null) { // Add null check
+            try {
+                String dateString = (String) dateObj;
+                // Use a specific formatter to match what you wrote
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+                LocalDateTime lDate = LocalDateTime.parse(dateString, formatter);
+                fileV.setTimestamp(lDate);
+            } catch (Exception e) {
+                System.err.println("❗ Warning: Could not parse timestamp: " + dateObj.toString());
+                // FileVersion timeStamp will be left at default: .now()
+            }
         }
-
-        return fl;
+        return fileV;
     } // read()
 
     /**
@@ -57,7 +59,9 @@ public class FileVersionIO {
 
         json.put(FileVersion.JsonFields.modId, obj.getModId());
         json.put(FileVersion.JsonFields.hash, obj.getHash());
-        json.put(FileVersion.JsonFields.timestamp, obj.getTimestamp());
+        // Use a consistent format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        json.put(FileVersion.JsonFields.timestamp, obj.getTimestamp().format(formatter));
 
         return json;
     } // write()

@@ -21,6 +21,8 @@ public class FileVersion {
     private String hash; // Hexadecimal string, of file contents
     private LocalDateTime timestamp; // Timestamp of when the entry was created. (Mainly debug)
 
+    public static final String GAME_OWNER = "GAME";
+
     /**
      * Used to ensure Json Keys are consistent.
      */
@@ -90,15 +92,15 @@ public class FileVersion {
      * @throws Exception
      */
     public int getLoadOrder(Path MANIFEST_DIR) throws Exception {
-        if (this.modId.equalsIgnoreCase("GAME"))
+        if (this.modId.equalsIgnoreCase(GAME_OWNER))
             return -1;
 
-            // Casting to a Mod because the full file details from the Manifest are not
-            // needed.
-            Mod mod = (Mod) JsonIO.read(
-                    MANIFEST_DIR.resolve(this.modId + ".json").toFile(),
-                    JsonSerializable.ObjectTypes.MOD);
-            return mod.getLoadOrder();
+        // Casting to a Mod because the full file details from the Manifest are not
+        // needed.
+        Mod mod = (Mod) JsonIO.read(
+                MANIFEST_DIR.resolve(this.modId + ".json").toFile(),
+                JsonSerializable.ObjectTypes.MOD_MANIFEST);
+        return mod.getLoadOrder();
     } // getLoadOrder()
 
 }// Class

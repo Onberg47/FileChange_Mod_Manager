@@ -22,12 +22,14 @@ import objects.ModManifest;
 public class ModIO {
 
     /**
-     * @param json
-     * @return
-     * @throws Exception
+     * Populate a the Object from a JSONObject.
+     * 
+     * @param json JSONObject to read from.
+     * @return The populated Object if successful.
      */
-    static Mod read(JSONObject json) throws Exception {
+    static Mod read(JSONObject json) {
         ModManifest mod = new ModManifest();
+
         mod.setGameId((String) json.get(Mod.JsonFields.gameId.toString()));
         mod.setVersion((String) json.get(Mod.JsonFields.version.toString()));
         mod.setDownloadSource((String) json.get(Mod.JsonFields.downloadSource.toString()));

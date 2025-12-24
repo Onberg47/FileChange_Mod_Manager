@@ -1,7 +1,6 @@
 package io;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InvalidObjectException;
@@ -28,17 +27,16 @@ public class JsonIO {
      */
     public static JsonSerializable read(File file, String type_string) throws Exception {
         if (!file.exists()) {
-            throw new Exception("❌ File path is not a valid .json path: " + file.getAbsolutePath());
+            throw new Exception("File path is not a valid .json path: " + file.getAbsolutePath());
         }
         if (!file.isFile()) { // Check if it's actually a file (not a directory)
             throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
         }
-        // Check if file has content (optional, depending on your needs)
-        if (file.length() == 0) {
+        if (file.length() == 0) { // Check if file has content (optional, depending on your needs)
             throw new IllegalArgumentException("File is empty: " + file.getAbsolutePath());
         }
-        if (file.getName().toLowerCase().endsWith(".json") == false) {
-            // appends the `.json` extension if needed
+        if (file.getName().toLowerCase().endsWith(".json") == false) { // appends the `.json` extension if needed
+
             file = file.toPath().getParent().resolve(
                     (file.toPath().getFileName() + ".json")).toFile();
         }
@@ -49,7 +47,7 @@ public class JsonIO {
 
         String fileType = ((String) json.get(JsonSerializable.ObjectTypeKey));
         if (type_string != null && !fileType.equals(type_string))
-            throw new InvalidObjectException("❌ The file does not store the desired Object!");
+            throw new InvalidObjectException("The file does not store the desired Object!");
 
         // Queries the actual file type to allow auto-detection
         switch (fileType) {
@@ -57,10 +55,8 @@ public class JsonIO {
                 return ModIO.read(json);
             case JsonSerializable.ObjectTypes.MOD_MANIFEST:
                 return ModManifestIO.read(json);
-            // case JsonSerializable.ObjectTypes.BACKUP_MANIFEST:
-            // return BackupManifestIO.read(json);
-            case JsonSerializable.ObjectTypes.GAME:
 
+            case JsonSerializable.ObjectTypes.GAME:
                 return GameIO.read(json);
             case JsonSerializable.ObjectTypes.GAME_STATE:
                 return GameStateIO.read(json);
@@ -69,7 +65,7 @@ public class JsonIO {
                 return FileLineageIO.read(json);
 
             default:
-                throw new IllegalArgumentException("❌ Unknown object type: " + type_string);
+                throw new IllegalArgumentException("Unknown object type: " + type_string);
         }
     } // read()
 
@@ -85,15 +81,10 @@ public class JsonIO {
         if (object == null) {
             throw new IllegalArgumentException("Object cannot be null");
         }
-        if (!file.exists()) { // Check if file exists
-            throw new FileNotFoundException("File does not exist: " + file.getAbsolutePath());
+        if (file == null) {
+            throw new IllegalArgumentException("File cannot be null");
         }
-        if (!file.isFile()) { // Check if it's actually a file (not a directory)
-            throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
-        }
-
-        if (file.getName().toLowerCase().endsWith(".json") == false) {
-            // appends the `.json` extension if needed
+        if (file.getName().toLowerCase().endsWith(".json") == false) { // appends the `.json` extension if needed
             file = file.toPath().getParent().resolve(
                     (file.toPath().getFileName() + ".json")).toFile();
         }

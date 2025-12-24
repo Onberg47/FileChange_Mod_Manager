@@ -21,28 +21,31 @@ import objects.FileVersion;
 public class FileLineageIO {
 
     /**
+     * Populate a the Object from a JSONObject.
      * 
-     * 
-     * @param file The ModManifest file to read.
-     * @return The ModManifest object if successful.
-     * @throws Exception
+     * @param json JSONObject to read from.
+     * @return The populated Object if successful.
      */
-    static FileLineage read(JSONObject json) throws Exception {
-
+    static FileLineage read(JSONObject json) {
         FileLineage fl = new FileLineage();
 
-        // TODO THIS PROBABLY DOES NOT RETAIN THE ORDER OF THE STACK!
         JSONArray stackArr = (JSONArray) json.get(FileLineage.JsonFields.stack.toString());
         Stack<FileVersion> tmp = new Stack<>();
 
+        // Read elements in order - first element in array becomes bottom of stack
         for (Object obj : stackArr) {
             JSONObject fileObj = (JSONObject) obj;
-
             FileVersion fileV = FileVersionIO.read(fileObj);
-            tmp.add(fileV);
+            tmp.push(fileV); // Push to maintain order
         }
-        fl.setStack(tmp);
 
+        // Reverse the stack to get the correct order
+        Stack<FileVersion> correctOrderStack = new Stack<>();
+        while (!tmp.isEmpty()) {
+            correctOrderStack.push(tmp.pop());
+        }
+
+        fl.setStack(correctOrderStack);
         return fl;
     } // read()
 
@@ -56,21 +59,19 @@ public class FileLineageIO {
     public static JSONObject write(FileLineage obj) {
         JSONObject json = new JSONObject();
 
-        // TODO THIS PROBABLY DOES NOT RETAIN THE ORDER OF THE STACK!
         JSONArray files = new JSONArray();
-        Stack<FileVersion> tmp = obj.getStack(); // make a temp we can pop.
+        Stack<FileVersion> stack = obj.getStack();
 
-        // write each deployed Mod.
-        for (int i = tmp.size() - 1; i >= 0; i--) {
-            FileVersion fileV = tmp.pop();
-            tmp.insertElementAt(fileV, i);
-
-            JSONObject fileObj = new JSONObject();
-            fileObj = FileVersionIO.write(fileV);
+        // Write elements from bottom to top (this preserves the stack order when read
+        // back)
+        // We need to iterate through the stack in reverse order
+        for (int i = stack.size() - 1; i >= 0; i--) {
+            FileVersion fileV = stack.get(i); // Get from top down
+            JSONObject fileObj = FileVersionIO.write(fileV);
             files.add(fileObj);
         }
-        json.put(FileLineage.JsonFields.stack, files);
 
+        json.put(FileLineage.JsonFields.stack, files);
         return json;
     } // write()
 

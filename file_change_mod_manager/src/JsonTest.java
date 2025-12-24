@@ -15,9 +15,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
+import interfaces.JsonSerializable;
 import io.JsonIO;
 import io.ModIO;
 import managers.ModManager;
+import objects.FileVersion;
 import objects.Game;
 import objects.Mod;
 import objects.ModFile;
@@ -33,7 +35,7 @@ import utils.FileUtil;
 @SuppressWarnings("unused")
 public class JsonTest {
 
-    public static final Game game = new Game("game_1", "Test Game", "test/game_root", "mod_manager/mod_storage/game_1");
+    public static final Game game = new Game("game_1", "Test Game", "tst_fs/game_root", "mod_manager/mod_storage/game_1");
 
     public static void main(String[] args) throws Exception {
 
@@ -56,21 +58,23 @@ public class JsonTest {
         // moveFromTempTest();
 
         ModManager modManager = new ModManager(game);
-        //modManager.modCompileNew("base");
-        // modManager.deployMod("other-basemo-10808", true); // LoadOrder 0
+        //modManager.modCompileNew("sample");
+        modManager.deployMod("other-basemo-10808", true); // LoadOrder 0
         //modManager.deployMod("other-mega_s-51449", true); // LoadOrder 3
 
-        // modManager.modTrash("other-basemo-10808");
-        //modManager.modTrash("other-mega_s-51449");
-
+        //modManager.modTrash("other-basemo-10808");
+        // modManager.modTrash("other-mega_s-51449");
+        
         /*
          * Path temp = Path.of("temp/sample");
          * Path src = Path.of("temp/sample/data/example_file_6.txt");
          * System.out.println(temp.relativize(src));
          */
 
-        //ModManifest readMod = (ModManifest) JsonIO.read(new File("mod_manager/mod_storage/game_1/other-base_m-8888/.mod_manifests/other-base_m-8888.json"), null);
-        //System.out.println("Read contents:\n" + readMod.printContents());
+        // ModManifest readMod = (ModManifest) JsonIO.read(new
+        // File("mod_manager/mod_storage/game_1/other-base_m-8888/.mod_manifests/other-base_m-8888.json"),
+        // null);
+        // System.out.println("Read contents:\n" + readMod.printContents());
 
         /*
          * Path storagePath = Path.of(game.getModsPath(), mod.getId());

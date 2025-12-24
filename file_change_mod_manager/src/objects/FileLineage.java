@@ -123,18 +123,19 @@ public class FileLineage implements JsonSerializable {
      * @param fVersion     The FileVersion to be inserted where appropriate.
      * @param manifestPath Path required to determine where to fetch deployed
      *                     Manifests for LoadOrder checking.
+     * @return The index from the top inserted at. Where 0 is the top.
      */
-    public int insertOrderedVersion(FileVersion fVersion, Path manifestPath) throws Exception {
+    public int insertOrderedVersion(FileVersion fVersion, Path manifestPath, int loadOrder) throws Exception {
         // Check for duplicate mod ID
         for (FileVersion existing : stack) {
             if (existing.getModId().equals(fVersion.getModId())) {
-                System.err.println("Error: Mod already has a version!");
-                return -1;
+                // throws for better error handling.
+                throw new Exception("❗ Mod already has a version!");
             }
         }
 
         try {
-            int loadOrder = fVersion.getLoadOrder(manifestPath);
+            //int loadOrder = fVersion.getLoadOrder(manifestPath);
 
             // Find insertion point
             int insertIndex = stack.size(); // default to end
@@ -148,8 +149,18 @@ public class FileLineage implements JsonSerializable {
             return insertIndex;
 
         } catch (Exception e) {
-            throw new Exception("Could not determine load order! ", e);
+            throw new Exception("Could not determine load order! " + e.getMessage(), e);
         }
     } // insertOrderedVersion()
+
+    /**
+     * Removes all occurances of Versions that belong to the given ID without
+     * effecting the order of other instances.
+     * 
+     * @param ModId Mod ID to find occurances to remove.
+     */
+    public void removeAllOf(String ModId) {
+        // TODO
+    } // removeAllOf()
 
 } // Class

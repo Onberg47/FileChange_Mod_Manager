@@ -17,14 +17,12 @@ import objects.ModManifest;
 public class ModManifestIO {
 
     /**
-     * Reads the given {@code ModManifest.json} file and returns the Mod object.
+     * Populate a the Object from a JSONObject.
      * 
-     * @param file The ModManifest file to read.
-     * @return The ModManifest object if successful.
-     * @throws Exception
+     * @param json JSONObject to read from.
+     * @return The populated Object if successful.
      */
-    static ModManifest read(JSONObject json) throws Exception {
-
+    static ModManifest read(JSONObject json) {
         ModManifest mod = new ModManifest(ModIO.read(json)); // use the Mod reader for simplicity.
 
         JSONArray files = (JSONArray) json.get(ModManifest.JsonFields.files.toString());

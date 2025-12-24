@@ -16,9 +16,10 @@ import objects.ModFile;
 public class ModFileIO {
 
     /**
+     * Populate a the Object from a JSONObject.
      * 
-     * @param files JSONArray of files to read through.
-     * @return An Array of ModFiles from the provided Json files.
+     * @param json JSONObject to read from.
+     * @return The populated Object if successful.
      */
     static ModFile[] readModFiles(JSONArray files) {
         ModFile[] tmp = new ModFile[files.size()];

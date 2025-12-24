@@ -80,11 +80,33 @@ public class HashUtil {
     } // computeFileHash()
 
     /**
+     * Hash only check, Size is not considered as a False short-cut.
      * 
-     * @param filePath     Path to exsisting file to compare against
+     * @param filePath
+     * @param expectedHash
+     * @return True if file passes Hash. False ONLY if file fails Hash
+     */
+    public static boolean verifyFileIntegrity(Path filePath, String expectedHash) {
+        try {
+            // Check hash (slower but definitive)
+            String actualHash = computeFileHash(filePath); // Your hash calculation method
+            return actualHash.equals(expectedHash);
+
+        } catch (IOException e) {
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error Hashing the file! : " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 
+     * @param filePath     Path to exsisting file to compare against.
      * @param expectedHash
      * @param expectedSize
-     * @return
+     * @return True if file passes Hash. False if file fails Size OR Hash.
+     *         checking for speed.
      */
     public static boolean verifyFileIntegrity(Path filePath, String expectedHash, long expectedSize) {
         try {
