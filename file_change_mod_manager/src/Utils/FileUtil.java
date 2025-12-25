@@ -263,6 +263,9 @@ public class FileUtil {
      *         is invalid.
      */
     public static int cleanDirectories(Path relative, Path working) {
+        if (working == null) {
+            return -1;
+        }
         Path resolvedPath = relative.resolve(working);
 
         // Validate that we're working with a valid path
@@ -272,8 +275,6 @@ public class FileUtil {
         }
 
         int count = 0;
-
-        // /a/b/c
         // Walk up the directory tree from working path
         while (working != null) {
             Path currentPath = relative.resolve(working);

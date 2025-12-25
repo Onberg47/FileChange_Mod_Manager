@@ -3,32 +3,33 @@
 flowchart TD
     
     Start(Remove ModFile of trashed Mod Logic:)
-    --> CheckLineage{If lineage exsists?} -- No --> Error[Error: This should not occur!]
+    --> ReadLineage[Read File Lineage]
+        %% This Mod is being removed, therefore they forefit any Ownership.
+    --> RemoveFromLineage[Remove all of Mod from Lineage]
+    --> IsLastOwner{If Stack is empty?}
+    IsLastOwner -- No
+        -->CopyTrash[COPY file to trash<br>Retain file]
+        --> CheckHash{If Mod Hash matches File?}
+    IsLastOwner -- Yes<br>(no other owners)
+        --> TrashFile[MOVE current File to Trash]
+        --> TrashLineage[Trash empty Lineage]
+        --> Clean[Try clean empty directories]
 
-    CheckLineage -- Yes
-        --> ReadLineage[Read File Lineage]
-            %% This Mod is being removed, therefore they forefit any Ownership.
-        --> RemoveFromLineage[Remove all of Mod from Lineage]
-        --> PeekLineageStack[Peek the latest owner in Lineage]
-        --> CheckHash{If Mod Hash matches File}
-
-        CheckHash -- Yes<br>Identical, no change.
+    CheckHash -- Yes<br>(identical, no change)
         %% If the file is the same as the new Owner expects, then there is no reason to change it.
-            --> CleanDirectories[Try clean empty directories.]
-            --> UpdateLineage
-        CheckHash -- No
+        --> UpdateLineage[Update Lineage]
+    CheckHash -- No<br>(restore file)
         %% File is different to what the new Owner expects. Must restore to their version...
-            --> TrashFile[Move current File to Trash]
-            --> IfGameOwned{If new Owner is GAME}
-                IfGameOwned -- Yes
-                    --> RestoreFromBackup[Override file from GAME backup]
-                    --> UpdateLineage
-                IfGameOwned -- No
-                    --> RestoreFromManifest[Override file from Mod Owner]
-                    --> UpdateLineage
+        --> IfGameOwned{If new Owner is GAME?}
+        IfGameOwned -- Yes
+            --> RestoreFromBackup[OVERRIDE file from GAME backup]
+            --> UpdateLineage
+        IfGameOwned -- No
+            --> RestoreFromManifest[OVERRIDE file from Mod Owner]
+            --> UpdateLineage
 
-        UpdateLineage[Update Lineage]
-        --> End(File removed safely!)
+    Clean --> End
+    UpdateLineage --> End(File removed safely!)
 
 %% SubGraphs
     subgraph Legend
@@ -52,5 +53,8 @@ flowchart TD
     
     style FileS_OP color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
     style TrashFile color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
+    style TrashLineage color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
+    style CopyTrash color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
     style RestoreFromBackup color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
     style RestoreFromManifest color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
+    style Clean color:#FFFFFF, fill:#2962FF, stroke:#0b42d6

@@ -126,7 +126,8 @@ public class FileLineage implements JsonSerializable {
      * @return The index from the top inserted at. Where 0 is the top.
      */
     public int insertOrderedVersion(FileVersion fVersion, Path manifestPath, int loadOrder) throws Exception {
-        // Check for duplicate mod ID
+        // Check for duplicate mod ID.
+        // Cannot just use stack.contains() because Hashes or timestamps could differ.
         for (FileVersion existing : stack) {
             if (existing.getModId().equals(fVersion.getModId())) {
                 // throws for better error handling.
@@ -135,7 +136,7 @@ public class FileLineage implements JsonSerializable {
         }
 
         try {
-            //int loadOrder = fVersion.getLoadOrder(manifestPath);
+            // int loadOrder = fVersion.getLoadOrder(manifestPath);
 
             // Find insertion point
             int insertIndex = stack.size(); // default to end
@@ -160,7 +161,16 @@ public class FileLineage implements JsonSerializable {
      * @param ModId Mod ID to find occurances to remove.
      */
     public void removeAllOf(String ModId) {
-        // TODO
+        Stack<FileVersion> tmpStack = new Stack<FileVersion>();
+        FileVersion tmpFV;
+
+        while (!this.stack.isEmpty()) {
+            tmpFV = stack.pop();
+            if (!tmpFV.getModId().equals(ModId)) {
+                tmpStack.addFirst(tmpFV);
+            }
+        }
+        this.stack = tmpStack;
     } // removeAllOf()
 
 } // Class

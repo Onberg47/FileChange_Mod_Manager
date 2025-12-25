@@ -103,4 +103,8 @@ public class FileVersion {
         return mod.getLoadOrder();
     } // getLoadOrder()
 
+    @Override
+    public String toString(){
+        return String.format("File Version: Owner ModId: %s, Hash: %s", modId, hash);
+    }
 }// Class

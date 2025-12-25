@@ -13,12 +13,14 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Stack;
 import java.util.zip.DataFormatException;
 
 import interfaces.JsonSerializable;
 import io.JsonIO;
 import io.ModIO;
 import managers.ModManager;
+import objects.FileLineage;
 import objects.FileVersion;
 import objects.Game;
 import objects.Mod;
@@ -35,7 +37,8 @@ import utils.FileUtil;
 @SuppressWarnings("unused")
 public class JsonTest {
 
-    public static final Game game = new Game("game_1", "Test Game", "tst_fs/game_root", "mod_manager/mod_storage/game_1");
+    public static final Game game = new Game("game_1", "Test Game", "tst_fs/game_root",
+            "mod_manager/mod_storage/game_1");
 
     public static void main(String[] args) throws Exception {
 
@@ -48,23 +51,17 @@ public class JsonTest {
         mod.addFile(new ModFile("data/test_img.png", "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
         // System.out.println(mod.toString());
 
-        // ModIO.writeMod(mod, new File("dummy.json"));
-        // System.out.println("\nWritten:\n" + mod.toString());
-        // Read it back
-        // Mod readMod = ModIO.readMod(new File("dummy.json"));
-        // System.out.println("\nRead: " + readMod.toString());
-
         // sampleModTest();
         // moveFromTempTest();
 
         ModManager modManager = new ModManager(game);
-        //modManager.modCompileNew("sample");
+        // modManager.modCompileNew("sample");
         modManager.deployMod("other-basemo-10808", true); // LoadOrder 0
         //modManager.deployMod("other-mega_s-51449", true); // LoadOrder 3
 
         //modManager.modTrash("other-basemo-10808");
-        // modManager.modTrash("other-mega_s-51449");
-        
+        //modManager.modTrash("other-mega_s-51449");
+
         /*
          * Path temp = Path.of("temp/sample");
          * Path src = Path.of("temp/sample/data/example_file_6.txt");
@@ -75,7 +72,7 @@ public class JsonTest {
         // File("mod_manager/mod_storage/game_1/other-base_m-8888/.mod_manifests/other-base_m-8888.json"),
         // null);
         // System.out.println("Read contents:\n" + readMod.printContents());
-
+        
         /*
          * Path storagePath = Path.of(game.getModsPath(), mod.getId());
          * System.out.println(storagePath);
@@ -154,6 +151,35 @@ public class JsonTest {
                     (file.toPath().getFileName() + ".json")).toFile();
         }
         System.out.println("file: " + file.toString());
+    }
+
+    private static void checkStackRemoveAll() {
+        Stack<Integer> stack = new Stack<>();
+        stack.add(0);
+        stack.add(1);
+        stack.add(0);
+        stack.add(2);
+        stack.add(0);
+        stack.add(0);
+        stack.add(3);
+
+        System.out.println("Original:\n\tTop element: " + stack.peek() + "\n\tAll: " + stack.toString());
+
+        Stack<Integer> tmpStack = new Stack<>();
+        Integer tmpFV;
+
+        while (!stack.empty()) {
+            tmpFV = stack.pop();
+            System.out.print("tmpFV: " + tmpFV);
+
+            if (tmpFV != 0) {
+                tmpStack.addFirst(tmpFV);
+            }
+            System.out.println(" --> ✔");
+        }
+        stack = tmpStack;
+
+        System.out.println("RemovedAll 0's:\n\tTop element: " + stack.peek() + "\n\tAll: " + stack.toString());
     }
 
 } // Class
