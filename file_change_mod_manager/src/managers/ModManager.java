@@ -151,7 +151,7 @@ public class ModManager {
      *                      cases these checks are not needed and add great
      *                      overhead)
      */
-    public void deployMod(String modID, Boolean checkConflict) {
+    public void deployMod(String modID) {
         ModManifest mod;
         Path tempDir = TEMP_DIR.resolve(modID + "__" + DateUtil.getNumericTimestamp());
         Path storedDir = Path.of(game.getModsPath(), modID);
@@ -243,7 +243,7 @@ public class ModManager {
             gState.sortDeployedMods();
 
             for (Mod mod : gState.getDeployedMods()) {
-                deployMod(mod.getId(), false); // No checking as the Mods are sorted.
+                deployMod(mod.getId()); // No checking as the Mods are sorted.
             } // for each Mod
 
         } catch (NullPointerException e) {
@@ -282,15 +282,15 @@ public class ModManager {
         System.out.println("🗑 Removing mod: " + mod.getName() + "\n\tMoving files...");
         try {
             Path src;
-            Path target = TRASH_DIR.resolve(mod.getId() + "__" + DateUtil.getNumericTimestamp());
+            Path targetDir = TRASH_DIR.resolve(mod.getId() + "__" + DateUtil.getNumericTimestamp());
 
             // Delete any exsiting trash of the Mod and create target directory.
             try {
-                if (Files.exists(target)) {
+                if (Files.exists(targetDir)) {
                     // If trashed mod (with same timestamp) exsists delete it because its an error.
-                    FileUtil.deleteDirectory(target);
+                    FileUtil.deleteDirectory(targetDir);
                 }
-                Files.createDirectories(target.resolve(MANIFEST_DIR)); // create the target for safe use.
+                Files.createDirectories(targetDir.resolve(MANIFEST_DIR)); // create the target for safe use.
             } catch (IOException e) {
                 System.err.println("❗ Could not delete exsisting contents of Mod in trash! " + "\n" + e.getMessage()
                         + "\nContinuing...");
@@ -318,13 +318,13 @@ public class ModManager {
                         System.out.println("\t⚪ No other owner for: " + mfPath);
 
                         System.out.println(
-                                "\t\tMove to trash: " + src.toString() + " to " + target.resolve(mfPath));
-                        if (!Files.exists(target.resolve(mfPath)))
-                            Files.createDirectories(target.resolve(mfPath).getParent());
-                        Files.move(src, target.resolve(mfPath));
+                                "\t\tMove to trash: " + src.toString() + " to " + targetDir.resolve(mfPath));
+                        if (!Files.exists(targetDir.resolve(mfPath)))
+                            Files.createDirectories(targetDir.resolve(mfPath).getParent());
+                        Files.move(src, targetDir.resolve(mfPath));
 
                         // Trash empty FileLineage/
-                        Path flTarget = target.resolve(LINEAGE_DIR.resolve(mfPath + ".json"));
+                        Path flTarget = targetDir.resolve(LINEAGE_DIR.resolve(mfPath + ".json"));
 
                         if (!Files.exists(flTarget))
                             Files.createDirectories(flTarget.getParent());
@@ -338,10 +338,10 @@ public class ModManager {
                         System.out.println("\t⚫ Other owner(s) found for: " + mfPath);
 
                         System.out.println(
-                                "\t\tCopy to trash: " + src.toString() + " to " + target.resolve(mfPath));
-                        if (!Files.exists(target.resolve(mfPath)))
-                            Files.createDirectories(target.resolve(mfPath).getParent());
-                        Files.copy(src, target.resolve(mfPath));
+                                "\t\tCopy to trash: " + src.toString() + " to " + targetDir.resolve(mfPath));
+                        if (!Files.exists(targetDir.resolve(mfPath)))
+                            Files.createDirectories(targetDir.resolve(mfPath).getParent());
+                        Files.copy(src, targetDir.resolve(mfPath));
 
                         if (!HashUtil.verifyFileIntegrity(mfPath, fl.peek().getHash())) {
                             // If hashes differ, must trash current and restore.
@@ -351,6 +351,20 @@ public class ModManager {
                                 // Restore from backup
                                 System.out.println("\t\t\tRestoring from Game Backups...");
                                 this.restoreBackup(mf.getFilePath());
+
+                                // Last owner should be GAME, so remove FileLineage.
+                                if (fl.getStack().size() == 1) {
+                                    System.out.println("Trashing empty lineage");
+                                    Path tmpPath = targetDir.resolve(LINEAGE_DIR.resolve(mfPath + ".json"));
+
+                                    if (!Files.exists(tmpPath.getParent()))
+                                        Files.createDirectories(tmpPath.getParent());
+                                    Files.move(flPath, tmpPath);
+                                } else {
+                                    System.err
+                                            .println("❗ GAME is not the ONLY entry in File Lineage when it should be!");
+                                }
+
                             } else {
                                 // Restore from Storage for Mod now current owner.
                                 System.out
@@ -363,8 +377,11 @@ public class ModManager {
                             System.out.println("\t\t⚪ File remained the same.");
                         }
 
-                        // Update FileLineage
-                        JsonIO.write(fl, flPath.toFile());
+                        // Update FileLineage.
+                        // If the fileLineage does not exsist it was deliberately trashed, so donot
+                        // re-create it.
+                        if (Files.exists(flPath))
+                            JsonIO.write(fl, flPath.toFile());
                     }
 
                     System.out.println("\t\t✔ File Trashed.");
@@ -382,7 +399,7 @@ public class ModManager {
 
             /// /// 3. Remove ModManifest from game files.
             System.out.print("\tTrashing Mod Manifest...");
-            Files.move(GAME_PATH.resolve(manifestPath), target.resolve(manifestPath));
+            Files.move(GAME_PATH.resolve(manifestPath), targetDir.resolve(manifestPath));
 
             // clean the .manifest/ if it's empty.
             FileUtil.cleanDirectories(GAME_PATH, MANIFEST_DIR);
@@ -470,7 +487,6 @@ public class ModManager {
                 fl.pushVersion(modId, modFile.getHash()); // Add the new Version
                 // COPY
                 copy = true;
-                System.out.println("Lineage init.");
 
             } else { // Else FileLineage exsists
                 // read exsisting lineage.
@@ -535,11 +551,11 @@ public class ModManager {
      * @throws Exception             A process error
      */
     private void restoreBackup(String modFilePath) throws Exception {
-        Path backup = BACKUP_DIR.resolve(modFilePath + ".backup");
+        Path backup = GAME_PATH.resolve(BACKUP_DIR.resolve(modFilePath + ".backup"));
         Path gameModFile = GAME_PATH.resolve(modFilePath);
 
         if (!Files.exists(backup)) {
-            throw new FileNotFoundException("File " + modFilePath + " has no backup in: " + BACKUP_DIR.toString());
+            throw new FileNotFoundException("COuld not find backup for file " + modFilePath + " --> " + backup);
         }
         if (gameModFile.getParent() != null && !Files.exists(gameModFile.getParent())) {
             // If the parent directories don't exsist create them.
@@ -554,7 +570,7 @@ public class ModManager {
         // Move because the backup is used up.
         Files.move(backup, gameModFile, StandardCopyOption.REPLACE_EXISTING);
         // clean BACKUP directories
-        FileUtil.cleanDirectories(BACKUP_DIR, Path.of(modFilePath));
+        FileUtil.cleanDirectories(GAME_PATH, BACKUP_DIR.resolve(modFilePath + ".backup").getParent());
     } // restoreBackup()
 
     /**

@@ -66,27 +66,69 @@ Operations need to track file overrides, backups, mod-ownership, and load order.
 Here's a simplified logical breakdown of the process for when a file is deployed to the Game Directory:
 
 ```mermaid
-flowchart TD
-    A[Start file deployment] --> B{File exists at target?}
-    B -- No --> C[Copy file, create lineage]
-    B -- Yes --> D{Hashes match?}
-    D -- Yes --> E[Files identical, skip]
-    D -- No --> F{File has lineage?}
+graph TD
+    ProgramData[Program Data]
+    ModStorage[Mod Storage]
+    GameDir[Game Directory]
+
     
-    F -- No --> G[Create lineage & backup if needed]
-    G --> H[Stack Game then Mod]
-    H --> C
-    
-    F -- Yes --> I{Mod priority >= top owner?}
-    I -- No --> J[Insert mod after higher priority owners]
-    J --> K[Skip copy]
-    I -- Yes --> L[Replace top with Mod]
-    L --> C
-    
-    C --> M[File deployed]
-    E --> M
-    K --> M
-    
-    style A fill:#bbdefb
-    style M fill:#c8e6c9
+    subgraph ProgramData
+        PD[~/.modmanager/] --> Config(config.json)
+        PD --> GamesDir[games/]
+        
+        GamesDir --> GameList(game_list.json)
+        GamesDir --> GameConfig(Game_id.json)
+        GamesDir --> IconsDir[icons/]
+        IconsDir --> Icon(Game_id.png)
+
+        PD --> TempDir[.temp/]
+        TempDir[.temp/] --> CompileDir(CompileMe/)
+        TempDir[.temp/] --> TempTrashDir[trash/] --> TrashMod(other-unused-51449__20251226_102656/)
+    end
+
+    subgraph ModStorage
+        MS[./ModStorage/] --> GameMods[Game_id/]
+        
+        GameMods --> ModA[other-tstmod-10808/]
+        
+        ModA --> MAhome[.mod_manager]
+        MAhome --> MAmanifest[manifests/] --> MAman(other-tstmod-10808.json)
+
+        ModA --> MAf1(example_file_1.txt)
+        ModA --> MAd1[data/] --> MAf2(example_file_2.txt)
+    end
+
+    subgraph GameDir
+        GR[./GameRoot/] --> GameFiles[Vanilla game files]
+        GR --> ModManagerDir[.modmanager/]
+        
+        ModManagerDir --> ManifestDir[manifests/] --> MMD_Man(mod_id.json)
+        ModManagerDir --> LineageDir[lineages/] --> MMD_lineage(file.txt.json)
+        ModManagerDir --> BackupsDir[backups/] --> MMD_back(file.txt.backup)
+        ModManagerDir --> GameState(game_state.json)
+    end    
+
+    %% Styles
+        style PD color:#FFFFFF, fill:#265250, stroke:#0acdc4
+            style ProgramData stroke:#0acdc4
+        style MS color:#FFFFFF, fill:#693e21, stroke:#cd580a
+            style ModStorage stroke:#cd580a
+        style GR color:#FFFFFF, fill:#36632c, stroke:#2ccd0a
+            style GameDir stroke:#2ccd0a
+
+        %% Example data
+            style GameConfig color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style Icon color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style CompileDir color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style TrashMod color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            
+            style ModA color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MAman color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MAf1 color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MAd1 color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MAf2 color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+
+            style MMD_Man color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MMD_lineage color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MMD_back color:#FFFFFF, fill:#000f3f, stroke:#1b368d
 ```

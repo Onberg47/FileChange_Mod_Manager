@@ -55,11 +55,11 @@ public class JsonTest {
         // moveFromTempTest();
 
         ModManager modManager = new ModManager(game);
-        // modManager.modCompileNew("sample");
-        modManager.deployMod("other-basemo-10808", true); // LoadOrder 0
-        //modManager.deployMod("other-mega_s-51449", true); // LoadOrder 3
+        //modManager.modCompileNew("sample");
+        modManager.deployMod("other-basemo-10808"); // LoadOrder 0
+        //modManager.deployMod("other-mega_s-51449"); // LoadOrder 3
 
-        //modManager.modTrash("other-basemo-10808");
+        modManager.modTrash("other-basemo-10808");
         //modManager.modTrash("other-mega_s-51449");
 
         /*

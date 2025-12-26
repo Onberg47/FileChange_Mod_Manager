@@ -1,46 +1,65 @@
 graph TD
-    subgraph "Root Directories"
-        GameRoot[Game Installation<br/>C:/Games/MyGame/]
-        ModStorage[Mod Storage<br/>D:/ModManager/mods/]
-        ProgramData[Program Data<br/>~/.modmanager/]
-    end
+    ProgramData[Program Data]
+    ModStorage[Mod Storage]
+    GameDir[Game Directory]
+
     
-    subgraph "Game Directory"
-        GR[GameRoot] --> GameFiles[Vanilla game files]
-        GR --> ModManagerDir[.modmanager/]
-        
-        ModManagerDir --> LineageDir[lineage/]
-        ModManagerDir --> BackupsDir[backups/]
-        ModManagerDir --> GameState[game_state.json]
-        
-        LineageDir --> LF1[data/weapons/gun.xml.json]
-        LineageDir --> LF2[textures/character.dds.json]
-        
-        BackupsDir --> BK1[gun.xml.abc123.backup]
-        BackupsDir --> BK2[character.dds.def456.backup]
-    end
-    
-    subgraph "Mod Storage"
-        MS[ModStorage] --> GameMods[ghost-recon/]
-        
-        GameMods --> ModA[weapon-pack_nexus-12345_v1.0/]
-        GameMods --> ModB[hd-textures_custom-001_v2.1/]
-        
-        ModA --> MA1[mod.json]
-        ModA --> MA2[files/]
-        MA2 --> MA3[data/weapons/]
-        MA2 --> MA4[textures/]
-    end
-    
-    subgraph "Program Data"
-        PD[ProgramData] --> Config[config.json]
+    subgraph ProgramData
+        PD[~/.modmanager/] --> Config(config.json)
         PD --> GamesDir[games/]
         
-        GamesDir --> GameConfig[ghost-recon.json]
+        GamesDir --> GameList(game_list.json)
+        GamesDir --> GameConfig(Game_id.json)
         GamesDir --> IconsDir[icons/]
-        IconsDir --> Icon[ghost-recon.png]
+        IconsDir --> Icon(Game_id.png)
+
+        PD --> TempDir[.temp/]
+        TempDir[.temp/] --> CompileDir(CompileMe/)
+        TempDir[.temp/] --> TempTrashDir[trash/] --> TrashMod(other-unused-51449__20251226_102656/)
     end
-    
-    style GameRoot fill:#e3f2fd
-    style ModStorage fill:#f3e5f5
-    style ProgramData fill:#e8f5e8
+
+    subgraph ModStorage
+        MS[./ModStorage/] --> GameMods[Game_id/]
+        
+        GameMods --> ModA[other-tstmod-10808/]
+        
+        ModA --> MAhome[.mod_manager]
+        MAhome --> MAmanifest[manifests/] --> MAman(other-tstmod-10808.json)
+
+        ModA --> MAf1(example_file_1.txt)
+        ModA --> MAd1[data/] --> MAf2(example_file_2.txt)
+    end
+
+    subgraph GameDir
+        GR[./GameRoot/] --> GameFiles[Vanilla game files]
+        GR --> ModManagerDir[.modmanager/]
+        
+        ModManagerDir --> ManifestDir[manifests/] --> MMD_Man(mod_id.json)
+        ModManagerDir --> LineageDir[lineages/] --> MMD_lineage(file.txt.json)
+        ModManagerDir --> BackupsDir[backups/] --> MMD_back(file.txt.backup)
+        ModManagerDir --> GameState(game_state.json)
+    end    
+
+    %% Styles
+        style PD color:#FFFFFF, fill:#265250, stroke:#0acdc4
+            style ProgramData stroke:#0acdc4
+        style MS color:#FFFFFF, fill:#693e21, stroke:#cd580a
+            style ModStorage stroke:#cd580a
+        style GR color:#FFFFFF, fill:#36632c, stroke:#2ccd0a
+            style GameDir stroke:#2ccd0a
+
+        %% Example data
+            style GameConfig color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style Icon color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style CompileDir color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style TrashMod color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            
+            style ModA color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MAman color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MAf1 color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MAd1 color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MAf2 color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+
+            style MMD_Man color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MMD_lineage color:#FFFFFF, fill:#000f3f, stroke:#1b368d
+            style MMD_back color:#FFFFFF, fill:#000f3f, stroke:#1b368d

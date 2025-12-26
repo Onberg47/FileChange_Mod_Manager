@@ -303,6 +303,8 @@ public class FileUtil {
             working = working.getParent();
         } // while()
 
+        System.out.println("✔ Cleaned [" + count + "] empty directories in: [relative] -> [working] : " + relative
+                + " -> " + working);
         return count;
     } // cleanDirectories()
 
