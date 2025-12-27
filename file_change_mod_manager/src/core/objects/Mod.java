@@ -1,0 +1,314 @@
+/*
+ * Author: Stephanos B
+ * Date: 15/12/2025
+*/
+
+package core.objects;
+
+import java.time.LocalDateTime;
+
+import org.json.simple.JSONObject;
+
+import core.interfaces.JsonSerializable;
+import core.io.ModIO;
+
+/**
+ * Represents a Mod.JSON file for tracking contents and metadata of a Mod.
+ * 
+ * @author Stephanos B
+ */
+public class Mod implements JsonSerializable {
+
+    protected String gameId; // ID of the Game this Mod is for.
+    protected String id; // Unique identifier for the Mod.
+                         // Convention: source(enum)-name(first 6 chars)-0000(AUTO INCREMENT)
+    protected ModSource downloadSource;
+    protected String version;
+
+    protected String name; // User-friendly name.
+    protected String description;
+    protected int loadOrder; // Load order priority. The higher the number, the later it loads. (default: 1)
+
+    protected LocalDateTime downloadDate; // Used for update checks.
+    protected String downloadLink;
+
+    private Boolean forceIdUpdate = false; // When true the ID will be regenerated on get(Id)
+
+    /**
+     * Used to ensure Json Keys are consistent.
+     * 
+     * @author Stephanos B
+     */
+    public enum JsonFields {
+        id,
+        gameId,
+        version,
+        loadOrder,
+        name,
+        description,
+        downloadSource,
+        downloadDate,
+        downloadLink
+    } // JsonFields enum
+
+    /**
+     * Enum of potential mod sources. (Totally overkill)
+     * Each entry has a user-facing name and an code for operations.
+     */
+    public enum ModSource {
+        NEXUS("nexus", "nexus mods"),
+        MODDB("moddb", "mod db"),
+        STEAMWORKS("steam", "steam workshop"),
+        OTHER("other", "other"),
+        default_("unkown", null);
+
+        private final String code, name;
+
+        ModSource(String code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+
+        /**
+         * @return The code used to identiy the source
+         */
+        public String getCode() {
+            return code;
+        }
+
+        /**
+         * @return Name the user would enter/select
+         */
+        public String getName() {
+            return name;
+        }
+
+    } // ModSource enum
+
+    /**
+     * Empty constructor for Mod.
+     */
+    public Mod() {
+        this.gameId = "unknown_game";
+        this.name = "Unnamed Mod";
+        this.id = "unknown-unnamed-0000";
+        // this.id = generateModId(ModSource.default_, 0);
+        this.loadOrder = 1;
+        this.version = "1.0";
+
+        this.description = "No description provided.";
+        this.downloadSource = ModSource.OTHER;
+        this.downloadDate = LocalDateTime.now(); // Set to current date/time
+        this.downloadLink = "No link provided.";
+    }
+
+    /**
+     * Essentials parameterized constructor for Mod.
+     * 
+     * @param gameId      The ID of the Game this Mod is for.
+     * @param source      The source of the Mod, used for ID generation.
+     * @param name        User-friendly name, doubles as the filename for the Mod.
+     * @param description The description of the Mod.
+     */
+    public Mod(String gameId, ModSource source, String name) {
+        this();
+        this.name = name;
+        this.gameId = gameId;
+        this.downloadSource = source;
+        this.id = generateModId(source); // NB: Do this last to ensure using input data!
+    }
+
+    /**
+     * Complete constructor with ALL fields, including the Auto-generated. Meant for
+     * Mod -> Child types initializing.
+     * 
+     * @param gameIdThe      ID of the Game this Mod is for.
+     * @param id             ID of the mod. Only copied to reduce overhead of
+     *                       regeneration.
+     * @param downloadSource
+     * @param version
+     * @param name
+     * @param description
+     * @param loadOrder
+     * @param downloadDate
+     * @param downloadLink
+     */
+    protected Mod(String gameId, String id, ModSource downloadSource, String version, String name, String description,
+            int loadOrder, LocalDateTime downloadDate, String downloadLink) {
+        this.gameId = gameId;
+        this.id = id;
+        this.downloadSource = downloadSource;
+        this.version = version;
+        this.name = name;
+        this.description = description;
+        this.loadOrder = loadOrder;
+        this.downloadDate = downloadDate;
+        this.downloadLink = downloadLink;
+    }
+
+    /// /// /// Implements /// /// ///
+
+    @Override
+    public String getObjectType() {
+        return ObjectTypes.MOD;
+    }
+
+    @Override
+    public JSONObject toJsonObject() {
+        return ModIO.write(this); // keeps IO operations seperate
+    } // toJsonObject()
+
+    /// /// /// Getters and Setters /// /// ///
+
+    public String getName() {
+        return name;
+    }
+
+    public int getLoadOrder() {
+        return loadOrder;
+    }
+
+    public void setLoadOrder(int loadOrder) {
+        this.loadOrder = loadOrder;
+    }
+
+    public String getId() {
+        if (forceIdUpdate)
+            return generateModId();
+        else
+            return id;
+    }
+
+    /**
+     * Private to prevent explicit setting of the ID which may break naming rules.
+     */
+    private void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * Cannot explicity set Mod Id. Use `generateModId()` to force Id regeneration.
+     * This method is only a reminder.
+     * 
+     * @deprecated
+     */
+    public void setId() {
+        // does nothing by design.
+    }
+
+    public String getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(String gameID) {
+        this.gameId = gameID;
+        forceIdUpdate = true;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        forceIdUpdate = true;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+        forceIdUpdate = true;
+    }
+
+    public ModSource getDownloadSource() {
+        return downloadSource;
+    }
+
+    public void setDownloadSource(ModSource downloadSource) {
+        this.downloadSource = downloadSource;
+        forceIdUpdate = true;
+    }
+
+    /**
+     * Attempts to set the Download source to the corrosponding Enum entry.
+     * 
+     * @param source String of the name or id of the entry desired.
+     * @return The name of the found Enum entry or Null if no match was found and no
+     *         changes will be made.
+     */
+    public String setDownloadSource(String source) {
+        for (ModSource src : ModSource.values()) {
+            if (source.equalsIgnoreCase(src.getName())) {
+                this.setDownloadSource(src);
+                return src.name;
+            }
+        }
+        // this.setDownloadSource(ModSource.default_);
+        return null;
+    }
+
+    public LocalDateTime getDownloadDate() {
+        return downloadDate;
+    }
+
+    public void setDownloadDate(LocalDateTime downloadDate) {
+        this.downloadDate = downloadDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDownloadLink() {
+        return downloadLink;
+    }
+
+    public void setDownloadLink(String downloadLink) {
+        this.downloadLink = downloadLink;
+    }
+
+    /// /// /// Methods /// /// ///
+
+    /**
+     * Generates a unique Mod ID based on the Mod's source, name, and version.
+     * Protected for internal use.
+     * 
+     * @param source The source of the Mod from the ModSource enum.
+     * @return The generated Mod ID.
+     */
+    protected String generateModId(ModSource source) {
+        forceIdUpdate = false;
+        String tmp = this.getName().toLowerCase().replaceAll("[^a-z0-9]", "_");
+        String shortName = tmp.length() <= 6 ? tmp : tmp.substring(0, 6);
+
+        return source.getCode() + "-" + shortName + "-" + String.format("%04d", version.hashCode() & 0xffff);
+    } // generateModId()
+
+    /**
+     * Uses the Mod's Game_Id, Name, and Version (hashcode) Ensure all three are
+     * defined first otherwise default values are used.
+     * 
+     * @return The generated Mod Id.
+     */
+    public String generateModId() {
+        this.setId(generateModId(this.getDownloadSource()));
+        return this.getId();
+    } // generateModId()
+
+    /**
+     * Overrides toString() to provide a string representation of the Mod object.
+     * 
+     * @return A string representation of the Mod object.
+     */
+    @Override
+    public String toString() {
+        return String.format(
+                "Mod Details:\nID: %s | Game ID: %s\nVersion: %s\n Download Source: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s\nContents:\n%s",
+                getId(), gameId, version, downloadSource.getCode(), name, description, loadOrder,
+                downloadDate.toString(), downloadLink);
+    } // toString()
+
+} // Class
