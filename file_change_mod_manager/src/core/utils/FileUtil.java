@@ -2,10 +2,10 @@
  * Author Stephanos B
  * Date: 16/12/2025
  */
-
 package core.utils;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -18,10 +18,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import core.config.defaultConfig; // TODO replace
+import core.interfaces.JsonSerializable;
+import core.io.JsonIO;
+import core.objects.Game;
+import core.objects.GameState;
+import core.objects.Mod;
 import core.objects.ModFile;
 
 /**
- * Provides utility methods for scanning files and directories.
+ * Provides utility methods for scanning files and directories and read-only
+ * file operations.
  * 
  * @author Stephanos B
  */
@@ -172,7 +179,75 @@ public class FileUtil {
         }
     } // getDirectoryModFilesStream()
 
-    /// ///
+    /// /// /// File Print Utils /// /// ///
+
+    /**
+     * For CLI and debug use. Prints out what Mods are installed according to the
+     * GameState.
+     * 
+     * @param game
+     * @return String to display
+     * @throws Exception
+     */
+    public static String printGameState(Game game) throws Exception {
+        Path managerPath = defaultConfig.MANAGER_DIR; // Path managerPath = config.getManagerDir();
+        GameState gState;
+        Path GsPath = Path.of(game.getInstallPath(), managerPath.toString(), GameState.FILE_NAME);
+
+        if (!Files.exists(GsPath))
+            System.out.println("Could not find: " + GameState.FILE_NAME + ", creating it.");
+        try {
+            gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
+            return gState.toString();
+
+        } catch (Exception e) {
+            throw new Exception("Failed to add Mod to GameState", e);
+        }
+    } // readGameState()
+
+    /**
+     * For CLI use. Prints out what Mods actually exsist in Mod Storage based on
+     * exsiting ModManifests.
+     * 
+     * @param game
+     * @return String to display.
+     * @throws Exception
+     */
+    public static String printStoredGames(Game game) throws Exception {
+        Path manifestPath = defaultConfig.MANIFEST_DIR;
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("📦 Stored Mods:\n\t Game: " + game.getName());
+
+        Path storeDir = Path.of(game.getModsPath());
+        try (Stream<Path> paths = Files.list(storeDir)) {
+            // List<ModFile> list = new java.util.ArrayList<ModFile>();
+
+            for (Path path : (Iterable<Path>) paths::iterator) {
+                // Process each file
+
+                if (Files.isDirectory(path)) {
+                    try {
+                        Mod mod = (Mod) JsonIO.read(
+                                storeDir.resolve(path.getFileName().toString(), manifestPath.toString(),
+                                        path.getFileName() + ".json").toFile(),
+                                JsonSerializable.ObjectTypes.MOD_MANIFEST);
+
+                        sb.append("\n\t\t⚪ " + mod.printLite());
+
+                    } catch (InvalidObjectException e) {
+                        // Just skips silently. Other errors are caught outside to stop process.
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new Exception("Failed to read Storage mods: ", e);
+        }
+
+        return sb.toString();
+    } // printStoredGames()
+
+    /// /// /// Directory Utils /// /// ///
 
     /**
      * Uses {@code walkFileTree} to delete a populated directory.

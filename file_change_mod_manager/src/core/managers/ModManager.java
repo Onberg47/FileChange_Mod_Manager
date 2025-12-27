@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
 
+import core.config.AppConfig;
 import core.interfaces.JsonSerializable;
 import core.io.JsonIO;
 import core.objects.FileLineage;
@@ -27,30 +28,27 @@ import core.utils.FileUtil;
 import core.utils.HashUtil;
 
 /**
- * Provides the core functionality for managing mods of a given game.
+ * Provides the core functionality for managing Mods and all related integrity
+ * steps of a given game.
+ * This is the only method that interacts directly with:
+ * ModManifests; GameStates
  * 
  * @author Stephanos B
  */
 public class ModManager {
 
-    // #region
-    // From config: TODO: remove `mod_manager/` from paths before packaging!
-    private static final Path TEMP_DIR = Path.of("mod_manager/.temp/"); // Temporary directory for mod operations.
-    private static final Path TRASH_DIR = Path.of("mod_manager/.temp/trash/"); // Trash directory.
-
-    // Where in the game_root are manifests
-    private static final Path MANAGER_DIR = Path.of(".mod_manager/");
-    // From game_root: Where are manifests stored.
-    private static final Path MANIFEST_DIR = MANAGER_DIR.resolve("manifests/");
-    // From game_root: Where original game files are backed up if to be overridden.
-    private static final Path BACKUP_DIR = MANAGER_DIR.resolve("backups/");
-    // From game_root: Where ModFile Linage.jsons are stored.
-    private static final Path LINEAGE_DIR = MANAGER_DIR.resolve("lineages/");
-
+    private AppConfig config;
     private Game game;
     private final Path GAME_PATH; // Path to the Game_Root directory where mods are deployed.
                                   // (cannot be determined prior to constuctor but is final.)
-    // #endregion
+
+    // Comes from config.
+    private final Path BACKUP_DIR;
+    private final Path LINEAGE_DIR;
+    private final Path MANAGER_DIR;
+    private final Path MANIFEST_DIR;
+    private final Path TEMP_DIR;
+    private final Path TRASH_DIR;
 
     /**
      * Required constructor to specify the game to manage mods for.
@@ -58,8 +56,16 @@ public class ModManager {
      * @param game
      */
     public ModManager(Game game) {
+        this.config = new AppConfig();
         this.game = game;
         GAME_PATH = Path.of(game.getInstallPath());
+
+        BACKUP_DIR = config.getBackupDir();
+        LINEAGE_DIR = config.getLineageDir();
+        MANAGER_DIR = config.getManagerDir();
+        MANIFEST_DIR = config.getManifestDir();
+        TEMP_DIR = config.getTempDir();
+        TRASH_DIR = config.getTrashDir();
     } // Constructor
 
     /// /// /// Core Methods /// /// ///
@@ -161,7 +167,8 @@ public class ModManager {
             /// 1. Find the Mod's manifest from it's ID and read it.
             System.out.println("📦 Attempting to deploy mod...");
             try {
-                mod = (ModManifest) JsonIO.read(storedDir.resolve(MANIFEST_DIR.toString(), modId + ".json").toFile(),
+                mod = (ModManifest) JsonIO.read(
+                        storedDir.resolve(MANIFEST_DIR.toString(), modId + ".json").toFile(),
                         JsonSerializable.ObjectTypes.MOD_MANIFEST);
                 System.out.println("\tManifest of Mod: " + mod.getName() + " found! ✔");
 
@@ -294,7 +301,8 @@ public class ModManager {
                     // If trashed mod (with same timestamp) exsists delete it because its an error.
                     FileUtil.deleteDirectory(targetDir);
                 }
-                Files.createDirectories(targetDir.resolve(MANIFEST_DIR)); // create the target for safe use.
+                Files.createDirectories(targetDir.resolve(MANIFEST_DIR)); // create the target for safe
+                                                                          // use.
             } catch (IOException e) {
                 System.err.println("❗ Could not delete exsisting contents of Mod in trash! " + "\n" + e.getMessage()
                         + "\nContinuing...");
@@ -358,7 +366,8 @@ public class ModManager {
                                 // Last owner should be GAME, so remove FileLineage.
                                 if (fl.getStack().size() == 1) {
                                     System.out.println("Trashing empty lineage");
-                                    Path tmpPath = targetDir.resolve(LINEAGE_DIR.resolve(mfPath + ".json"));
+                                    Path tmpPath = targetDir
+                                            .resolve(LINEAGE_DIR.resolve(mfPath + ".json"));
 
                                     if (!Files.exists(tmpPath.getParent()))
                                         Files.createDirectories(tmpPath.getParent());
@@ -691,41 +700,9 @@ public class ModManager {
         }
     } // removeMod()
 
-    /**
-     * Used to display the contents of the GameState to the user in CLI
-     * 
-     * @return
-     * @throws Exception
-     */
-    private String loadGameState() throws Exception {
-        GameState gState;
-        Path GsPath = GAME_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
-
-        if (!Files.exists(GsPath))
-            System.out.println("Could not find: " + GameState.FILE_NAME + ", creating it.");
-        try {
-            gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
-            return gState.toString();
-
-        } catch (Exception e) {
-            throw new Exception("Failed to add Mod to GameState", e);
-        }
-    } // readGameState()
-
     // #endregion
     /// /// /// Public Helpers /// /// ///
     // #region
-
-    /**
-     * Get a the toString of the current GameState after reading the file if
-     * exsists.
-     * 
-     * @return
-     * @throws Exception If the File is missing.
-     */
-    public String printGameState() throws Exception {
-        return loadGameState();
-    }
 
     /**
      * Get the instance of a Mod.

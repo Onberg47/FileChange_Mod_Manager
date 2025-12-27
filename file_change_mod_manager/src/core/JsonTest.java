@@ -14,10 +14,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
+import core.config.defaultConfig;
 import core.interfaces.JsonSerializable;
 import core.io.JsonIO;
 import core.io.ModIO;
@@ -57,12 +59,24 @@ public class JsonTest {
         // moveFromTempTest();
 
         ModManager modManager = new ModManager(game);
-        //modManager.compileMod("sample");
-        //modManager.deployMod("other-basemo-10808"); // LoadOrder 0
-        //modManager.deployMod("other-mega_s-51449"); // LoadOrder 3
+        // modManager.compileMod("sample");
+        // modManager.deployMod("other-basemo-10808"); // LoadOrder 0
+        // modManager.deployMod("other-mega_s-51449"); // LoadOrder 3
 
-        //modManager.trashMod("other-basemo-10808");
-        //modManager.modTrash("other-mega_s-51449");
+        // modManager.trashMod("other-basemo-10808");
+        // modManager.modTrash("other-mega_s-51449");
+
+        Path path = Path.of("mod_manager/config.json");
+        // JsonIO.readHashMap(path.toFile());
+
+        HashMap<String, String> hMap = new HashMap<>();
+        hMap.put("BACKUP_DIR", defaultConfig.BACKUP_DIR.toString());
+        hMap.put("LINEAGE_DIR", defaultConfig.LINEAGE_DIR.toString());
+        hMap.put("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString());
+        hMap.put("MANIFEST_DIR", defaultConfig.MANIFEST_DIR.toString());
+        hMap.put("TEMP_DIR", defaultConfig.TEMP_DIR.toString());
+        hMap.put("TRASH_DIR", defaultConfig.TRASH_DIR.toString());
+        JsonIO.writeHasMap(path.toFile(), hMap);
 
         /*
          * Path temp = Path.of("temp/sample");
@@ -74,7 +88,7 @@ public class JsonTest {
         // File("mod_manager/mod_storage/game_1/other-base_m-8888/.mod_manifests/other-base_m-8888.json"),
         // null);
         // System.out.println("Read contents:\n" + readMod.printContents());
-        
+
         /*
          * Path storagePath = Path.of(game.getModsPath(), mod.getId());
          * System.out.println(storagePath);

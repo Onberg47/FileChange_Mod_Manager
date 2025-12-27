@@ -7,6 +7,7 @@ package cli;
 import core.managers.GameManager;
 import core.managers.ModManager;
 import core.objects.Game;
+import core.utils.FileUtil;
 
 /**
  * Command interface to use ModManager. For console and GUI wrapper use.
@@ -53,7 +54,31 @@ public class ModManagerCLI {
     } // PSVM()
 
     private static void printHelp() {
-        System.out.println("help"); // TODO
+        System.out.println("Usage: ");
+        // List
+        System.out.printf("\n%-4s, %-8s | %s\n", "-L", "list", "List all deployed Mods");
+        System.out.printf("%14s |\n", "Arguments:");
+        System.out.printf("%14s | %s\n", "--game", "Specify the Game being modified by Id");
+        System.out.printf("%14s |\n", "Options:");
+        System.out.printf("%14s | %s\n", "--s", "List Available Mods from Storage");
+
+        // Deploy
+        System.out.printf("\n%-4s, %-8s | %s\n", "-D", "deploy", "Deploy a stored Mod", "--mod", "ID of Mod");
+        System.out.printf("%14s |\n", "[ Arguments ]");
+        System.out.printf("%14s | %s\n", "--game", "Specify the Game being modified by Id");
+
+        // Remove
+        System.out.printf("\n%-4s, %-8s | %s\n", "-R", "remove", "Remove a deployed Mod", "--mod", "ID of Mod");
+        System.out.printf("%14s |\n", "[ Arguments ]");
+        System.out.printf(" %14s | %s\n", "--game", "Specify the Game being modified by Id");
+
+        // Compile
+        System.out.printf("\n%-4s, %-8s | %s\n", "-C", "compile", "Compile a new Mod to storage", "--dir",
+                "name of directory with Mod contents");
+        System.out.printf("%14s |\n", "[ Arguments ]");
+        System.out.printf("%14s | %s\n", "--game", "Specify the Game being modified by Id");
+        System.out.printf("%14s | %s\n", "--dir", "Name of directory with Mod contents");
+
     }
 
     /// /// /// Commands /// /// ///
@@ -70,7 +95,7 @@ public class ModManagerCLI {
         // Required arguments
         String gameId = cli.getRequired("game");
         // Optional arguments
-        //String location = cli.getString("location", null);
+        Boolean location = cli.hasFlag("s");
 
         // Load game config
         Game game = GameManager.getGameById(gameId);
@@ -80,7 +105,10 @@ public class ModManagerCLI {
 
         ModManager manager = new ModManager(game);
         // TODO
-        System.out.print(manager.printGameState());
+        if (!location)
+            System.out.print(FileUtil.printGameState(game));
+        else
+            System.out.println(FileUtil.printStoredGames(game));
 
     } // handleListDeployed()
 

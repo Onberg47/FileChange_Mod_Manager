@@ -2,7 +2,6 @@
  * Author: Stephanos B
  * Date: 15/12/2025
 */
-
 package core.objects;
 
 import java.time.LocalDateTime;
@@ -297,6 +296,10 @@ public class Mod implements JsonSerializable {
         this.setId(generateModId(this.getDownloadSource()));
         return this.getId();
     } // generateModId()
+
+    public String printLite() {
+        return String.format("ID: %s | Name: %-14s | Order : %-3d", getId(), getName(), getLoadOrder());
+    }
 
     /**
      * Overrides toString() to provide a string representation of the Mod object.

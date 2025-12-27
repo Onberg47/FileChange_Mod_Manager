@@ -142,15 +142,14 @@ public class GameState implements JsonSerializable {
     private String printDeployedMods() {
         StringBuilder sb = new StringBuilder();
         for (Mod mod : this.getDeployedMods()) {
-            sb.append("\n\t\t⚫ ")
-                    .append("ID: " + mod.getId() + " | Name: " + mod.getName() + " | Order: " + mod.getLoadOrder());
+            sb.append("\n\t\t⚫ " + mod.printLite());
         }
         return sb.toString();
     }
 
     @Override
     public String toString() {
-        return String.format("Game State:\n\tLast Modified: %s\n\tDeployed Mods:%s",
+        return String.format("🗂  Game State:\n\tLast Modified: %s\n\tDeployed Mods:%s",
                 this.getLastModified().toString(),
                 printDeployedMods());
     }
