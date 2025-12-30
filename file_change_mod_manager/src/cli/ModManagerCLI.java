@@ -10,7 +10,12 @@ import core.objects.Game;
 import core.utils.FileUtil;
 
 /**
- * Command interface to use ModManager. For console and GUI wrapper use.
+ * A standalone Command interface to use ModManager. For console and GUI wrapper
+ * use.
+ * 
+ * @author Stephanos B
+ * @deprecated This is replaced by the new CLI Manager. Retained for
+ *             demonstation purposes.
  */
 public class ModManagerCLI {
     public static void main(String[] args) {
@@ -48,7 +53,6 @@ public class ModManagerCLI {
             }
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
             System.exit(1);
         }
     } // PSVM()
@@ -103,12 +107,12 @@ public class ModManagerCLI {
             throw new Exception("Game not found: " + gameId);
         }
 
-        ModManager manager = new ModManager(game);
+        // ModManager manager = new ModManager(game);
         // TODO
         if (!location)
             System.out.print(FileUtil.printGameState(game));
         else
-            System.out.println(FileUtil.printStoredGames(game));
+            System.out.println(FileUtil.printStoredMods(game));
 
     } // handleListDeployed()
 
@@ -132,9 +136,7 @@ public class ModManagerCLI {
         }
         ModManager manager = new ModManager(game);
 
-        // RUN
-        manager.compileMod(directory);
-
+        manager.compileMod(directory, GameManager.collectUserMetadata());
     } // handleCompile()
 
     /**
@@ -188,10 +190,3 @@ public class ModManagerCLI {
     } // handleRemove()
 
 } // Class
-
-/*
- * System.exit(0); // Success
- * System.exit(1); // General error
- * System.exit(2); // Invalid arguments
- * System.exit(3); // File not found
- */

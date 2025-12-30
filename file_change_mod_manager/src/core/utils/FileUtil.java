@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import core.config.defaultConfig; // TODO replace
+import core.config.AppConfig;
 import core.interfaces.JsonSerializable;
 import core.io.JsonIO;
 import core.objects.Game;
@@ -33,6 +33,7 @@ import core.objects.ModFile;
  * @author Stephanos B
  */
 public class FileUtil {
+    private static AppConfig config = AppConfig.getInstance();
 
     /**
      * Recursively scans a directory and prints all files and directories with
@@ -67,7 +68,7 @@ public class FileUtil {
 
     /**
      * Internal recursive method to scan directories.
-     * My original imperative approach.
+     * A more advanced version that uses lambda and Steams.
      * 
      * @param dirPath  The path of the directory to scan.
      * @param relative Relative root to be removed from the final paths.
@@ -82,66 +83,6 @@ public class FileUtil {
     private static List<ModFile> getDirectoryModFiles(Path dirPath, Path relative, String prefix, int depth,
             int maxDepth) {
         try (Stream<Path> paths = Files.list(dirPath)) {
-            List<ModFile> list = new java.util.ArrayList<ModFile>();
-
-            for (Path path : (Iterable<Path>) paths::iterator) {
-                // Process each file
-
-                if (Files.isRegularFile(path)) {
-                    list.add(new ModFile(
-                            relative.relativize(path).toString(),
-                            HashUtil.computeFileHash(path),
-                            Files.size(path)));
-                    System.out.println(
-                            String.format("%sFound File: %s", " ".repeat(depth * 3), prefix + path.getFileName()));
-
-                    // Process each directory
-                } else if (Files.isDirectory(path)) {
-                    // Using a temporary prefix to avoid modifying the original prefix for sibling
-                    // directories
-                    String tmpPrefix = prefix + path.getFileName().toString() + "/";
-                    System.out.println(String.format("%sFound directory: %s", " ".repeat(depth * 3), tmpPrefix));
-
-                    if (depth >= maxDepth) {
-                        // Prevents infinite recursion past reasonable depth.
-                        System.err.println("❗ Maximum depth reached, stopping recursion.");
-                        // TODO remove debug with better logging
-                        break;
-                    }
-
-                    list.addAll(getDirectoryModFiles(path, relative, tmpPrefix, depth + 1, maxDepth));
-                    // Recursive call
-                }
-            } // for
-            return list;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            // Hashing exception
-            e.printStackTrace();
-        }
-        return new ArrayList<>(); // only reached after a catch
-    } // private getDirectoryModFiles()
-
-    /**
-     * Internal recursive method to scan directories.
-     * A more advanced version that uses lambda and Steams.
-     * 
-     * @param dirPath  The path of the directory to scan.
-     * @param relative Relative root to be removed from the final paths.
-     *                 (relativize)
-     * @param prefix   The prefix path for indentation.
-     * @param depth    The current depth of recursion counting and depth-based
-     *                 indentation.
-     * @param maxDepth The maximum depth to recurse into directories.
-     * 
-     * @return A list of ModFile objects representing the files found.
-     */
-    @SuppressWarnings("unused")
-    private static List<ModFile> getDirectoryModFilesStream(Path dirPath, Path relative, String prefix, int depth,
-            int maxDepth) {
-        try (Stream<Path> paths = Files.list(dirPath)) {
             return paths.flatMap(path -> {
                 try {
                     if (Files.isRegularFile(path)) {
@@ -151,12 +92,12 @@ public class FileUtil {
                                 HashUtil.computeFileHash(path),
                                 Files.size(path));
                         System.out.println(
-                                String.format("%sFound File: %s", " ".repeat(depth * 3), prefix + path.getFileName()));
+                                String.format("%s🗒  Found File: %s", " ".repeat(depth * 3), prefix + path.getFileName()));
                         return Stream.of(modFile);
                     } else if (Files.isDirectory(path)) {
                         // Create ModFile for directory (if needed) or recurse
                         String tmpPrefix = prefix + path.getFileName().toString() + "/";
-                        System.out.println(String.format("%sFound directory: %s", " ".repeat(depth * 3), tmpPrefix));
+                        System.out.println(String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
 
                         if (depth >= maxDepth) {
                             System.err.println("❗ Maximum depth reached, stopping recursion.");
@@ -164,7 +105,7 @@ public class FileUtil {
                         }
 
                         // Recursively process subdirectory
-                        return getDirectoryModFilesStream(path, relative, tmpPrefix, depth + 1,
+                        return getDirectoryModFiles(path, relative, tmpPrefix, depth + 1,
                                 maxDepth).stream();
                     }
                 } catch (Exception e) {
@@ -182,39 +123,39 @@ public class FileUtil {
     /// /// /// File Print Utils /// /// ///
 
     /**
-     * For CLI and debug use. Prints out what Mods are installed according to the
-     * GameState.
+     * For CLI and debug use. Creates a String to print out what Mods are installed
+     * according to the GameState.
      * 
      * @param game
      * @return String to display
      * @throws Exception
      */
     public static String printGameState(Game game) throws Exception {
-        Path managerPath = defaultConfig.MANAGER_DIR; // Path managerPath = config.getManagerDir();
+        Path managerPath = config.getManagerDir();
         GameState gState;
         Path GsPath = Path.of(game.getInstallPath(), managerPath.toString(), GameState.FILE_NAME);
 
         if (!Files.exists(GsPath))
-            System.out.println("Could not find: " + GameState.FILE_NAME + ", creating it.");
+            System.err.println("❗ Could not find: " + GameState.FILE_NAME + ", creating it.");
         try {
             gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
             return gState.toString();
 
         } catch (Exception e) {
-            throw new Exception("Failed to add Mod to GameState", e);
+            throw new Exception("❌ Failed to add Mod to GameState", e);
         }
     } // readGameState()
 
     /**
-     * For CLI use. Prints out what Mods actually exsist in Mod Storage based on
-     * exsiting ModManifests.
+     * For CLI use. Creates a String to print out what Mods actually exsist in Mod
+     * Storage based on exsiting ModManifests.
      * 
      * @param game
      * @return String to display.
      * @throws Exception
      */
-    public static String printStoredGames(Game game) throws Exception {
-        Path manifestPath = defaultConfig.MANIFEST_DIR;
+    public static String printStoredMods(Game game) throws Exception {
+        Path manifestPath = config.getManifestDir();
         StringBuilder sb = new StringBuilder();
 
         sb.append("📦 Stored Mods:\n\t Game: " + game.getName());
@@ -241,11 +182,49 @@ public class FileUtil {
                 }
             }
         } catch (Exception e) {
-            throw new Exception("Failed to read Storage mods: ", e);
+            throw new Exception("❌ Failed to read Storage mods: ", e);
         }
 
         return sb.toString();
-    } // printStoredGames()
+    } // printStoredMods()
+
+    /**
+     * For CLI and debug use. Creates a String to print from reading what valid
+     * Game.json files are exsist.
+     * 
+     * @return
+     * @throws Exception
+     */
+    public static String printGames() throws Exception {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("📦 Known Games:");
+
+        Path gameDir = config.getGameDir();
+        try (Stream<Path> paths = Files.list(gameDir)) {
+            // List<ModFile> list = new java.util.ArrayList<ModFile>();
+
+            for (Path path : (Iterable<Path>) paths::iterator) {
+                // Process each file
+
+                if (Files.isRegularFile(path)) {
+                    try {
+                        Game game = (Game) JsonIO.read(
+                                path.toFile(),
+                                JsonSerializable.ObjectTypes.GAME);
+
+                        sb.append("\n\t\t⚪ " + game.getName() + " [id: " + game.getId() + "]");
+
+                    } catch (InvalidObjectException e) {
+                        // Just skips silently. Other errors are caught outside to stop process.
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new Exception("Failed to read Games: ", e);
+        }
+        return sb.toString();
+    } // printGames()
 
     /// /// /// Directory Utils /// /// ///
 

@@ -309,7 +309,7 @@ public class Mod implements JsonSerializable {
     @Override
     public String toString() {
         return String.format(
-                "Mod Details:\nID: %s | Game ID: %s\nVersion: %s\n Download Source: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s\nContents:\n%s",
+                "Mod Details:\nID: %s | Game ID: %s\nVersion: %s\n Download Source: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s",
                 getId(), gameId, version, downloadSource.getCode(), name, description, loadOrder,
                 downloadDate.toString(), downloadLink);
     } // toString()

@@ -11,7 +11,7 @@ import java.io.InvalidObjectException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Scanner;
+import java.util.HashMap;
 
 import core.config.AppConfig;
 import core.interfaces.JsonSerializable;
@@ -26,6 +26,7 @@ import core.objects.ModManifest;
 import core.utils.DateUtil;
 import core.utils.FileUtil;
 import core.utils.HashUtil;
+import core.utils.ScannerUtil;
 
 /**
  * Provides the core functionality for managing Mods and all related integrity
@@ -36,10 +37,10 @@ import core.utils.HashUtil;
  * @author Stephanos B
  */
 public class ModManager {
+    private AppConfig config = AppConfig.getInstance();
 
-    private AppConfig config;
     private Game game;
-    private final Path GAME_PATH; // Path to the Game_Root directory where mods are deployed.
+    private final Path ROOT_PATH; // Path to the Game_Root directory where mods are deployed.
                                   // (cannot be determined prior to constuctor but is final.)
 
     // Comes from config.
@@ -56,9 +57,8 @@ public class ModManager {
      * @param game
      */
     public ModManager(Game game) {
-        this.config = new AppConfig();
         this.game = game;
-        GAME_PATH = Path.of(game.getInstallPath());
+        ROOT_PATH = Path.of(game.getInstallPath());
 
         BACKUP_DIR = config.getBackupDir();
         LINEAGE_DIR = config.getLineageDir();
@@ -77,16 +77,18 @@ public class ModManager {
      * 
      * @param dirName The directory name of the mod located in ./temp, doubles as
      *                the mod's name.
+     * @param metaMap A HashMap of the Mod's meta data. For the CLI this comes from
+     *                {@code collectUserMetadata()} otherwise the GUI will pass it.
      * @return Complete Mod that was created. Allows quick access to the exact data
      *         written without needing to read the JSON. (Mainly for data checking)
      */
-    public Mod compileMod(String dirName) {
+    public Mod compileMod(String dirName, HashMap<String, String> metaMap) {
         /// /// 1. Verify Directory is valid.
         // Path tempDir = Path.of(TEMP_DIR, dirName);
         Path tempDir = TEMP_DIR.resolve(dirName);
 
         if (!Files.isDirectory(tempDir)) {
-            // If path leads to a zip, attempt to extract.
+            // TODO If path leads to a zip, attempt to extract.
             // Path tempDir = extractToTemp(downloadedZip);
         } else if (!Files.exists(tempDir)) {
             // Verify the dirName given is a valid directory.
@@ -95,10 +97,25 @@ public class ModManager {
         }
         System.out.println("📦 Collecting info: " + tempDir.getFileName()); // TODO Debugging
 
-        /// /// 2. Prompt user for metadata (name, version, etc.)
-        ModManifest mod;
-        mod = new ModManifest(collectUserMetadata(new Mod()));
+        /// /// 2. Process passed HashMap to extract Mod data.
+        ModManifest mod = new ModManifest();
         mod.setGameId(game.getId());
+        try {
+            mod.setName(metaMap.get("name"));
+            mod.setDescription(metaMap.get("description"));
+            mod.setDownloadSource(metaMap.get("source"));
+            mod.setVersion(metaMap.get("version"));
+            mod.setDownloadLink(metaMap.get("url"));
+            
+            try {
+                mod.setLoadOrder(Integer.parseInt(metaMap.get("loadorder")));
+            } catch (NumberFormatException e) {
+                mod.setLoadOrder(1); // default TODO consider moving this to Mod for consistancy
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Fatal Error: " + e.getMessage());
+        }
         mod.generateModId(); // Can only create an id once required fields are collected.
 
         System.out.println("\n📦 Compiling mod: " + tempDir.getFileName()); // TODO Debugging
@@ -165,7 +182,7 @@ public class ModManager {
 
         try {
             /// 1. Find the Mod's manifest from it's ID and read it.
-            System.out.println("📦 Attempting to deploy mod...");
+            System.out.println("📦 Attempting to deploy Mod...");
             try {
                 mod = (ModManifest) JsonIO.read(
                         storedDir.resolve(MANIFEST_DIR.toString(), modId + ".json").toFile(),
@@ -205,8 +222,8 @@ public class ModManager {
 
             /// 3. Copy from temp/{mod_id} to game_root and clean temp.
             try {
-                FileUtil.copyDirectoryContents(tempDir, GAME_PATH, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("\tMod copied from temp to: " + GAME_PATH);
+                FileUtil.copyDirectoryContents(tempDir, ROOT_PATH, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("\tMod copied from temp to: " + ROOT_PATH);
                 System.out.println("\tCleaning temp...");
                 FileUtil.deleteDirectory(tempDir);
 
@@ -281,7 +298,7 @@ public class ModManager {
 
         // Create directories in Trash.
         try {
-            mod = (ModManifest) JsonIO.read(GAME_PATH.resolve(manifestPath).toFile(),
+            mod = (ModManifest) JsonIO.read(ROOT_PATH.resolve(manifestPath).toFile(),
                     JsonSerializable.ObjectTypes.MOD_MANIFEST);
             System.out.println("\t✔ Manifest of Mod: " + mod.getName() + " found!");
         } catch (Exception e) {
@@ -311,8 +328,8 @@ public class ModManager {
             Path mfPath; // Path of ModFile entry.
             for (ModFile mf : mod.getContentsArr()) {
                 mfPath = Path.of(mf.getFilePath());
-                src = GAME_PATH.resolve(mfPath);
-                Path flPath = GAME_PATH.resolve(LINEAGE_DIR.resolve(mfPath + ".json"));
+                src = ROOT_PATH.resolve(mfPath);
+                Path flPath = ROOT_PATH.resolve(LINEAGE_DIR.resolve(mfPath + ".json"));
                 if (!Files.exists(flPath)) {
                     System.err.println("❗ Error: No File Lineage found at: " + flPath);
                     return;
@@ -342,8 +359,8 @@ public class ModManager {
                         Files.move(flPath, flTarget);
 
                         // cleaning any empty directories...
-                        FileUtil.cleanDirectories(GAME_PATH, mfPath.getParent());
-                        FileUtil.cleanDirectories(GAME_PATH, LINEAGE_DIR);
+                        FileUtil.cleanDirectories(ROOT_PATH, mfPath.getParent());
+                        FileUtil.cleanDirectories(ROOT_PATH, LINEAGE_DIR);
 
                     } else { // other Owners exsist
                         System.out.println("\t⚫ Other owner(s) found for: " + mfPath);
@@ -409,13 +426,13 @@ public class ModManager {
 
             /// /// 4. Remove ModManifest from game files.
             System.out.print("\tTrashing Mod Manifest...");
-            Files.move(GAME_PATH.resolve(manifestPath), targetDir.resolve(manifestPath));
+            Files.move(ROOT_PATH.resolve(manifestPath), targetDir.resolve(manifestPath));
 
             /// /// 3. Remove Mod from GameState
             this.gameStateRemoveMod(mod);
 
             // clean the .manifest/ if it's empty.
-            FileUtil.cleanDirectories(GAME_PATH, MANIFEST_DIR);
+            FileUtil.cleanDirectories(ROOT_PATH, MANIFEST_DIR);
             System.out.println(" ✔");
 
             System.out.println("🗑 Mod successfully trashed!");
@@ -477,21 +494,21 @@ public class ModManager {
         Path lineagePath = LINEAGE_DIR.resolve(modFile.getFilePath() + ".json"); // where it should be.
         Boolean copy = false;
 
-        if (Files.exists(GAME_PATH.resolve(modFilePath))) { // If the file exsists (conflict)
+        if (Files.exists(ROOT_PATH.resolve(modFilePath))) { // If the file exsists (conflict)
             // create and instance of the exsisting ModFile.
             System.out.println("\t⚫ Found file conflict, resolving...");
 
-            if (!Files.exists(GAME_PATH.resolve(lineagePath))) { // If no FileLineage then it must be a Game file
+            if (!Files.exists(ROOT_PATH.resolve(lineagePath))) { // If no FileLineage then it must be a Game file
                 try { // Create BACKUP.
-                    System.out.println("✔ Base Game file found: " + GAME_PATH.resolve(modFilePath)
+                    System.out.println("✔ Base Game file found: " + ROOT_PATH.resolve(modFilePath)
                             + " Creating a backup: " + BACKUP_DIR.resolve(modFilePath + ".backup"));
 
-                    Path backupPath = GAME_PATH.resolve(BACKUP_DIR.resolve(modFilePath + ".backup"));
+                    Path backupPath = ROOT_PATH.resolve(BACKUP_DIR.resolve(modFilePath + ".backup"));
                     if (!Files.exists(backupPath.getParent()))
                         Files.createDirectories(backupPath.getParent());
 
-                    System.out.println("Trying to copy: " + GAME_PATH.resolve(modFilePath) + " to " + backupPath);
-                    Files.copy(GAME_PATH.resolve(modFilePath), backupPath);
+                    System.out.println("Trying to copy: " + ROOT_PATH.resolve(modFilePath) + " to " + backupPath);
+                    Files.copy(ROOT_PATH.resolve(modFilePath), backupPath);
                 } catch (IOException e) {
                     // Clarifying that it is the Game File backup copy that has failed.
                     throw new Exception("Error creating file backup! " + e.getMessage(), e);
@@ -511,12 +528,12 @@ public class ModManager {
 
                 System.out.println("\t\t✔ Exsisting Lineage found.");
                 fl = (FileLineage) JsonIO.read(
-                        GAME_PATH.resolve(lineagePath).toFile(),
+                        ROOT_PATH.resolve(lineagePath).toFile(),
                         JsonSerializable.ObjectTypes.FILE_LINEAGE);
 
                 try {
                     if (fl.insertOrderedVersion(new FileVersion(modId, modFile.getHash()),
-                            GAME_PATH.resolve(MANIFEST_DIR), loadOrder) == 0) {
+                            ROOT_PATH.resolve(MANIFEST_DIR), loadOrder) == 0) {
                         // If it was top:
                         fl.pushVersion(modId, modFile.getHash());
                         // COPY
@@ -569,8 +586,8 @@ public class ModManager {
      * @throws Exception             A process error
      */
     private void restoreBackup(String modFilePath) throws Exception {
-        Path backup = GAME_PATH.resolve(BACKUP_DIR.resolve(modFilePath + ".backup"));
-        Path gameModFile = GAME_PATH.resolve(modFilePath);
+        Path backup = ROOT_PATH.resolve(BACKUP_DIR.resolve(modFilePath + ".backup"));
+        Path gameModFile = ROOT_PATH.resolve(modFilePath);
 
         if (!Files.exists(backup)) {
             throw new FileNotFoundException("COuld not find backup for file " + modFilePath + " --> " + backup);
@@ -588,7 +605,7 @@ public class ModManager {
         // Move because the backup is used up.
         Files.move(backup, gameModFile, StandardCopyOption.REPLACE_EXISTING);
         // clean BACKUP directories
-        FileUtil.cleanDirectories(GAME_PATH, BACKUP_DIR.resolve(modFilePath + ".backup").getParent());
+        FileUtil.cleanDirectories(ROOT_PATH, BACKUP_DIR.resolve(modFilePath + ".backup").getParent());
     } // restoreBackup()
 
     /**
@@ -604,48 +621,12 @@ public class ModManager {
             throw new FileNotFoundException(
                     "Source file in storage not found: " + source.toString());
         }
-        Files.copy(source, GAME_PATH.resolve(modFilePath), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(source, ROOT_PATH.resolve(modFilePath), StandardCopyOption.REPLACE_EXISTING);
     } // restoreFromManifest()
 
     // #endregion
     /// /// /// Helpers /// /// ///
     // #region
-
-    /**
-     * 
-     * @param mod Mod instance to make changes to.
-     * @return the updated version of the passed Mod.
-     */
-    private static Mod collectUserMetadata(Mod mod) {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Enter mod metadata:");
-        System.out.print("*Display Name: ");
-        mod.setName(scanner.nextLine().trim());
-
-        System.out.print("Description: ");
-        mod.setDescription(scanner.nextLine().trim());
-
-        System.out.print(String.format("*Download Source (%s): ", Mod.ModSource.values().toString()));
-        mod.setDownloadSource(scanner.nextLine().trim());
-
-        System.out.print("Load Order (default 1): ");
-        String loadOrderInput = scanner.nextLine().trim();
-        mod.setLoadOrder(loadOrderInput.isEmpty() ? 1 : Integer.parseInt(loadOrderInput));
-
-        System.out.print("*Version (default 1.0): ");
-        mod.setVersion(scanner.nextLine().trim());
-
-        // TODO Download date. Left to default at .now()
-
-        System.out.print("Download URL (Mod page): ");
-        mod.setDownloadLink(scanner.nextLine().trim());
-
-        scanner.close();
-        return mod;
-    } // collectUserMetadata()
-
-    /// /// GameState
 
     /**
      * Adds target Mod to the GameState's deployed Mods. Will create it if missing
@@ -656,7 +637,7 @@ public class ModManager {
      */
     private void gameStateAddMod(Mod mod) throws Exception {
         GameState gState;
-        Path GsPath = GAME_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
+        Path GsPath = ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
 
         try {
 
@@ -681,7 +662,7 @@ public class ModManager {
      */
     private void gameStateRemoveMod(Mod mod) throws Exception {
         GameState gState;
-        Path GsPath = GAME_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
+        Path GsPath = ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
 
         if (!Files.exists(GsPath))
             throw new FileNotFoundException("File for GameState is missing!");
@@ -703,6 +684,33 @@ public class ModManager {
     // #endregion
     /// /// /// Public Helpers /// /// ///
     // #region
+
+    /**
+     * Used to collet user data before compileMod is run. Pass it directly to
+     * compileMod when using CLI.
+     * 
+     * @throws Exception
+     */
+    public static HashMap<String, String> collectUserMetadata() throws Exception {
+        String[][] queryMatrix = {
+                {
+                        "name",
+                        "description",
+                        "source",
+                        "loadorder",
+                        "version",
+                        "url"
+                },
+                {
+                        "*Display Name",
+                        "Description",
+                        "*Download Source",
+                        "Load Order (default 1)",
+                        "*Version (default 1.0)", "Download URL (Mod page)"
+                }
+        };
+        return ScannerUtil.checklistConsole(queryMatrix);
+    } // collectUserMetadata()
 
     /**
      * Get the instance of a Mod.

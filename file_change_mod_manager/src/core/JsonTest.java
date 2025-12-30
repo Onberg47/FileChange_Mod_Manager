@@ -23,6 +23,7 @@ import core.config.defaultConfig;
 import core.interfaces.JsonSerializable;
 import core.io.JsonIO;
 import core.io.ModIO;
+import core.managers.GameManager;
 import core.managers.ModManager;
 import core.objects.FileLineage;
 import core.objects.FileVersion;
@@ -41,7 +42,7 @@ import core.utils.FileUtil;
 @SuppressWarnings("unused")
 public class JsonTest {
 
-    public static final Game game = new Game("game_1", "Test Game", "tst_fs/game_root",
+    public static final Game game = new Game("game_1", "0.0.0", "Test Game", "tst_fs/game_root",
             "mod_manager/mod_storage/game_1");
 
     public static void main(String[] args) throws Exception {
@@ -59,44 +60,26 @@ public class JsonTest {
         // moveFromTempTest();
 
         ModManager modManager = new ModManager(game);
-        // modManager.compileMod("sample");
-        // modManager.deployMod("other-basemo-10808"); // LoadOrder 0
-        // modManager.deployMod("other-mega_s-51449"); // LoadOrder 3
 
-        // modManager.trashMod("other-basemo-10808");
-        // modManager.modTrash("other-mega_s-51449");
+        GameManager gm = new GameManager();
+        HashMap<String, String> tMap = new HashMap<>();
+        tMap.put("id", "example_id");
+        tMap.put("name", "Example Game 1");
+        tMap.put("releaseVersion", "1.27.4a");
+        tMap.put("installPath", "/home/hdd700/Programming/java/JarProjects/FileChange_Mod_Manager/tst_fs/game_root/");
+        tMap.put("modsPath",
+                "/home/hdd700/Programming/java/JarProjects/FileChange_Mod_Manager/mod_manager/mod_storage/game_1/");
 
-        Path path = Path.of("mod_manager/config.json");
-        // JsonIO.readHashMap(path.toFile());
+        //gm.addGame(tMap);
+        System.out.println(FileUtil.printGames());
+        // gm.removeGame("game_id");
+        // System.out.println(GameManager.getGameById("game_id").toString());
 
-        HashMap<String, String> hMap = new HashMap<>();
-        hMap.put("BACKUP_DIR", defaultConfig.BACKUP_DIR.toString());
-        hMap.put("LINEAGE_DIR", defaultConfig.LINEAGE_DIR.toString());
-        hMap.put("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString());
-        hMap.put("MANIFEST_DIR", defaultConfig.MANIFEST_DIR.toString());
-        hMap.put("TEMP_DIR", defaultConfig.TEMP_DIR.toString());
-        hMap.put("TRASH_DIR", defaultConfig.TRASH_DIR.toString());
-        JsonIO.writeHasMap(path.toFile(), hMap);
+        ///
 
-        /*
-         * Path temp = Path.of("temp/sample");
-         * Path src = Path.of("temp/sample/data/example_file_6.txt");
-         * System.out.println(temp.relativize(src));
-         */
+        //Path path = Path.of("mod_manager/.temp/sample/");
+        //FileUtil.getDirectoryModFiles(path, path);
 
-        // ModManifest readMod = (ModManifest) JsonIO.read(new
-        // File("mod_manager/mod_storage/game_1/other-base_m-8888/.mod_manifests/other-base_m-8888.json"),
-        // null);
-        // System.out.println("Read contents:\n" + readMod.printContents());
-
-        /*
-         * Path storagePath = Path.of(game.getModsPath(), mod.getId());
-         * System.out.println(storagePath);
-         * 
-         * ModManager modManager = new ModManager(game);
-         * List<ModFile> files = FileUtil.getDirectoryFiles("temp/sample_mod_2");
-         * System.out.println("\nDone.\n\n" + files.toString());
-         */
     } // psvm()
 
     /**
@@ -196,6 +179,25 @@ public class JsonTest {
         stack = tmpStack;
 
         System.out.println("RemovedAll 0's:\n\tTop element: " + stack.peek() + "\n\tAll: " + stack.toString());
+    }
+
+    private static void makeDefaultConfig() {
+        Path path = Path.of("mod_manager/config.json");
+        // JsonIO.readHashMap(path.toFile());
+
+        HashMap<String, String> hMap = new HashMap<>();
+        hMap.put("BACKUP_DIR", defaultConfig.getBackupDir().toString());
+        hMap.put("LINEAGE_DIR", defaultConfig.getLineageDir().toString());
+        hMap.put("MANAGER_DIR", defaultConfig.getManagerDir().toString());
+        hMap.put("MANIFEST_DIR", defaultConfig.getManifestDir().toString());
+        hMap.put("TEMP_DIR", defaultConfig.getTempDir().toString());
+        hMap.put("TRASH_DIR", defaultConfig.getTrashDir().toString());
+        try {
+            JsonIO.writeHasMap(path.toFile(), hMap);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
 } // Class

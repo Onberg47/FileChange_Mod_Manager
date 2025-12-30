@@ -28,6 +28,10 @@ public class DateUtil {
 
     /// /// /// Getters /// /// ///
 
+    /**
+     * 
+     * @return
+     */
     public static String getDirTimestamp() {
         return LocalDateTime.now().format(DIR_FORMATTER);
     }

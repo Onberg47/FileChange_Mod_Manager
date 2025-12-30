@@ -1,5 +1,20 @@
+
+/*
+ * Author Stephanos B
+ * Date: 30/12/2025
+ */
+import cli.CLIManager;
+
+/**
+ * Main app executable.
+ */
 public class App {
     public static void main(String[] args) throws Exception {
-        System.out.println("Hello, World!");
-    }
-}
+        if (args.length != 0 && args[0].equals("GUI")) {
+            System.err.println("GUI IS NOT COMPLETE!"); // TODO
+            // Wrapper.main(args);
+        } else {
+            CLIManager.main(args);
+        }
+    } // psvm()
+} // Class

@@ -16,16 +16,23 @@ import core.io.GameIO;
  */
 public class Game implements JsonSerializable {
 
-    private String id; // Unique identifier for the Game. Used as the directory name.
-    private String name; // User-friendly name of the Game for interfaces.
-    private String installPath; // Path where the Game is installed. (Should be absolute)
-    private String modsPath; // Path where the Mods are stored.
+    /** Unique identifier for the Game. Used as the directory name. */
+    private String id;
+    /** ReleaseVersion of the game for ID creation and debugging */
+    private String releaseVersion;
+    /** User-friendly name of the Game for interfaces. */
+    private String name;
+    /** Path where the Game is installed. (Should be absolute) */
+    private String installPath;
+    /** Path where the Mods are stored. */
+    private String modsPath;
 
     /**
      * Used to ensure Json Keys are consistent.
      */
     public enum JsonFields {
         id,
+        releaseVersion,
         name,
         installPath,
         modsPath
@@ -33,6 +40,7 @@ public class Game implements JsonSerializable {
 
     public Game() {
         id = "unkown01";
+        releaseVersion = "0.0.0";
         name = "Unkown Game";
         installPath = null; // Null because it must be set.
         modsPath = null;
@@ -47,8 +55,9 @@ public class Game implements JsonSerializable {
      * @param installPath The installation path of the Game. (Should be absolute)
      * @param modsPath    The Mods storage path of the Game.
      */
-    public Game(String id, String name, String installPath, String modsPath) {
+    public Game(String id, String releaseVersion, String name, String installPath, String modsPath) {
         this.id = id;
+        this.releaseVersion = releaseVersion;
         this.name = name;
         this.installPath = installPath;
         this.modsPath = modsPath;
@@ -67,6 +76,7 @@ public class Game implements JsonSerializable {
     } // toJsonObject()
 
     /// /// /// Getters and Setters /// /// ///
+    // #region
 
     public String getId() {
         return id;
@@ -74,6 +84,14 @@ public class Game implements JsonSerializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getReleaseVersion() {
+        return releaseVersion;
+    }
+
+    public void setReleaseVersion(String releaseVersion) {
+        this.releaseVersion = releaseVersion;
     }
 
     public String getName() {
@@ -104,6 +122,7 @@ public class Game implements JsonSerializable {
         this.modsPath = modsPath;
     }
 
+    // #endregion
     /// /// /// Methods /// /// ///
 
     /**
@@ -113,7 +132,8 @@ public class Game implements JsonSerializable {
      */
     @Override
     public String toString() {
-        return "Game [id=" + id + ", name=" + name + ", installPath=" + installPath + ", modsPath=" + modsPath + "]";
+        return "Game details: \n\tID = " + id + "\n\tName = " + name + "\n\tInstall Path = " + installPath
+                + "\n\tMods Path = " + modsPath;
     } // toString()
 
 } // Class
