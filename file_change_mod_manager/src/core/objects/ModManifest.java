@@ -49,7 +49,7 @@ public class ModManifest extends Mod {
      * @param source The source of the Mod, used for ID generation.
      * @param name   User-friendly name, doubles as the filename for the Mod.
      */
-    public ModManifest(String gameId, ModSource source, String name) {
+    public ModManifest(String gameId, String source, String name) {
         this();
         this.name = name;
         this.gameId = gameId;
@@ -65,7 +65,7 @@ public class ModManifest extends Mod {
      * @param name        User-friendly name, doubles as the filename for the Mod.
      * @param contentsArr The file contents array of the Mod.
      */
-    public ModManifest(String gameId, ModSource source, String name, ModFile[] contentsArr) {
+    public ModManifest(String gameId, String source, String name, ModFile[] contentsArr) {
         this(gameId, source, name);
         this.contentsArr = contentsArr;
     }
@@ -140,7 +140,7 @@ public class ModManifest extends Mod {
     public String toString() {
         return String.format(
                 "Mod Details:\nID: %s | Game ID: %s\nVersion: %s\n Download Source: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s\nContents:\n%s",
-                id, gameId, version, downloadSource.getCode(), name, description, loadOrder, downloadDate.toString(),
+                id, gameId, version, downloadSource, name, description, loadOrder, downloadDate.toString(),
                 downloadLink, printContents());
     } // toString()
 

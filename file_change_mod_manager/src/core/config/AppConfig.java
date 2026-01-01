@@ -15,24 +15,33 @@ import core.io.JsonIO;
  * @author Stephanos B
  */
 public final class AppConfig {
-    /// Directories:
+    /// Core:
     // #region
+
+    private static final String AppVersion = "1.0"; // Program's version
 
     /// Program Paths:
     /**
-     * From program's location: Where Games are stored.
+     * From program's location: Where Games are stored. FROM CONFIG
      */
     private final Path GAME_DIR;
     /**
-     * From program's location: Temporary directory for mod operations.
+     * From program's location: Temporary directory for mod operations. FROM CONFIG
      */
     private final Path TEMP_DIR;
     /**
-     * From program's location: Trash root directory.
+     * From program's location: Trash root directory. FROM CONFIG
      */
     private final Path TRASH_DIR;
 
+    private final Path LOG_DIR;
+
     /// Mod Mangaer Paths:
+    /**
+     * From game_root: Where the mod_manager stores active deployment data. FROM
+     * CONFIG
+     */
+    private final Path MANAGER_DIR;
     /**
      * From game_root: Where ModFile Linage.jsons are stored.
      */
@@ -42,16 +51,9 @@ public final class AppConfig {
      */
     private final Path BACKUP_DIR;
     /**
-     * From game_root: Where the mod_manager stores active deployment data.
-     */
-    private final Path MANAGER_DIR;
-    /**
      * From game_root: Where are manifests stored.
      */
     private final Path MANIFEST_DIR;
-
-    /// Other
-    private final Path LOG_DIR;
 
     // #endregion
 
@@ -67,13 +69,8 @@ public final class AppConfig {
         private Path gameDir;
         private Path tempDir;
         private Path trashDir;
-
-        private Path lineageDir;
-        private Path backupDir;
-        private Path managerDir;
-        private Path manifestDir;
-
         private Path logDir;
+        private Path managerDir;
 
         public Builder fromConfigFile(Path configIn) {
             try {
@@ -82,13 +79,8 @@ public final class AppConfig {
                 this.gameDir = Path.of(hMap.getOrDefault("GAME_DIR", defaultConfig.GAME_DIR.toString()));
                 this.tempDir = Path.of(hMap.getOrDefault("TEMP_DIR", defaultConfig.TEMP_DIR.toString()));
                 this.trashDir = Path.of(hMap.getOrDefault("TRASH_DIR", defaultConfig.TRASH_DIR.toString()));
-
-                this.lineageDir = Path.of(hMap.getOrDefault("LINEAGE_DIR", defaultConfig.LINEAGE_DIR.toString()));
-                this.backupDir = Path.of(hMap.getOrDefault("BACKUP_DIR", defaultConfig.BACKUP_DIR.toString()));
-                this.managerDir = Path.of(hMap.getOrDefault("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString()));
-                this.manifestDir = Path.of(hMap.getOrDefault("MANIFEST_DIR", defaultConfig.MANIFEST_DIR.toString()));
-
                 this.logDir = Path.of(hMap.getOrDefault("LOG_DIR", defaultConfig.LOG_DIR.toString()));
+                this.managerDir = Path.of(hMap.getOrDefault("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString()));
 
             } catch (Exception e) {
                 System.err.println("Failed to initialize config! " + e.getMessage());
@@ -107,13 +99,12 @@ public final class AppConfig {
         this.GAME_DIR = builder.gameDir;
         this.TEMP_DIR = builder.tempDir;
         this.TRASH_DIR = builder.trashDir;
-
-        this.LINEAGE_DIR = builder.lineageDir;
-        this.BACKUP_DIR = builder.backupDir;
-        this.MANAGER_DIR = builder.managerDir;
-        this.MANIFEST_DIR = builder.manifestDir;
-
         this.LOG_DIR = builder.logDir;
+        this.MANAGER_DIR = builder.managerDir;
+
+        this.LINEAGE_DIR = MANAGER_DIR.resolve("lineages/");
+        this.BACKUP_DIR = MANAGER_DIR.resolve("backups/");
+        this.MANIFEST_DIR = MANAGER_DIR.resolve("manifests/");
     }
 
     /**
@@ -157,38 +148,79 @@ public final class AppConfig {
     /// /// /// Getters /// /// ///
     // #region
 
+    /**
+     * Path within Program working directory.
+     * 
+     */
     public Path getGameDir() {
         return GAME_DIR;
     }
 
+    /**
+     * Path within Program working directory.
+     * 
+     */
     public Path getTempDir() {
         return TEMP_DIR;
     }
 
+    /**
+     * Path within Program working directory.
+     * 
+     */
     public Path getTrashDir() {
         return TRASH_DIR;
     }
 
+    /**
+     * Path from Game_root to where all Mod Manager data is contained.
+     */
     public Path getManagerDir() {
         return MANAGER_DIR;
     }
 
+    /**
+     * Path from Game_root to mod manifests.
+     */
     public Path getManifestDir() {
         return MANIFEST_DIR;
     }
 
+    /**
+     * Path from Game_root where backups are.
+     */
     public Path getBackupDir() {
         return BACKUP_DIR;
     }
 
+    /**
+     * Path from Game_root where all file lineages are.
+     */
     public Path getLineageDir() {
         return LINEAGE_DIR;
     }
 
+    /**
+     * Path within the program owrking directory for storing Logs.
+     */
     public Path getLogDir() {
         return this.LOG_DIR;
     }
 
+    /**
+     * The current version of the application.
+     */
+    public String getAppVersion() {
+        return AppVersion;
+    }
+
     // #endregion
+
+    @Override
+    public String toString() {
+        return String.format(
+                "Current config:\nManager:\n\tGame data dir: %s\n\tTemp dir: %s\n\tTrash dir: %s\n\tLog dir: %s\nGame structure:\n\tManager Dir: %s\n\t",
+                GAME_DIR, TEMP_DIR, TRASH_DIR, LOG_DIR, MANAGER_DIR);
+    }
 
 } // Class

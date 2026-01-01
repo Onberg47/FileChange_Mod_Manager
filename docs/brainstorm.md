@@ -181,3 +181,25 @@ Option 2, just seems like more work, keeping a JSON log (because we need to extr
 
 ---
 ---
+
+Possible mod ID conflicts:
+
+If we want to have a mod with varients and we assume we want to use the same base version for all its varients then we have this problem:
+
+The origonal/parent > Mod A:
+ParentMod; version 1.0 --> id `source-Parent-{hash of "1.0"}`
+
+Mod A.1:
+ParentMod_Varient1; version 1.0 --> id `source-Parent-{hash of "1.0"}`
+Mod A.2:
+ParentMod_Varient2; version 1.0 --> id `source-Parent-{hash of "1.0"}`
+Mod A.3: (Lets assume this is a custom-mod make by the user)
+ParentMod_Varient3; version 1.0 --> id `custom-Parent-{hash of "1.0"}`
+
+These would all have idential IDs, since it makes sense that varients would be named with the parent name first.
+And the Mod download sources would be idential if they are offical varients. If the user makes their own varient then it would make sense to rather change the source to something like "custom" but is on the user to do that.
+It also makes sense that varients would refer to the version of the base mod they are from.
+
+So instead we could id lie this:
+current ID format: `{source}-{first 6 chars of name}-{version hash}`
+revised: `{first 6 of name}-{name hash}-{version hash}`

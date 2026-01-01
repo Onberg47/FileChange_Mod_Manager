@@ -6,6 +6,7 @@ package cli;
 
 import java.util.Scanner;
 
+import core.config.AppConfig;
 import core.objects.Game;
 
 /**
@@ -37,8 +38,7 @@ public class CLIManager {
 
     public void run() {
         System.out.println("Mod Manager CLI - Type 'help' for commands");
-        System.out.println("Type 'exit' or 'quit' to exit");
-        System.out.println();
+        System.out.println("Type 'exit' or 'quit' to exit\n");
 
         do {
             printPrompt();
@@ -55,12 +55,17 @@ public class CLIManager {
                     System.out.println("Exiting...");
                     break;
                 }
-
                 if (command.equals("help")) {
                     printHelp();
                     continue;
                 }
 
+                if (command.equals("info")) {
+                    System.out.println(AppConfig.getInstance().toString());
+                    continue;
+                }
+
+                // continue
                 if (currentGame == null) {
                     gameHandler.handleCommand(command, args, this);
                 } else {
@@ -73,7 +78,7 @@ public class CLIManager {
         } while (true);
 
         scanner.close();
-    }
+    } // run()
 
     private void printPrompt() {
         if (currentGame == null) {
@@ -84,28 +89,74 @@ public class CLIManager {
     }
 
     private void printHelp() {
+
+        System.out.println("\nProgram Commands:");
+        System.out.printf("%-15s | %s\n", "info", "Show general info about the program and config");
+        System.out.printf("%-3s, %-10s | %s\n", "-h", "help", "Show this help");
+        System.out.printf("%-15s | %s\n", "exit / quit", "Exit the program");
+
         if (currentGame == null) {
-            System.out.println("Game Manager Commands:");
-            System.out.println("  list          - List all managed games");
-            System.out.println("  add           - Add a new game profile");
-            System.out.println("  remove        - Remove a game profile");
-            System.out.println("  update        - Update a game profile");
-            System.out.println("  mod --id      - Enter mod manager for a game");
-            System.out.println("  help          - Show this help");
-            System.out.println("  exit/quit     - Exit the program");
+            System.out.println("\nGame Manager Commands:");
+            // System.out.println(" list - List all managed games");
+            // System.out.println(" add - Add a new game profile");
+            // System.out.println(" remove --id - Remove a game profile");
+            // System.out.println(" update --id - Update a game profile");
+            // System.out.println(" mod --id - Enter mod manager for a game");
+            // System.out.println(" help - Show this help");
+            // System.out.println(" exit/quit - Exit the program");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-L", "list", "List all game profiles");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-A", "add", "Add a new game profile");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-R", "remove", "Remove a game profile");
+            System.out.printf("%15s | %s\n", "--id <target>", "target game id");
+            System.out.printf("%15s | %s\n", "[--atomic]", "removed files will not be left in trash");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-U", "update", "Update a game profile");
+            System.out.printf("%15s | %s\n", "--id <target>", "target game id");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-M", "mod", "Enter mod manager for a game");
+            System.out.printf("%15s | %s\n", "--id <target>", "target game id");
+
         } else {
-            System.out.println("Mod Manager Commands:");
-            System.out.println("  list [--s]    - List deployed mods (or stored mods with --s)");
-            System.out.println("  deploy --id   - Deploy a mod");
-            System.out.println("  remove --id   - Remove a mod");
-            System.out.println("  compile --dir - Compile a new mod");
-            System.out.println("  game          - Return to game manager");
-            System.out.println("  help          - Show this help");
-            System.out.println("  exit/quit     - Exit the program");
+            System.out.println("\nMod Manager Commands:");
+            // System.out.println(" list [--s] - List deployed mods (or stored mods with
+            // --s)");
+            // System.out.println(" deploy --id - Deploy a mod");
+            // System.out.println(" remove --id - Remove a mod");
+            /// System.out.println(" compile --dir - Compile a new mod");
+            // System.out.println(" game - Return to game manager");
+            // System.out.println(" help - Show this help");
+            // System.out.println(" exit/quit - Exit the program");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-L", "list", "List all installed Mods");
+            System.out.printf("%15s | %s\n", "[--a]", "All avaialbe Mods in storage");
+            System.out.printf("%15s | %s\n", "[--u]", "Only uninstalled Mods in storage");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-D", "deploy", "Deploy a mod to game files");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-R", "remove", "Remove a mod from game files");
+            System.out.printf("%15s | %s\n", "--id <target>", "target mod id");
+            System.out.printf("%15s | %s\n", "--all", "removes all mod from game files");
+            System.out.printf("%15s | %s\n", "[--atomic]", "removed files will not be left in trash");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-o", "order", "reorder a mod");
+            System.out.printf("%15s | %s\n", "--id <target>", "target mod id");
+            System.out.printf("%15s | %s\n", "--n <number>", "new load order");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-c", "compile", "Compile a new mod");
+            System.out.printf("%15s | %s\n", "--dir <name>", "name-only of the directory withing temp");
+
+            System.out.printf("%-15s | %s\n", "delete", "Delete a mod from storage, cannot be installed");
+            System.out.printf("%15s | %s\n", "--id <target>", "target mod id");
+            System.out.printf("%15s | %s\n", "[--atomic]", "removed files will not be left in trash");
+
+            System.out.printf("%-3s, %-10s | %s\n", "-G", "game", "Return to game manager");
         }
     }
 
-    // Getters and setters
+    /// /// /// Getters and setters /// /// ///
     public Game getCurrentGame() {
         return currentGame;
     }

@@ -16,6 +16,8 @@ graph TD
         PD --> TempDir[.temp/]
         TempDir[.temp/] --> CompileDir(CompileMe/)
         TempDir[.temp/] --> TempTrashDir[trash/] --> TrashMod(other-unused-51449__20251226_102656/)
+
+        PD --> LogDir[logs/]
     end
 
     subgraph ModStorage

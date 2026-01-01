@@ -127,11 +127,10 @@ public class GameState implements JsonSerializable {
         updateModified();
     } // removeMod()
 
-    /// /// /// Methods /// /// ///
+    /// /// /// Helper Methods /// /// ///
 
     /**
      * Sorts Mods Acending by LoadOrder. (Order for deployment)
-     * Uses the simplest bubble sort.
      * Updates last modified.
      */
     public void sortDeployedMods() {
@@ -145,6 +144,22 @@ public class GameState implements JsonSerializable {
             sb.append("\n\t\t⚫ " + mod.printLite());
         }
         return sb.toString();
+    }
+
+    /// /// /// Public Utils /// /// ///
+
+    /**
+     * Checks if a Mod with the given Id is within the GameState's deployed mods.
+     * 
+     * @param modId
+     * @return
+     */
+    public Boolean containsMod(String modId) {
+        for (Mod mod : deployedMods) {
+            if (mod.getId().equals(modId))
+                return true;
+        }
+        return false;
     }
 
     @Override

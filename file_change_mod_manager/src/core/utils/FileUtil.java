@@ -92,12 +92,14 @@ public class FileUtil {
                                 HashUtil.computeFileHash(path),
                                 Files.size(path));
                         System.out.println(
-                                String.format("%s🗒  Found File: %s", " ".repeat(depth * 3), prefix + path.getFileName()));
+                                String.format("%s🗒  Found File: %s", " ".repeat(depth * 3),
+                                        prefix + path.getFileName()));
                         return Stream.of(modFile);
                     } else if (Files.isDirectory(path)) {
                         // Create ModFile for directory (if needed) or recurse
                         String tmpPrefix = prefix + path.getFileName().toString() + "/";
-                        System.out.println(String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
+                        System.out
+                                .println(String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
 
                         if (depth >= maxDepth) {
                             System.err.println("❗ Maximum depth reached, stopping recursion.");
@@ -136,7 +138,7 @@ public class FileUtil {
         Path GsPath = Path.of(game.getInstallPath(), managerPath.toString(), GameState.FILE_NAME);
 
         if (!Files.exists(GsPath))
-            System.err.println("❗ Could not find: " + GameState.FILE_NAME + ", creating it.");
+            System.err.println("❗ No mods installed, could not find " + GameState.FILE_NAME);
         try {
             gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
             return gState.toString();
@@ -151,14 +153,30 @@ public class FileUtil {
      * Storage based on exsiting ModManifests.
      * 
      * @param game
+     * @param all  whether to display all mods or only mods that are not deployed
+     *             (when false)
      * @return String to display.
      * @throws Exception
      */
-    public static String printStoredMods(Game game) throws Exception {
+    public static String printStoredMods(Game game, Boolean all) throws Exception {
         Path manifestPath = config.getManifestDir();
         StringBuilder sb = new StringBuilder();
 
-        sb.append("📦 Stored Mods:\n\t Game: " + game.getName());
+        Path GsPath = Path.of(game.getInstallPath(), config.getManagerDir().toString(), GameState.FILE_NAME);
+        GameState gState;
+        if (!Files.exists(GsPath))
+            System.err.println("❗ No mods installed, could not find " + GameState.FILE_NAME);
+        try {
+            gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
+
+        } catch (Exception e) {
+            gState = new GameState();
+        }
+
+        if (all) {
+            sb.append("📦 All available Mods:\n\t Game: " + game.getName());
+        } else
+            sb.append("📦 Non-deployed only Mods:\n\t Game: " + game.getName());
 
         Path storeDir = Path.of(game.getModsPath());
         try (Stream<Path> paths = Files.list(storeDir)) {
@@ -174,7 +192,12 @@ public class FileUtil {
                                         path.getFileName() + ".json").toFile(),
                                 JsonSerializable.ObjectTypes.MOD_MANIFEST);
 
-                        sb.append("\n\t\t⚪ " + mod.printLite());
+                        if (gState.containsMod(mod.getId())) {
+                            if (all)
+                                sb.append("\n\t\t⚫ " + mod.printLite());
+                        } else {
+                            sb.append("\n\t\t⚪ " + mod.printLite());
+                        }
 
                     } catch (InvalidObjectException e) {
                         // Just skips silently. Other errors are caught outside to stop process.

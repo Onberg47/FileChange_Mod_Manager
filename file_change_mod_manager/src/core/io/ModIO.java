@@ -72,7 +72,7 @@ public class ModIO {
         json.put(Mod.JsonFields.description, obj.getDescription());
         json.put(Mod.JsonFields.downloadLink, obj.getDownloadLink());
 
-        json.put(Mod.JsonFields.downloadSource, obj.getDownloadSource().getCode());
+        json.put(Mod.JsonFields.downloadSource, obj.getDownloadSource());
         json.put(Mod.JsonFields.loadOrder, obj.getLoadOrder());
 
         json.put(FileVersion.JsonFields.timestamp, obj.getDownloadDate().toString());

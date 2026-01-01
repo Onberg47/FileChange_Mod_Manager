@@ -39,6 +39,9 @@ public class ModCommandHandler {
             case "-c":
                 compileMod();
                 break;
+            case "delete":
+                deleteMod();
+                break;
             case "game":
             case "-g":
                 // Switch back to game state
@@ -50,10 +53,12 @@ public class ModCommandHandler {
     } // handleCommand()
 
     private void listMods() throws Exception {
-        if (!cli.hasFlag("s"))
-            System.out.println(FileUtil.printGameState(game));
+        if (cli.hasFlag("a"))
+            System.out.println(FileUtil.printStoredMods(game, true));
+        else if (cli.hasFlag("u"))
+            System.out.println(FileUtil.printStoredMods(game, false));
         else
-            System.out.println(FileUtil.printStoredMods(game));
+            System.out.println(FileUtil.printGameState(game));
     }
 
     private void deployMod() {
@@ -61,14 +66,22 @@ public class ModCommandHandler {
                 cli.getRequired("id"));
     }
 
-    private void removeMod() {
-        manager.trashMod(
-                cli.getRequired("id"));
+    private void removeMod() throws Exception{
+        if (cli.hasFlag("all"))
+            manager.trashAll();
+        else
+            manager.trashMod(
+                    cli.getRequired("id"));
     }
 
     private void compileMod() throws Exception {
         manager.compileMod(
                 cli.getRequired("dir"),
                 ModManager.collectUserMetadata());
+    }
+
+    private void deleteMod() {
+        manager.deleteMod(
+                cli.getRequired("id"));
     }
 } // Class

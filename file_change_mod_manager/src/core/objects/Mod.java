@@ -21,7 +21,7 @@ public class Mod implements JsonSerializable {
     protected String gameId; // ID of the Game this Mod is for.
     protected String id; // Unique identifier for the Mod.
                          // Convention: source(enum)-name(first 6 chars)-0000(AUTO INCREMENT)
-    protected ModSource downloadSource;
+    protected String downloadSource;
     protected String version;
 
     protected String name; // User-friendly name.
@@ -51,40 +51,6 @@ public class Mod implements JsonSerializable {
     } // JsonFields enum
 
     /**
-     * Enum of potential mod sources. (Totally overkill)
-     * Each entry has a user-facing name and an code for operations.
-     */
-    public enum ModSource {
-        NEXUS("nexus", "nexus mods"),
-        MODDB("moddb", "mod db"),
-        STEAMWORKS("steam", "steam workshop"),
-        OTHER("other", "other"),
-        default_("unkown", null);
-
-        private final String code, name;
-
-        ModSource(String code, String name) {
-            this.code = code;
-            this.name = name;
-        }
-
-        /**
-         * @return The code used to identiy the source
-         */
-        public String getCode() {
-            return code;
-        }
-
-        /**
-         * @return Name the user would enter/select
-         */
-        public String getName() {
-            return name;
-        }
-
-    } // ModSource enum
-
-    /**
      * Empty constructor for Mod.
      */
     public Mod() {
@@ -96,7 +62,7 @@ public class Mod implements JsonSerializable {
         this.version = "1.0";
 
         this.description = "No description provided.";
-        this.downloadSource = ModSource.OTHER;
+        this.downloadSource = "unkown";
         this.downloadDate = LocalDateTime.now(); // Set to current date/time
         this.downloadLink = "No link provided.";
     }
@@ -109,12 +75,12 @@ public class Mod implements JsonSerializable {
      * @param name        User-friendly name, doubles as the filename for the Mod.
      * @param description The description of the Mod.
      */
-    public Mod(String gameId, ModSource source, String name) {
+    public Mod(String gameId, String downloadSource, String name) {
         this();
         this.name = name;
         this.gameId = gameId;
-        this.downloadSource = source;
-        this.id = generateModId(source); // NB: Do this last to ensure using input data!
+        this.downloadSource = downloadSource.toLowerCase();
+        this.id = generateModId(); // NB: Do this last to ensure using input data!
     }
 
     /**
@@ -132,11 +98,11 @@ public class Mod implements JsonSerializable {
      * @param downloadDate
      * @param downloadLink
      */
-    protected Mod(String gameId, String id, ModSource downloadSource, String version, String name, String description,
+    protected Mod(String gameId, String id, String downloadSource, String version, String name, String description,
             int loadOrder, LocalDateTime downloadDate, String downloadLink) {
         this.gameId = gameId;
         this.id = id;
-        this.downloadSource = downloadSource;
+        this.downloadSource = downloadSource.toLowerCase();
         this.version = version;
         this.name = name;
         this.description = description;
@@ -218,31 +184,13 @@ public class Mod implements JsonSerializable {
         forceIdUpdate = true;
     }
 
-    public ModSource getDownloadSource() {
+    public String getDownloadSource() {
         return downloadSource;
     }
 
-    public void setDownloadSource(ModSource downloadSource) {
-        this.downloadSource = downloadSource;
+    public void setDownloadSource(String downloadSource) {
+        this.downloadSource = downloadSource.toLowerCase();
         forceIdUpdate = true;
-    }
-
-    /**
-     * Attempts to set the Download source to the corrosponding Enum entry.
-     * 
-     * @param source String of the name or id of the entry desired.
-     * @return The name of the found Enum entry or Null if no match was found and no
-     *         changes will be made.
-     */
-    public String setDownloadSource(String source) {
-        for (ModSource src : ModSource.values()) {
-            if (source.equalsIgnoreCase(src.getName())) {
-                this.setDownloadSource(src);
-                return src.name;
-            }
-        }
-        // this.setDownloadSource(ModSource.default_);
-        return null;
     }
 
     public LocalDateTime getDownloadDate() {
@@ -272,23 +220,31 @@ public class Mod implements JsonSerializable {
     /// /// /// Methods /// /// ///
 
     /**
-     * Generates a unique Mod ID based on the Mod's source, name, and version.
+     * Generates a unique Mod ID based on the Mod's key meta-data
      * Protected for internal use.
      * 
      * @param source The source of the Mod from the ModSource enum.
      * @return The generated Mod ID.
      */
-    protected String generateModId(ModSource source) {
+    protected String generateModId(String source) {
         forceIdUpdate = false;
         String tmp = this.getName().toLowerCase().replaceAll("[^a-z0-9]", "_");
         String shortName = tmp.length() <= 6 ? tmp : tmp.substring(0, 6);
 
-        return source.getCode() + "-" + shortName + "-" + String.format("%04d", version.hashCode() & 0xffff);
+        // return source + "-" + shortName + "-" + String.format("%04d",
+        // version.hashCode() & 0xffff);
+        return shortName + "-" +
+                String.format("%05d", tmp.hashCode() & 0xffff) + "-" +
+                String.format("%05d", version.hashCode() & 0xffff);
     } // generateModId()
 
     /**
-     * Uses the Mod's Game_Id, Name, and Version (hashcode) Ensure all three are
+     * Uses the Mod's Name, and Version (hashcode) Ensure all feilds are
      * defined first otherwise default values are used.
+     * 
+     * @apiNote Manually calling this is optional! If fields that affect the ModID
+     *          are
+     *          ever changed, the id is forcefully updated when next fetched.
      * 
      * @return The generated Mod Id.
      */
@@ -298,7 +254,7 @@ public class Mod implements JsonSerializable {
     } // generateModId()
 
     public String printLite() {
-        return String.format("ID: %s | Name: %-14s | Order : %-3d", getId(), getName(), getLoadOrder());
+        return String.format("ID: %s | Name: %-20s | Order : %-3d", getId(), getName(), getLoadOrder());
     }
 
     /**
@@ -310,7 +266,7 @@ public class Mod implements JsonSerializable {
     public String toString() {
         return String.format(
                 "Mod Details:\nID: %s | Game ID: %s\nVersion: %s\n Download Source: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s",
-                getId(), gameId, version, downloadSource.getCode(), name, description, loadOrder,
+                getId(), gameId, version, downloadSource, name, description, loadOrder,
                 downloadDate.toString(), downloadLink);
     } // toString()
 

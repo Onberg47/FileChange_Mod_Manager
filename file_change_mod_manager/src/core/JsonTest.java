@@ -31,7 +31,6 @@ import core.objects.Game;
 import core.objects.Mod;
 import core.objects.ModFile;
 import core.objects.ModManifest;
-import core.objects.Mod.ModSource;
 import core.utils.FileUtil;
 
 /**
@@ -47,7 +46,7 @@ public class JsonTest {
 
     public static void main(String[] args) throws Exception {
 
-        ModManifest mod = new ModManifest(game.getId(), ModSource.NEXUS, "Test Mod");
+        ModManifest mod = new ModManifest(game.getId(), "Local", "Test Mod");
         mod.setVersion("2.0");
         mod.setLoadOrder(3);
         mod.setDownloadSource("steam workshop");
@@ -89,7 +88,7 @@ public class JsonTest {
     private static void sampleModTest() {
 
         // Create a sample Mod with multiple files
-        ModManifest sampleMod = new ModManifest(game.getId(), ModSource.OTHER, "Sample Mod");
+        ModManifest sampleMod = new ModManifest(game.getId(), "local", "Sample Mod");
         sampleMod.setDescription("This is a sample mod for testing the Mod JSON creation.");
         sampleMod.addFile(new ModFile("example_file_1.txt", "checksum1", 111));
         sampleMod.addFile(new ModFile("data/example_file_2.txt", "checksum2", 222));
@@ -120,7 +119,7 @@ public class JsonTest {
     @SuppressWarnings("unused")
     private static void moveFromTempTest() {
 
-        ModManifest mod = new ModManifest(game.getId(), ModSource.NEXUS, "Test Mod");
+        ModManifest mod = new ModManifest(game.getId(), "local", "Test Mod");
         mod.setVersion("2.0");
         mod.setDownloadSource("steam workshop");
         mod.setDescription("A mod for testing purposes.");

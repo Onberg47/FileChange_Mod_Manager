@@ -106,13 +106,13 @@ public class ModManager {
             mod.setDownloadSource(metaMap.get("source"));
             mod.setVersion(metaMap.get("version"));
             mod.setDownloadLink(metaMap.get("url"));
-            
+
             try {
                 mod.setLoadOrder(Integer.parseInt(metaMap.get("loadorder")));
             } catch (NumberFormatException e) {
                 mod.setLoadOrder(1); // default TODO consider moving this to Mod for consistancy
             }
-            
+
         } catch (Exception e) {
             System.err.println("❌ Fatal Error: " + e.getMessage());
         }
@@ -170,7 +170,7 @@ public class ModManager {
      * 
      * The mod must be unpacked into {@code ./temp/} then the Mod.JSON is read
      * 
-     * @param modId         The ID of the Mod instance to be removed.
+     * @param modId         The ID of the Mod to be removed.
      * @param checkConflict Should file conflicts be with the game_root? (In some
      *                      cases these checks are not needed and add great
      *                      overhead)
@@ -254,41 +254,11 @@ public class ModManager {
     } // deployMod()
 
     /**
-     * Deploys all mods from in the correct LoadOrder from a GameState.json
-     * 
-     * @param gameStatePath Path to the GameState.json
-     */
-    public void deployGameState(Path gameStatePath) {
-        if (!Files.exists(gameStatePath)) {
-            System.err.println("❌ GameState file does not exsist! " + gameStatePath);
-            return;
-        }
-
-        GameState gState = new GameState();
-        try {
-            // gState = GameStateIO.read(gameStatePath.toFile());
-            gState = (GameState) JsonIO.read(gameStatePath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
-            gState.sortDeployedMods();
-
-            for (Mod mod : gState.getDeployedMods()) {
-                deployMod(mod.getId());
-            } // for each Mod
-
-        } catch (NullPointerException e) {
-            System.err.println("❌ Nothing to do, GameState has no Mods!");
-            return;
-        } catch (Exception e) {
-            System.err.println("❌ Fatal Error: " + e.getMessage());
-            return;
-        }
-    } // deployGameState()
-
-    /**
      * Removes the given Mod from the game directory.
      * Follows the Mod's data to safely move files into
      * {@code ./temp/trash/[mod_id]}
      * 
-     * @param modId The ID of the Mod instance to be removed.
+     * @param modId The ID of the Mod to be removed.
      * @see Doc/diagrams/ModFile_trash_logic.png in Project for logic-breakdown.
      */
     public void trashMod(String modId) {
@@ -448,6 +418,77 @@ public class ModManager {
         }
     } // trashMod()
 
+    ///
+
+    /**
+     * Deploys all mods from in the correct LoadOrder from a GameState.json
+     * 
+     * @param gameStatePath Path to the GameState.json
+     */
+    public void deployGameState(Path gameStatePath) {
+        if (!Files.exists(gameStatePath)) {
+            System.err.println("❌ GameState file does not exsist! " + gameStatePath);
+            return;
+        }
+
+        GameState gState = new GameState();
+        try {
+            // gState = GameStateIO.read(gameStatePath.toFile());
+            gState = (GameState) JsonIO.read(gameStatePath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
+            gState.sortDeployedMods();
+
+            for (Mod mod : gState.getDeployedMods()) {
+                deployMod(mod.getId());
+            } // for each Mod
+
+        } catch (NullPointerException e) {
+            System.err.println("❌ Nothing to do, GameState has no Mods!");
+            return;
+        } catch (Exception e) {
+            System.err.println("❌ Fatal Error: " + e.getMessage());
+            return;
+        }
+    } // deployGameState()
+
+    /**
+     * Trashes all deployed Mods, ordered to reduce total file system operations and
+     * file restorations.
+     * 
+     * @throws Exception
+     */
+    public void trashAll() throws Exception {
+        GameState gState;
+        Path GsPath = ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
+
+        try {
+            if (Files.exists(GsPath))
+                gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
+            else
+                throw new Exception("No gameState.");
+
+        } catch (Exception e) {
+            throw new Exception("Failed to add Mod to GameState", e);
+        }
+
+        // trash them in load order (from 0) to reduce total file remove/restore
+        // operations. Instead the highest priority (true file owners) are removed last
+        // and only then are there file changes.
+        for (int i = 0; i < gState.getDeployedMods().size(); i++) {
+            this.trashMod(gState.getDeployedMods().get(i).getId());
+        }
+    } // trashAll()
+
+    /**
+     * Deletes a prepared mod from storage if it is not already installed.
+     * Could be done by users but if a mod is installed the storage is needed for
+     * file-rollback.
+     * 
+     * @param modId The ID of the Mod to be deleted.
+     */
+    public void deleteMod(String modId) {
+        // TODO
+    }
+
     // #endregion
     /// /// /// Core Utility /// /// ///
     // #region
@@ -482,8 +523,6 @@ public class ModManager {
                 throw new IOException("Failed to create directorie(s): " + targetDir.getParent(), e);
             }
         }
-        // NOTE: Missing file checks are handled by the JsonIO methods and will
-        // propagate.
 
         FileLineage fl; // declare because no matter what we will write/rewrite.
         ModFile modFile = new ModFile(
@@ -638,9 +677,7 @@ public class ModManager {
     private void gameStateAddMod(Mod mod) throws Exception {
         GameState gState;
         Path GsPath = ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
-
         try {
-
             if (Files.exists(GsPath))
                 gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
             else
