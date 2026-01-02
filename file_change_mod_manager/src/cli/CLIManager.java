@@ -72,7 +72,7 @@ public class CLIManager {
                     modHandler.handleCommand(command, args, this);
                 }
             } catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
+                System.err.println("❌ Error: " + e.getMessage());
             }
 
         } while (true);

@@ -82,7 +82,7 @@ public class ModManager {
      * @return Complete Mod that was created. Allows quick access to the exact data
      *         written without needing to read the JSON. (Mainly for data checking)
      */
-    public Mod compileMod(String dirName, HashMap<String, String> metaMap) {
+    public Mod compileMod(String dirName, HashMap<String, String> metaMap) throws Exception {
         /// /// 1. Verify Directory is valid.
         // Path tempDir = Path.of(TEMP_DIR, dirName);
         Path tempDir = TEMP_DIR.resolve(dirName);
@@ -92,8 +92,7 @@ public class ModManager {
             // Path tempDir = extractToTemp(downloadedZip);
         } else if (!Files.exists(tempDir)) {
             // Verify the dirName given is a valid directory.
-            System.err.println("❌ No such directory found: " + tempDir.toString());
-            return null;
+            throw new Exception("No such directory found: " + tempDir.toString());
         }
         System.out.println("📦 Collecting info: " + tempDir.getFileName()); // TODO Debugging
 
@@ -114,7 +113,8 @@ public class ModManager {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Fatal Error: " + e.getMessage());
+            // System.err.println("❌ Fatal Error: " + e.getMessage());
+            throw new Exception("Failed to pricess meta data.", e);
         }
         mod.generateModId(); // Can only create an id once required fields are collected.
 
@@ -135,12 +135,10 @@ public class ModManager {
             System.out.println("✔ Written! to: " + path.toString()); // Debug
 
         } catch (FileNotFoundException e) {
-            System.out.println("❌ Failed to write Manifest: "
-                    + storagePath.resolve(MANIFEST_DIR.toString(), mod.getId() + ".json").toString());
-            return null;
+            throw new Exception("Failed to write Manifest: "
+                    + storagePath.resolve(MANIFEST_DIR.toString(), mod.getId() + ".json").toString(), e);
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new Exception("Failed to write manifest.", e);
         }
 
         /// /// 5. Final operation: Move to .mod_storage/game_id/mod_id_version /
@@ -158,11 +156,10 @@ public class ModManager {
             return mod;
         } catch (IOException e) {
             // thrown by deleteDirectory()
-            System.err.println("❌ Failed to move or delete exsisting Mod data at path: " + storagePath.toString());
+            throw new Exception("Failed to move or delete exsisting Mod data at path: " + storagePath.toString(), e);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new Exception("Failed to move files from temp.", e);
         }
-        return null;
     } // modCompileNew()
 
     /**
@@ -175,7 +172,7 @@ public class ModManager {
      *                      cases these checks are not needed and add great
      *                      overhead)
      */
-    public void deployMod(String modId) {
+    public void deployMod(String modId) throws Exception {
         ModManifest mod;
         Path tempDir = TEMP_DIR.resolve(modId + "__" + DateUtil.getNumericTimestamp());
         Path storedDir = Path.of(game.getModsPath(), modId);
@@ -236,8 +233,7 @@ public class ModManager {
             this.gameStateAddMod(mod);
 
         } catch (Exception e) {
-            System.err.println("❌ Fatal Error!\n" + e.getMessage() + "\nTemp files remain for review/recovery.");
-            e.printStackTrace();
+            throw new Exception("Fatal Error!\n" + e.getMessage() + "\nTemp files remain for review/recovery.", e);
             /*
              * //Not cleaning to allow debugging
              * if (Files.exists(tempDir))
@@ -261,7 +257,7 @@ public class ModManager {
      * @param modId The ID of the Mod to be removed.
      * @see Doc/diagrams/ModFile_trash_logic.png in Project for logic-breakdown.
      */
-    public void trashMod(String modId) {
+    public void trashMod(String modId) throws Exception {
         /// /// 1. Find the Mod's manifest from it's ID and read it.
         ModManifest mod;
         Path manifestPath = MANIFEST_DIR.resolve(modId + ".json");
@@ -272,8 +268,7 @@ public class ModManager {
                     JsonSerializable.ObjectTypes.MOD_MANIFEST);
             System.out.println("\t✔ Manifest of Mod: " + mod.getName() + " found!");
         } catch (Exception e) {
-            System.err.println("❌ Mod manifest does not exsists! " + e.getMessage());
-            return;
+            throw new Exception("Mod manifest does not exsists.", e);
         }
 
         /// /// 2. Use data from manifest to safley remove Mod files.
@@ -385,11 +380,9 @@ public class ModManager {
                     System.out.println("\t\t✔ File Trashed.");
                 } catch (IOException e) {
                     // catches Files.move() and Files.createDirectories()
-                    System.err.println("❗ Error moving file! " + mfPath + "\n" + e.getMessage());
+                    throw new Exception("Error moving file! " + mfPath);
                 } catch (Exception e) {
-                    System.err.println("❌ Falta Error: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
+                    throw new Exception("Fatal Error: " + e.getMessage(), e);
                 }
             } // for each
             System.out.println("\t✔ Mod files successfully trashed!");
@@ -408,13 +401,11 @@ public class ModManager {
             System.out.println("🗑 Mod successfully trashed!");
         } catch (NullPointerException e) {
             // If the ModFiles array is empty, this will catch the null exception.
-            System.err.println("❌ The Mod has no contents!" + e.getMessage());
+            throw new Exception("The Mod has no contents.", e);
         } catch (IOException e) {
-            System.err.println("❌ Fatal IO Error! " + e.getMessage());
-            e.printStackTrace();
+            throw new Exception("Fatal IO Error.", e);
         } catch (Exception e) {
-            System.err.println("❌ Fatal error! " + e.getMessage());
-            e.printStackTrace();
+            throw new Exception("Fatal Error! ", e);
         }
     } // trashMod()
 

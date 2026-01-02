@@ -6,6 +6,7 @@ package core.managers;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.HashMap;
 
@@ -38,7 +39,7 @@ public class GameManager {
      * 
      * @param metaMap
      */
-    public void addGame(HashMap<String, String> metaMap) {
+    public void addGame(HashMap<String, String> metaMap) throws Exception {
         System.out.println("\n📦 Adding new game..."); // TODO Debugging
         if (game == null) {
             System.out.println("init new Game!");
@@ -49,41 +50,55 @@ public class GameManager {
         try {
             System.out.println("\tReading meta data...");
 
-            String[] keysArr = { "id", "releaseVersion", "name", "installPath", "modsPath" };
-            for (String key : keysArr) {
-                if (metaMap.containsKey(key)) // This prevents missing values being set to null, allowing updates.
-                    game.setId(metaMap.get(key));
-            }
+            if (metaMap.containsKey("id")) // This prevents missing values being set to null, allowing updates.
+                game.setId("id");
+
+            if (metaMap.containsKey("releaseVersion"))
+                game.setId("releaseVersion");
+
+            if (metaMap.containsKey("name"))
+                game.setId("name");
+
+            if (metaMap.containsKey("installPath"))
+                game.setId("installPath");
+
+            if (metaMap.containsKey("modsPath"))
+                game.setId("modsPath");
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to process Meta data: " + e.getMessage());
-            return;
+            throw new Exception("Failed to process Meta data.", e);
         }
 
         /// 2. Verify game paths.
         System.out.println("\tVerifying game paths...");
         Path path;
-
-        path = Path.of(game.getInstallPath());
-        if (!path.isAbsolute()) {
-            System.err.println("❌ Game installation path is not absolute!");
-        } else if (!Files.exists(path)) {
-            System.err.println("❌ Could not find Game intall path at: " + path.toString()
-                    + "\n\tThis should exsist, will not create. Update if path is invalid.");
-        }
-
-        path = Path.of(game.getModsPath());
-        if (!path.isAbsolute()) {
-            System.err.println("❌ Mod storage path is not absolute!");
-        } else if (!Files.exists(path)) {
-            System.err.println("❗ Could not find Mod storage path at: " + path.toString() + "\n\tCreating it...");
-            try {
-                Files.createDirectories(path);
-            } catch (IOException e) {
-                System.err.println("❌ Failed to create directories for mod storage! " + path.toString());
-                e.printStackTrace();
-                return;
+        try {
+            path = Path.of(game.getInstallPath());
+            System.out.println("Checking path: " + path.toString());
+            if (!path.isAbsolute()) {
+                System.err.println("❌ Game installation path is not absolute!");
+            } else if (!Files.exists(path)) {
+                System.err.println("❌ Could not find Game intall path at: " + path.toString()
+                        + "\n\tThis should exsist, will not create. Update if path is invalid.");
             }
+            System.out.println("\t\t✔ Game path is good.");
+
+            path = Path.of(game.getModsPath());
+            if (!path.isAbsolute()) {
+                System.err.println("❌ Mod storage path is not absolute!");
+            } else if (!Files.exists(path)) {
+                System.err.println("❗ Could not find Mod storage path at: " + path.toString() + "\n\tCreating it...");
+                try {
+                    Files.createDirectories(path);
+                } catch (IOException e) {
+                    System.err.println("❌ Failed to create directories for mod storage! " + path.toString());
+                    e.printStackTrace();
+                    return;
+                }
+            }
+            System.out.println("\t\t✔ Mod storage path is good.");
+        } catch (InvalidPathException e) {
+            throw new Exception("Could not convert paths.", e);
         }
 
         /// 3. Write JSON
@@ -96,7 +111,7 @@ public class GameManager {
 
             System.out.println("📦 New game added!"); // TODO Debugging
         } catch (Exception e) {
-            System.err.println("❌ Failed to write Game.json file: " + e.getMessage());
+            throw new Exception("Failed to write Game.json file.", e);
         }
 
     } // addGame()
@@ -108,12 +123,11 @@ public class GameManager {
      * 
      * @param gameId Game ID to remove.
      */
-    public void removeGame(String gameId) {
+    public void removeGame(String gameId) throws Exception {
         System.out.println("🗑 Removing Game: " + gameId);
         Path path = config.getGameDir().resolve(gameId + ".json");
         if (!Files.exists(path)) {
-            System.err.println("❌ Failed to find file: " + path.toString());
-            return;
+            throw new Exception("Failed to find file: " + path.toString());
         }
 
         try {
@@ -135,7 +149,7 @@ public class GameManager {
             }
             System.out.println("🗑 Game sucessfully trashed!");
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new Exception("Faild to delete game.", e);
         }
     } // removeGame()
 
@@ -147,7 +161,7 @@ public class GameManager {
      * @param metaMap An incomplete metaMap of ONLY the fields to override. Can
      *                support id-changes.
      */
-    public void updateGame(String gameId, HashMap<String, String> metaMap) {
+    public void updateGame(String gameId, HashMap<String, String> metaMap) throws Exception {
 
         try {
             game = GameManager.getGameById(gameId);
@@ -162,7 +176,7 @@ public class GameManager {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to update Game: " + gameId + " : " + e.getMessage());
+            throw new Exception("Failed to update Game: " + gameId, e);
         }
     } // updateGame()
 

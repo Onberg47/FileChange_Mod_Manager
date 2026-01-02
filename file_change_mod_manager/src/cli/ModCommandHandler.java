@@ -61,12 +61,12 @@ public class ModCommandHandler {
             System.out.println(FileUtil.printGameState(game));
     }
 
-    private void deployMod() {
+    private void deployMod() throws Exception {
         manager.deployMod(
                 cli.getRequired("id"));
     }
 
-    private void removeMod() throws Exception{
+    private void removeMod() throws Exception {
         if (cli.hasFlag("all"))
             manager.trashAll();
         else
@@ -80,7 +80,7 @@ public class ModCommandHandler {
                 ModManager.collectUserMetadata());
     }
 
-    private void deleteMod() {
+    private void deleteMod() throws Exception {
         manager.deleteMod(
                 cli.getRequired("id"));
     }

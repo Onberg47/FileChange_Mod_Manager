@@ -58,7 +58,7 @@ public class GameCommandHandler {
         gm.addGame(GameManager.collectUserMetadata());
     }
 
-    private void removeGame() {
+    private void removeGame() throws Exception{
         gm.removeGame(
                 cli.getRequired("id"));
     }
