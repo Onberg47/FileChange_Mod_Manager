@@ -4,6 +4,7 @@
  */
 package core.config;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -127,14 +128,42 @@ public final class AppConfig {
         if (!Files.exists(configIn)) {
             System.err.println("❗ Could not find config file. Creating a new one...");
             try {
+                if (configIn.getParent() != null && !Files.exists(configIn.getParent()))
+                    Files.createDirectories(configIn.getParent());
+
                 JsonIO.writeHasMap(configIn.toFile(), defaultConfig.getDefaultMap());
             } catch (Exception e) {
                 System.err.println("❌ Failed! Aborting...");
+                e.printStackTrace();
                 System.exit(3);
             }
         }
         this(new Builder().fromConfigFile(configIn));
-    }
+
+        /// Create program directories.
+        try {
+            if (!Files.exists(this.GAME_DIR)) {
+                // Files.createDirectories(this.GAME_DIR);
+                Files.createDirectories(this.GAME_DIR.resolve("icons"));
+            }
+
+            if (!Files.exists(this.TEMP_DIR))
+                Files.createDirectories(this.TEMP_DIR);
+
+            if (!Files.exists(this.TRASH_DIR))
+                Files.createDirectories(this.TRASH_DIR);
+
+            if (!Files.exists(this.LOG_DIR))
+                Files.createDirectories(this.LOG_DIR);
+
+        } catch (
+
+        IOException e) {
+            System.err.println("❌ Failed to create program directories! Aborting...");
+            e.printStackTrace();
+            System.exit(1);
+        }
+    } // AppConfig(Path)
 
     /// /// /// Singleton /// /// ///
 

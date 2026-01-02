@@ -415,8 +415,9 @@ public class ModManager {
      * Deploys all mods from in the correct LoadOrder from a GameState.json
      * 
      * @param gameStatePath Path to the GameState.json
+     * @throws Exception Allows fatal throws from deployMod() to propagate.
      */
-    public void deployGameState(Path gameStatePath) {
+    public void deployGameState(Path gameStatePath) throws Exception {
         if (!Files.exists(gameStatePath)) {
             System.err.println("❌ GameState file does not exsist! " + gameStatePath);
             return;
@@ -433,10 +434,7 @@ public class ModManager {
             } // for each Mod
 
         } catch (NullPointerException e) {
-            System.err.println("❌ Nothing to do, GameState has no Mods!");
-            return;
-        } catch (Exception e) {
-            System.err.println("❌ Fatal Error: " + e.getMessage());
+            System.err.println("❗ Nothing to do, GameState has no Mods.");
             return;
         }
     } // deployGameState()
@@ -476,7 +474,7 @@ public class ModManager {
      * 
      * @param modId The ID of the Mod to be deleted.
      */
-    public void deleteMod(String modId) {
+    public void deleteMod(String modId) throws Exception {
         // TODO
     }
 

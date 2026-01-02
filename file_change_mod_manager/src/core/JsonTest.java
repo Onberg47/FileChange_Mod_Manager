@@ -59,6 +59,7 @@ public class JsonTest {
         // moveFromTempTest();
 
         ModManager modManager = new ModManager(game);
+        GameManager gm = new GameManager();
 
         /// Test something...
 

@@ -41,9 +41,9 @@ public class GameManager {
      */
     public void addGame(HashMap<String, String> metaMap) throws Exception {
         System.out.println("\n📦 Adding new game..."); // TODO Debugging
-        if (game == null) {
+        if (this.game == null) {
             System.out.println("init new Game!");
-            game = new Game(); // Only assigns a fresh instance if non-exsists.
+            this.game = new Game(); // Only assigns a fresh instance if non-exsists.
         }
 
         /// 1. read meta data /
@@ -51,19 +51,20 @@ public class GameManager {
             System.out.println("\tReading meta data...");
 
             if (metaMap.containsKey("id")) // This prevents missing values being set to null, allowing updates.
-                game.setId("id");
+                this.game.setId(metaMap.get("id"));
 
             if (metaMap.containsKey("releaseVersion"))
-                game.setId("releaseVersion");
+                this.game.setReleaseVersion(metaMap.get("releaseVersion"));
 
             if (metaMap.containsKey("name"))
-                game.setId("name");
+                this.game.setName(metaMap.get("name"));
 
-            if (metaMap.containsKey("installPath"))
-                game.setId("installPath");
+            if (metaMap.containsKey("installPath")) {
+                this.game.setInstallPath(metaMap.get("installPath"));
+            }
 
             if (metaMap.containsKey("modsPath"))
-                game.setId("modsPath");
+                this.game.setModsPath(metaMap.get("modsPath"));
 
         } catch (Exception e) {
             throw new Exception("Failed to process Meta data.", e);
@@ -73,7 +74,7 @@ public class GameManager {
         System.out.println("\tVerifying game paths...");
         Path path;
         try {
-            path = Path.of(game.getInstallPath());
+            path = Path.of(this.game.getInstallPath());
             System.out.println("Checking path: " + path.toString());
             if (!path.isAbsolute()) {
                 System.err.println("❌ Game installation path is not absolute!");
@@ -99,6 +100,9 @@ public class GameManager {
             System.out.println("\t\t✔ Mod storage path is good.");
         } catch (InvalidPathException e) {
             throw new Exception("Could not convert paths.", e);
+        } catch (Exception e) {
+            System.err.println("Failed to instantiate Game");
+            e.printStackTrace();
         }
 
         /// 3. Write JSON
@@ -203,8 +207,8 @@ public class GameManager {
                 {
                         "ID. You must enter this for CLI usage. (leave empty to auto generate)\n Enter",
                         "Display Name", "Release Version",
-                        "Absolute Install Path",
-                        "Mods Path" }
+                        "Absolute Mods Install Path",
+                        "Absolute Mods storage Path" }
         };
         return ScannerUtil.checklistConsole(queryMatrix);
     } // collectUserMetadata()
