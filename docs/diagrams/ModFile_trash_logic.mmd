@@ -34,7 +34,7 @@ flowchart TD
 %% SubGraphs
     subgraph Legend
         IO_OP(IO operation)
-        Stack_INIT(Stack INIT) --> Stack_OP(Stack operation)
+        Stack_OP(Stack operation)
         FileS_OP(FileSystem operation)
     end
 
@@ -46,8 +46,6 @@ flowchart TD
     style ReadLineage color:#FFFFFF, fill:#ea38bc, stroke:#980d74
     style UpdateLineage color:#FFFFFF, fill:#ea38bc, stroke:#980d74
 
-    
-    style Stack_INIT color:#FFFFFF, fill:#17ae63, stroke:#0b7f45
     style Stack_OP color:#FFFFFF, fill:#2ab388, stroke:#26775e
     style RemoveFromLineage color:#FFFFFF, fill:#2ab388, stroke:#26775e
     
