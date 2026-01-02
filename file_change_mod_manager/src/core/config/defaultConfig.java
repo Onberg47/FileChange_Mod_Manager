@@ -5,6 +5,7 @@
 package core.config;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 
 /**
  * Contains configuration settings for AppConfig.
@@ -26,6 +27,7 @@ public abstract class defaultConfig {
     static final Path GAME_DIR = Path.of("mod_manager/games/");
     static final Path TEMP_DIR = Path.of("mod_manager/.temp/");
     static final Path TRASH_DIR = Path.of("mod_manager/.temp/trash/");
+    static final Path LOG_DIR = Path.of("mod_manager/logs/");
 
     // Mod Manager:
     // static final Path TEMP_DIR = Path.of("mod_manager/.temp/");
@@ -35,9 +37,23 @@ public abstract class defaultConfig {
     static final Path BACKUP_DIR = MANAGER_DIR.resolve("backups/");
     static final Path LINEAGE_DIR = MANAGER_DIR.resolve("lineages/");
 
-    static final Path LOG_DIR = MANAGER_DIR.resolve("logs/");
-
     /// /// /// Getters /// /// ///
+
+    /**
+     * @return A HashMap of what the default config file would read to.
+     */
+    static HashMap<String, String> getDefaultMap() {
+        HashMap<String, String> hMap = new HashMap<>();
+
+        hMap.put("GAME_DIR", GAME_DIR.toString());
+        hMap.put("TEMP_DIR", TEMP_DIR.toString());
+        hMap.put("TRASH_DIR", TRASH_DIR.toString());
+        hMap.put("LOG_DIR", LOG_DIR.toString());
+        hMap.put("MANAGER_DIR", MANAGER_DIR.toString());
+
+        return hMap;
+    }
+
     // #region
 
     /**

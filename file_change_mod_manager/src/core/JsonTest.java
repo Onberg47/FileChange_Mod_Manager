@@ -60,6 +60,11 @@ public class JsonTest {
 
         ModManager modManager = new ModManager(game);
 
+        /// Test something...
+
+    } // psvm()
+
+    private static void TestGame() throws Exception {
         GameManager gm = new GameManager();
         HashMap<String, String> tMap = new HashMap<>();
         tMap.put("id", "example_id");
@@ -69,22 +74,15 @@ public class JsonTest {
         tMap.put("modsPath",
                 "/home/hdd700/Programming/java/JarProjects/FileChange_Mod_Manager/mod_manager/mod_storage/game_1/");
 
-        //gm.addGame(tMap);
+        // gm.addGame(tMap);
         System.out.println(FileUtil.printGames());
         // gm.removeGame("game_id");
-        // System.out.println(GameManager.getGameById("game_id").toString());
-
-        ///
-
-        //Path path = Path.of("mod_manager/.temp/sample/");
-        //FileUtil.getDirectoryModFiles(path, path);
-
-    } // psvm()
+        // System.out.println(GameManager.getGameById("game_id").toString());u
+    }
 
     /**
      * Creates a sample Game and Mod to perfrom a full Mod JSON creation test.
      */
-    @SuppressWarnings("unused")
     private static void sampleModTest() {
 
         // Create a sample Mod with multiple files
@@ -116,7 +114,6 @@ public class JsonTest {
      * location.
      * Will delete previous data if the mod's directory is already present.
      */
-    @SuppressWarnings("unused")
     private static void moveFromTempTest() {
 
         ModManifest mod = new ModManifest(game.getId(), "local", "Test Mod");

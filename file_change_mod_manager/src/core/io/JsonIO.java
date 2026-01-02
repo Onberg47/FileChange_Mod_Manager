@@ -1,6 +1,7 @@
 package core.io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InvalidObjectException;
@@ -23,12 +24,13 @@ public class JsonIO {
      * @throws IllegalArgumentException When the type_string is unkown
      * @throws InvalidObjectException   The provided File does not match the
      *                                  specified type.
+     * @throws FileNotFoundException    The provided file does not exsist.
      * @throws Exception                An error with the Json process or invalid
      *                                  file (path or extension)
      */
     public static JsonSerializable read(File file, String type_string) throws Exception {
         if (!file.exists()) {
-            throw new Exception("File path is not a valid .json path: " + file.getAbsolutePath());
+            throw new FileNotFoundException("File path is not a valid .json path. ");
         }
         if (!file.isFile()) { // Check if it's actually a file (not a directory)
             throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
@@ -111,11 +113,14 @@ public class JsonIO {
      * 
      * @param file File to read. Can handle missing {@code .json} extension.
      * @return HashMap<String, String>
-     * @throws Exception
+     * @throws IllegalArgumentException If the file provided is not a regualr file
+     *                                  or is empty.
+     * @throws FileNotFoundException    The provided file does not exsist.
+     * @throws Exception                Fatal Json errors.
      */
     public static HashMap<String, String> readHashMap(File file) throws Exception {
         if (!file.exists()) {
-            throw new Exception("File path is not a valid .json path: " + file.getAbsolutePath());
+            throw new FileNotFoundException("File path is not a valid .json path. ");
         }
         if (!file.isFile()) { // Check if it's actually a file (not a directory)
             throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
@@ -147,14 +152,16 @@ public class JsonIO {
      * HashMap.
      * This is for simple (non-nested) Json files for non-JsonSerializable objects.
      * 
-     * @param file File to read. Can handle missing {@code .json} extension.
+     * @param file File to write. Can handle missing {@code .json} extension. Will
+     *             create the file.
      * @param hMap A HashMap<String, String> to write to Json.
-     * @throws Exception
+     * @throws IllegalArgumentException If hMap or file is empty/null
+     * @throws Exception                If the file directories do not exsist.
      */
     @SuppressWarnings("unchecked")
     public static void writeHasMap(File file, HashMap<String, String> hMap) throws Exception {
         if (hMap.isEmpty()) {
-            throw new IllegalArgumentException("Object cannot be null");
+            throw new IllegalArgumentException("HashMap cannot be null, must specify a field to change");
         }
         if (file == null) {
             throw new IllegalArgumentException("File cannot be null");

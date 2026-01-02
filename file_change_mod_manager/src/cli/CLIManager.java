@@ -51,7 +51,7 @@ public class CLIManager {
             String command = args[0].toLowerCase();
 
             try {
-                if (command.equals("exit") || command.equals("quit")) {
+                if (command.equals("exit") || command.equals("quit") || command.equals("^C")) {
                     System.out.println("Exiting...");
                     break;
                 }

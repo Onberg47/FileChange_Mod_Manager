@@ -4,6 +4,7 @@
  */
 package core.config;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 
@@ -75,6 +76,7 @@ public final class AppConfig {
         public Builder fromConfigFile(Path configIn) {
             try {
                 HashMap<String, String> hMap = JsonIO.readHashMap(configIn.toFile());
+                // If the file is missing, this will be null and default values will be used.
 
                 this.gameDir = Path.of(hMap.getOrDefault("GAME_DIR", defaultConfig.GAME_DIR.toString()));
                 this.tempDir = Path.of(hMap.getOrDefault("TEMP_DIR", defaultConfig.TEMP_DIR.toString()));
@@ -83,7 +85,7 @@ public final class AppConfig {
                 this.managerDir = Path.of(hMap.getOrDefault("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString()));
 
             } catch (Exception e) {
-                System.err.println("Failed to initialize config! " + e.getMessage());
+                System.err.println("❌ Failed to initialize config! " + e.getMessage());
                 e.printStackTrace();
             }
             return this;
@@ -108,19 +110,29 @@ public final class AppConfig {
     }
 
     /**
-     * initialise using the default config file Path.
+     * Initialise using the default config file Path.
      */
     public AppConfig() {
         this(defaultConfig.CONFIG_FILE);
     }
 
     /**
-     * initialise using a specified config file Path. Will use default values as a
+     * Initialise using a specified config file Path. Will use default values as a
      * fallback.
      * 
      * @param configIn Path to desired config file.
      */
     private AppConfig(Path configIn) {
+
+        if (!Files.exists(configIn)) {
+            System.err.println("❗ Could not find config file. Creating a new one...");
+            try {
+                JsonIO.writeHasMap(configIn.toFile(), defaultConfig.getDefaultMap());
+            } catch (Exception e) {
+                System.err.println("❌ Failed! Aborting...");
+                System.exit(3);
+            }
+        }
         this(new Builder().fromConfigFile(configIn));
     }
 
@@ -131,8 +143,6 @@ public final class AppConfig {
 
     /**
      * Get the config instance. Double-checks locking for better performance.
-     * 
-     * @return
      */
     public static AppConfig getInstance() {
         if (instance == null) {
@@ -216,11 +226,23 @@ public final class AppConfig {
 
     // #endregion
 
+    /**
+     * Get information about th current config.
+     */
     @Override
     public String toString() {
-        return String.format(
-                "Current config:\nManager:\n\tGame data dir: %s\n\tTemp dir: %s\n\tTrash dir: %s\n\tLog dir: %s\nGame structure:\n\tManager Dir: %s\n\t",
-                GAME_DIR, TEMP_DIR, TRASH_DIR, LOG_DIR, MANAGER_DIR);
-    }
+        StringBuilder str = new StringBuilder();
+
+        str.append(String.format("Current configuration\n\tVersion: %s\nManager:\n", AppVersion));
+
+        str.append(String.format("\t%-15s : %s\n", "Game data dir", GAME_DIR));
+        str.append(String.format("\t%-15s : %s\n", "Temp dir", TEMP_DIR));
+        str.append(String.format("\t%-15s : %s\n", "Trash dir", TRASH_DIR));
+        str.append(String.format("\t%-15s : %s\n", "logging dir", LOG_DIR));
+
+        str.append(String.format("Game Structure:\n\t%-15s : %s\n", "Manager data dir", MANAGER_DIR));
+
+        return str.toString();
+    } // toString()
 
 } // Class
