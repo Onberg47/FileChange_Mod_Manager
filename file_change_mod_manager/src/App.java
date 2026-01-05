@@ -3,7 +3,6 @@
  * Author Stephanos B
  * Date: 30/12/2025
  */
-import cli.CLIManager;
 
 /**
  * Main app executable.
@@ -11,10 +10,9 @@ import cli.CLIManager;
 public class App {
     public static void main(String[] args) throws Exception {
         if (args.length != 0 && args[0].equals("GUI")) {
-            System.err.println("GUI IS NOT COMPLETE!"); // TODO
-            // Wrapper.main(args);
+            gui.App.main(args);
         } else {
-            CLIManager.main(args);
+            cli.CLIManager.main(args);
         }
     } // psvm()
 } // Class

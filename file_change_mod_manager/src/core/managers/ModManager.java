@@ -722,17 +722,18 @@ public class ModManager {
                 {
                         "name",
                         "description",
-                        "source",
-                        "loadorder",
                         "version",
+                        "loadorder",
+                        "source",
                         "url"
                 },
                 {
                         "*Display Name",
                         "Description",
-                        "*Download Source",
+                        "*Version (default 1.0)",
                         "Load Order (default 1)",
-                        "*Version (default 1.0)", "Download URL (Mod page)"
+                        "*Download Source",
+                        "Download URL (Mod page)"
                 }
         };
         return ScannerUtil.checklistConsole(queryMatrix);
