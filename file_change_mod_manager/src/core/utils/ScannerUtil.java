@@ -39,7 +39,9 @@ public class ScannerUtil {
                 String str = "not defined";
                 System.out.print(checklist[1][i] + ": ");
                 str = scanner.nextLine().trim();
-                hMap.put(checklist[0][i], str);
+
+                if (str.length() > 0)
+                    hMap.put(checklist[0][i], str);
             }
             return hMap;
         } catch (Exception e) {

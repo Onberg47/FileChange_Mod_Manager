@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.0.3 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.0.3" pages="3">
   <diagram name="GameManager_Page" id="LuTwOQ3Q70ezWkeN9Uy8">
-    <mxGraphModel dx="3410" dy="2678" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="3002" dy="2440" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -105,7 +105,7 @@
           <mxGeometry x="120" width="40" height="40" as="geometry" />
         </mxCell>
         <mxCell id="f-PjU2SGZzoZhx7Lb0YI-1" value="FCMM.jar/add-game" style="swimlane;whiteSpace=wrap;html=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;" vertex="1" parent="1">
-          <mxGeometry x="961" y="1169" width="560" height="760" as="geometry" />
+          <mxGeometry x="1788" width="560" height="760" as="geometry" />
         </mxCell>
         <mxCell id="f-PjU2SGZzoZhx7Lb0YI-2" value="menu bar" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="f-PjU2SGZzoZhx7Lb0YI-1">
           <mxGeometry x="10" y="30" width="540" height="50" as="geometry" />
@@ -222,7 +222,7 @@
           <mxGeometry x="160" y="360" width="80" height="30" as="geometry" />
         </mxCell>
         <mxCell id="hPjkW9hX-4eIwcCWNliy-1" value="FCMM.jar/edit-game" style="swimlane;whiteSpace=wrap;html=1;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;" vertex="1" parent="1">
-          <mxGeometry x="134" y="1169" width="560" height="760" as="geometry" />
+          <mxGeometry x="960" width="560" height="760" as="geometry" />
         </mxCell>
         <mxCell id="hPjkW9hX-4eIwcCWNliy-2" value="menu bar" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="hPjkW9hX-4eIwcCWNliy-1">
           <mxGeometry x="10" y="30" width="540" height="50" as="geometry" />
@@ -269,7 +269,7 @@
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="2Qu0aETr8zjWgs-TdREE-1" source="2Qu0aETr8zjWgs-TdREE-3">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="640" y="55" as="targetPoint" />
+            <mxPoint x="626" y="55" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-40" value="Go to settings" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="pPk-hqa13Lta5fYNn-G0-39">
@@ -307,7 +307,7 @@
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="pPk-hqa13Lta5fYNn-G0-8" source="pPk-hqa13Lta5fYNn-G0-9">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-100" y="45" as="targetPoint" />
+            <mxPoint x="-74" y="45" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-29" value="display load order number" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="pPk-hqa13Lta5fYNn-G0-28">
@@ -329,7 +329,7 @@
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="pPk-hqa13Lta5fYNn-G0-8" source="pPk-hqa13Lta5fYNn-G0-13">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="620" y="65" as="targetPoint" />
+            <mxPoint x="606" y="65" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-36" value="Display the source name.&lt;div&gt;Clickalbe hyperlink to download URL&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="pPk-hqa13Lta5fYNn-G0-35">
@@ -342,7 +342,7 @@
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="pPk-hqa13Lta5fYNn-G0-8" source="pPk-hqa13Lta5fYNn-G0-14">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="620" y="20" as="targetPoint" />
+            <mxPoint x="606" y="20" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-38" value="Go to mod-edit page" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="pPk-hqa13Lta5fYNn-G0-37">
@@ -361,7 +361,7 @@
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="2Qu0aETr8zjWgs-TdREE-8" source="2Qu0aETr8zjWgs-TdREE-9">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-100" y="45" as="targetPoint" />
+            <mxPoint x="-74" y="45" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-32" value="Drag to reorder mods" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="pPk-hqa13Lta5fYNn-G0-31">
@@ -389,7 +389,7 @@
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="2Qu0aETr8zjWgs-TdREE-1" source="2Qu0aETr8zjWgs-TdREE-19">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="640" y="115" as="targetPoint" />
+            <mxPoint x="626" y="115" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-25" value="Collapse/Expand scroll section" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="pPk-hqa13Lta5fYNn-G0-24">
@@ -414,7 +414,7 @@
         </mxCell>
         <mxCell id="un7caaz6OJ2cXXGYcgIt-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="pPk-hqa13Lta5fYNn-G0-15" source="pPk-hqa13Lta5fYNn-G0-17">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-100" y="45" as="targetPoint" />
+            <mxPoint x="-74" y="45" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="un7caaz6OJ2cXXGYcgIt-11" value="Drag to and from stored/deployed mod boxes&lt;div&gt;to enable/disable mods.&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="un7caaz6OJ2cXXGYcgIt-10">
@@ -439,7 +439,7 @@
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="2Qu0aETr8zjWgs-TdREE-1" source="2Qu0aETr8zjWgs-TdREE-27">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-80" y="115" as="targetPoint" />
+            <mxPoint x="-54" y="115" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-27" value="Update Game files" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="pPk-hqa13Lta5fYNn-G0-26">
@@ -452,7 +452,7 @@
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="2Qu0aETr8zjWgs-TdREE-1" source="2Qu0aETr8zjWgs-TdREE-28">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-80" y="455" as="targetPoint" />
+            <mxPoint x="-54" y="455" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="pPk-hqa13Lta5fYNn-G0-42" value="Go to compile-&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;mod page&lt;/span&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="pPk-hqa13Lta5fYNn-G0-41">
@@ -463,18 +463,22 @@
         <mxCell id="2Qu0aETr8zjWgs-TdREE-28" value="compile new" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="2Qu0aETr8zjWgs-TdREE-1">
           <mxGeometry x="17" y="440" width="90" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="ryRLxeIp_rfN0fvrmo_r-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="XcCE5MMph3VmIfBVFg70-1">
+        <mxCell id="ryRLxeIp_rfN0fvrmo_r-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="XcCE5MMph3VmIfBVFg70-1" target="un7caaz6OJ2cXXGYcgIt-1">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="1241" y="1080" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="2068" y="-160" />
+              <mxPoint x="1241" y="-160" />
+            </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="ryRLxeIp_rfN0fvrmo_r-45" value="&lt;i&gt;&lt;b&gt;Reuse Compile-Mod Page&lt;/b&gt;&lt;/i&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ryRLxeIp_rfN0fvrmo_r-44">
           <mxGeometry x="1" y="-2" relative="1" as="geometry">
-            <mxPoint x="-2" y="-10" as="offset" />
+            <mxPoint x="415" y="-160" as="offset" />
           </mxGeometry>
         </mxCell>
         <mxCell id="XcCE5MMph3VmIfBVFg70-1" value="FCMM.jar/edit-mod" style="swimlane;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;fillStyle=auto;swimlaneFillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="961" y="1169" width="560" height="760" as="geometry" />
+          <mxGeometry x="1788" width="560" height="760" as="geometry" />
         </mxCell>
         <mxCell id="XcCE5MMph3VmIfBVFg70-2" value="menu bar" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="XcCE5MMph3VmIfBVFg70-1">
           <mxGeometry x="10" y="30" width="540" height="50" as="geometry" />
@@ -583,7 +587,7 @@
           <mxGeometry x="220" y="661" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="un7caaz6OJ2cXXGYcgIt-1" value="FCMM.jar/compile-mod" style="swimlane;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;fillStyle=auto;swimlaneFillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="134" y="1169" width="560" height="760" as="geometry" />
+          <mxGeometry x="961" width="560" height="760" as="geometry" />
         </mxCell>
         <mxCell id="un7caaz6OJ2cXXGYcgIt-2" value="menu bar" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="un7caaz6OJ2cXXGYcgIt-1">
           <mxGeometry x="10" y="30" width="540" height="50" as="geometry" />
@@ -714,12 +718,12 @@
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram id="rhGHdvkSEnRexBNKKtJc" name="Config_Page">
+  <diagram id="rhGHdvkSEnRexBNKKtJc" name="Settings_Page">
     <mxGraphModel dx="1722" dy="2175" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="BnwMclJ3t02ju8U_MbDD-1" value="FCMM.jar/config" style="swimlane;whiteSpace=wrap;html=1;fillColor=#d80073;fontColor=#ffffff;strokeColor=#A50040;fillStyle=auto;swimlaneFillColor=none;" vertex="1" parent="1">
+        <mxCell id="BnwMclJ3t02ju8U_MbDD-1" value="FCMM.jar/settings" style="swimlane;whiteSpace=wrap;html=1;fillColor=#d80073;fontColor=#ffffff;strokeColor=#A50040;fillStyle=auto;swimlaneFillColor=none;" vertex="1" parent="1">
           <mxGeometry x="134" width="560" height="760" as="geometry" />
         </mxCell>
         <mxCell id="BnwMclJ3t02ju8U_MbDD-2" value="menu bar" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="BnwMclJ3t02ju8U_MbDD-1">

@@ -28,10 +28,12 @@ import core.managers.ModManager;
 import core.objects.FileLineage;
 import core.objects.FileVersion;
 import core.objects.Game;
+import core.objects.GameState;
 import core.objects.Mod;
 import core.objects.ModFile;
 import core.objects.ModManifest;
 import core.utils.FileUtil;
+import core.utils.HashUtil;
 
 /**
  * Test class for Mod JSON read/write functionality.
@@ -195,6 +197,33 @@ public class JsonTest {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    private static void lineageTest() {
+
+        Stack<Integer> stack = new Stack<Integer>();
+        stack.push(0);
+        stack.push(2);
+        stack.push(3);
+
+        System.out.println("Stack: " + stack.toString());
+
+        int loadOrder = -1;
+
+        // Find insertion point
+        int insertIndex = 0; // default to end
+        for (int i = stack.size() - 1; i >= 0; i--) {
+            System.out.println("i: " + i + " if c: " + loadOrder + " >= stack: " + stack.get(i).intValue());
+
+            if (loadOrder >= stack.get(i).intValue()) {
+                insertIndex = i + 1;
+                break;
+            }
+        }
+        stack.insertElementAt(loadOrder, insertIndex);
+        System.out.println("Result: " + (stack.size() - 1 - insertIndex));
+
+        System.out.println("New Stack: " + stack.toString());
     }
 
 } // Class

@@ -129,6 +129,11 @@ public class Mod implements JsonSerializable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+        forceIdUpdate = true;
+    }
+
     public int getLoadOrder() {
         return loadOrder;
     }
@@ -167,11 +172,6 @@ public class Mod implements JsonSerializable {
 
     public void setGameId(String gameID) {
         this.gameId = gameID;
-        forceIdUpdate = true;
-    }
-
-    public void setName(String name) {
-        this.name = name;
         forceIdUpdate = true;
     }
 
@@ -233,9 +233,10 @@ public class Mod implements JsonSerializable {
 
         // return source + "-" + shortName + "-" + String.format("%04d",
         // version.hashCode() & 0xffff);
-        return shortName + "-" +
+        this.id = shortName + "-" +
                 String.format("%05d", tmp.hashCode() & 0xffff) + "-" +
                 String.format("%05d", version.hashCode() & 0xffff);
+        return this.id;
     } // generateModId()
 
     /**

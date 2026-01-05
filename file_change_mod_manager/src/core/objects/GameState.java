@@ -79,16 +79,18 @@ public class GameState implements JsonSerializable {
 
     /**
      * Adds a mod without auto-sorting or updating last modified. For reading
-     * pre-sorted from JSON.
+     * pre-sorted from JSON. Does not check for duplicates.
      * 
      * @param mod
      */
     public void addMod(Mod mod) {
         deployedMods.add(mod);
+        updateModified();
     }
 
     /**
-     * Adds a Mod and auto sorts by load order. Updates LastModified.
+     * Adds a Mod and auto sorts by load order.
+     * Updates LastModified.
      * 
      * @param mod
      */
@@ -103,13 +105,42 @@ public class GameState implements JsonSerializable {
     }
 
     /**
+     * Adds a Mod and auto sorts by load order and will remove all instances first
+     * if they exsist.
+     * Updates LastModified.
+     * 
+     * @param mod
+     */
+    public void appendModOnly(Mod mod) {
+        if (this.deployedMods.isEmpty())
+            deployedMods.add(mod);
+        else {
+            for (int i = 0; i < deployedMods.size(); i++) {
+                if (deployedMods.get(i).getId().equals(mod.getId())) {
+                    deployedMods.remove(i);
+                    i--;
+                }
+            }
+            deployedMods.add(mod);
+            deployedMods.sort(Comparator.comparingInt(Mod::getLoadOrder));
+        }
+        updateModified();
+    } // appendModOnly()
+
+    /**
+     * Removes the entry at the index. If the index is out of bounds, prints a
+     * warning and continues.
      * Updates LastModified.
      * 
      * @param index
      */
     public void removeMod(int index) {
-        this.deployedMods.remove(index);
-        updateModified();
+        try {
+            this.deployedMods.remove(index);
+            updateModified();
+        } catch (IndexOutOfBoundsException e) {
+            System.err.println("Index: " + index + " is out of bounds.");
+        }
     }
 
     /**
@@ -138,6 +169,13 @@ public class GameState implements JsonSerializable {
         updateModified();
     } // sortDeployedMods()
 
+    /**
+     * Creates a String for printing a single-line display of each mod in the
+     * GameState.
+     * For CLI use.
+     * 
+     * @return
+     */
     private String printDeployedMods() {
         StringBuilder sb = new StringBuilder();
         for (Mod mod : this.getDeployedMods()) {

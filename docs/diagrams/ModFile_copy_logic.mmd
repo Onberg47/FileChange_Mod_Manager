@@ -29,7 +29,12 @@ flowchart TD
         
         InsertOwner -- Not 0<br/>(Higher priority exists)
             --> CopyFalse[Flag Copy FALSE]
-            --> CheckHash
+            --> HashOrigin{If game file<br>hashes to owner?}
+            HashOrigin -- No<br>File is not what owner expects
+                --> RestoreOwner[Repair file by<br>copying from owner]
+                --> WriteLineage
+            HashOrigin -- Yes<br>File is as expected
+                --> WriteLineage
 
         CheckHash{Are File hashes equal?}
         CheckHash -- No
@@ -80,4 +85,5 @@ flowchart TD
     style FileS_OP color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
     style CreateDir color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
     style CreateBackup color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
+    style RestoreOwner color:#FFFFFF, fill:#2962FF, stroke:#0b42d6
     style Copy color:#FFFFFF, fill:#2962FF, stroke:#0b42d6

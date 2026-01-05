@@ -67,7 +67,7 @@ public class FileLineage implements JsonSerializable {
     /// /// /// Core Methods /// /// ///
 
     /**
-     * PUSH: Add a new owner to top
+     * PUSH: Add a new owner to top without any checks.
      * 
      * @param modId
      * @param hash
@@ -124,30 +124,31 @@ public class FileLineage implements JsonSerializable {
      * @param manifestPath Path required to determine where to fetch deployed
      *                     Manifests for LoadOrder checking.
      * @return The index from the top inserted at. Where 0 is the top.
+     * @throws Exception Throws if it cannot determine where to insert the mod.
      */
     public int insertOrderedVersion(FileVersion fVersion, Path manifestPath, int loadOrder) throws Exception {
         // Check for duplicate mod ID.
         // Cannot just use stack.contains() because Hashes or timestamps could differ.
         for (FileVersion existing : stack) {
             if (existing.getModId().equals(fVersion.getModId())) {
-                // throws for better error handling.
-                throw new Exception("❗ Mod already has a version!");
+                //throw new Exception("❗ Mod already has a version!");
+                System.out.println("❗ Mod already present in Lineage. Removing first...");
+                this.removeAllOf(fVersion.getModId());
+                break;
             }
         }
 
         try {
-            // int loadOrder = fVersion.getLoadOrder(manifestPath);
-
             // Find insertion point
-            int insertIndex = stack.size(); // default to end
-            for (int i = 0; i < stack.size(); i++) {
-                if (loadOrder < stack.get(i).getLoadOrder(manifestPath)) {
-                    insertIndex = i;
+            int insertIndex = 0; // default to end
+            for (int i = stack.size()-1; i >= 0; i--) {
+                if (loadOrder >= stack.get(i).getLoadOrder(manifestPath)) {
+                    insertIndex = i+1;
                     break;
                 }
             }
             stack.insertElementAt(fVersion, insertIndex); // Insert at correct position
-            return insertIndex;
+            return (stack.size()-1 - insertIndex); // make it so 0 is top.
 
         } catch (Exception e) {
             throw new Exception("Could not determine load order! " + e.getMessage(), e);

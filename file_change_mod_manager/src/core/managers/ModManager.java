@@ -87,29 +87,42 @@ public class ModManager {
         // Path tempDir = Path.of(TEMP_DIR, dirName);
         Path tempDir = TEMP_DIR.resolve(dirName);
 
-        if (!Files.isDirectory(tempDir)) {
-            // TODO If path leads to a zip, attempt to extract.
-            // Path tempDir = extractToTemp(downloadedZip);
-        } else if (!Files.exists(tempDir)) {
+        if (!Files.exists(tempDir)) {
             // Verify the dirName given is a valid directory.
             throw new Exception("No such directory found: " + tempDir.toString());
+        } else if (!Files.isDirectory(tempDir)) {
+            // TODO If path leads to a zip, attempt to extract.
+            // Path tempDir = extractToTemp(downloadedZip);
         }
-        System.out.println("📦 Collecting info: " + tempDir.getFileName()); // TODO Debugging
+        System.out.println("📦 Processing meta data: " + tempDir.getFileName()); // TODO Debugging
 
         /// /// 2. Process passed HashMap to extract Mod data.
         ModManifest mod = new ModManifest();
         mod.setGameId(game.getId());
         try {
-            mod.setName(metaMap.get("name"));
-            mod.setDescription(metaMap.get("description"));
-            mod.setDownloadSource(metaMap.get("source"));
-            mod.setVersion(metaMap.get("version"));
-            mod.setDownloadLink(metaMap.get("url"));
+            // if a key is missing, don't set it.
+            // Values will be left from constructor default
+            if (metaMap.containsKey("name"))
+                mod.setName(metaMap.get("name"));
 
-            try {
-                mod.setLoadOrder(Integer.parseInt(metaMap.get("loadorder")));
-            } catch (NumberFormatException e) {
-                mod.setLoadOrder(1); // default TODO consider moving this to Mod for consistancy
+            if (metaMap.containsKey("description"))
+                mod.setDescription(metaMap.get("description"));
+
+            if (metaMap.containsKey("version"))
+                mod.setVersion(metaMap.get("version"));
+
+            if (metaMap.containsKey("source"))
+                mod.setDownloadSource(metaMap.get("source"));
+
+            if (metaMap.containsKey("url"))
+                mod.setDownloadLink(metaMap.get("url"));
+
+            if (metaMap.containsKey("loadorder")) {
+                try {
+                    mod.setLoadOrder(Integer.parseInt(metaMap.get("loadorder")));
+                } catch (NumberFormatException e) {
+                    mod.setLoadOrder(1); // default TODO consider moving this to Mod for consistancy
+                }
             }
 
         } catch (Exception e) {
@@ -204,7 +217,7 @@ public class ModManager {
             /// 2. Copy to temp/{mod_id} Mod Files and verify integrity and if items were
             // left behind.
             try {
-                System.out.println("\tCopying files...");
+                System.out.println("\tCopying files to temp...");
                 for (ModFile mf : mod.getContentsArr()) { // Try to copy each file from the Manifest.
                     copyModFile(storedDir, tempDir, Path.of(mf.getFilePath()), mod);
                 }
@@ -411,6 +424,10 @@ public class ModManager {
 
     ///
 
+    public void reorderMod(String modId, int order) throws Exception {
+        // can just re-deploy without needing to trash
+    } // reorderMod()
+
     /**
      * Deploys all mods from in the correct LoadOrder from a GameState.json
      * 
@@ -487,7 +504,7 @@ public class ModManager {
      * to copy from storage to temp (recommended) or target could be Game_PATH.
      * File conflicts are hard-set to copare against contents of Game_PATH, not the
      * target. (With good reasons)
-     * 
+     * Can support restoring files when mods are re-deployed/re-ordered.
      * 
      * @param sourceDir   The source directory the ModFile is relative to.
      * @param targetDir   The target directory the ModFile is relative to.
@@ -563,7 +580,6 @@ public class ModManager {
                     if (fl.insertOrderedVersion(new FileVersion(modId, modFile.getHash()),
                             ROOT_PATH.resolve(MANIFEST_DIR), loadOrder) == 0) {
                         // If it was top:
-                        fl.pushVersion(modId, modFile.getHash());
                         // COPY
                         copy = true;
                         System.out.println("\t✔ Pushed as new owner in lineage.");
@@ -572,6 +588,23 @@ public class ModManager {
                         // NO COPY! (only case in which no copy is to be made)
                         copy = false;
                         System.out.println("\t\t❗ File is owned by higher prioirty Mod. Inserting as \"Wants to Own\"");
+
+                        // if the file does not match the current owner, then replace it with the file
+                        // from the current owner.
+                        // This is a fallback check to handle when a mod is re-deployed after it's load
+                        // order has been reduced.
+                        if (!HashUtil.verifyFileIntegrity(Path.of(game.getInstallPath()).resolve(modFilePath),
+                                fl.getStack().peek().getHash())) {
+                            System.err.println("\t\t❗ File is not what owner expects! Repairing...");
+                            try {
+                                Files.copy(
+                                        Path.of(game.getModsPath()).resolve(fl.getStack().peek().getModId(),
+                                                modFilePath.toString()),
+                                        targetDir.resolve(modFilePath));
+                            } catch (IOException e) {
+                                throw new Exception("Failed to restore file from owner.", e);
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     System.out.println("\t\t" + e.getMessage() + "\n\t\t\tDid not re-insert Mod, skipping...");
@@ -671,7 +704,7 @@ public class ModManager {
                 gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
             else
                 gState = new GameState();
-            gState.appendMod(mod);
+            gState.appendModOnly(mod); // Will ensure no duplicates occur
 
             JsonIO.write(gState, GsPath.toFile());
         } catch (Exception e) {
