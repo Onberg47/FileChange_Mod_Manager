@@ -37,7 +37,8 @@ The goal is to create a practical project for both real-world usage but also as 
 ### GUI (Planned)
 - Tile view of games with icons and basic info. Game icon could double as a background image, or have a separate background for each game. Just a "nice to have" feature.
 - Download link for mods will be a clickable link. (might be nice)
-- Interactive way to reorder mods.
+- Interactive way to reorder mods by dragging mod tiles.
+- Enable/disable mods by dragging them to and from the deployed/stored containers. (Need to see how feasible that is)
 - Plan to use drag and drop areas for compiling new/updated mods. (Never need to open a file-manager yourself)
 
 ### CLI Usage:

@@ -46,7 +46,12 @@ public class JsonIO {
         // end of checks...
 
         JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(new FileReader(file));
+        JSONObject json;
+        try (FileReader fileReader = new FileReader(file)) {
+            json = (JSONObject) parser.parse(fileReader);
+            // MUST DO THIS! Cannot create an anonymous instance of FileReader because
+            // otherwise it cannot be closed.
+        }
 
         String fileType = ((String) json.get(JsonSerializable.ObjectTypeKey));
         if (type_string != null && !fileType.equals(type_string))
@@ -138,7 +143,10 @@ public class JsonIO {
         HashMap<String, String> hMap = new HashMap<>();
 
         JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(new FileReader(file));
+        JSONObject json;
+        try (FileReader fileReader = new FileReader(file)) {
+            json = (JSONObject) parser.parse(fileReader);
+        }
 
         for (Object key : json.keySet()) {
             hMap.put(key.toString(), json.get(key).toString());
