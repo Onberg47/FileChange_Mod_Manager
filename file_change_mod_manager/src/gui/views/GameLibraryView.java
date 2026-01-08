@@ -55,19 +55,13 @@ public class GameLibraryView extends BaseView {
         });
         gameTilesPanel.add(addTile);
 
-        // 2. Try to get cached games first
-        List<Game> games = AppState.getInstance().getCachedGames();
-
-        if (games.isEmpty()) {
-            // 2. Load fresh from GameManager
-            try {
-                games = GameManager.getAllGames();
-                // Cache them for future use
-                AppState.getInstance().cacheGames(games);
-            } catch (Exception e) {
-                showError("Failed to load games: " + e.getMessage());
-                games = addSampleGames(); // Fallback
-            }
+        // 2. Try to get games
+        List<Game> games;
+        try {
+            games = GameManager.getAllGames();
+        } catch (Exception e) {
+            showError("Failed to load games: " + e.getMessage());
+            games = addSampleGames(); // Fallback
         }
         // Add game tiles from whatever populated the game list
         for (Game game : games) {
@@ -136,4 +130,4 @@ public class GameLibraryView extends BaseView {
             scrollPane.setMinimumSize(new Dimension(80, 80));
         }
     }
-}
+} // Class

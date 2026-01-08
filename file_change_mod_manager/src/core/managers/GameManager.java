@@ -228,6 +228,8 @@ public class GameManager {
     public static List<Game> getAllGames() {
         try (Stream<Path> paths = Files.list(config.getGameDir())) {
             return paths.map(path -> {
+                if (!Files.isRegularFile(path))
+                    return null; // ignore non-regular files.
                 try {
                     return (Game) JsonIO.read(path.toFile(), JsonSerializable.ObjectTypes.GAME);
                 } catch (InvalidObjectException e) {
@@ -235,7 +237,7 @@ public class GameManager {
                     System.err.println(e.getMessage());
                     return null;
                 } catch (Exception e) {
-                    System.err.println("❌ No existing deployed mods found!");
+                    System.err.println("Error reading file: " + path.toString() + " -> " + e);
                     return null;
                 }
             }).filter(Objects::nonNull).toList();

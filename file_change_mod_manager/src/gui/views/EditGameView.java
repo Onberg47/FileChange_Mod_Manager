@@ -28,23 +28,6 @@ public class EditGameView extends FormView {
 
     public EditGameView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Edit Game");
-
-        // Get gameId from params, then get game from AppState
-        String gameId = (String) params.get("gameId");
-        this.game = AppState.getInstance().getCachedGame(gameId);
-
-        // If not in cache, try to load
-        if (this.game == null) {
-            try {
-                this.game = GameManager.getGameById(gameId);
-            } catch (Exception e) {
-                game = null;
-            }
-
-            if (this.game != null) {
-                AppState.getInstance().cacheGame(this.game);
-            }
-        }
     }
 
     @Override
@@ -60,6 +43,20 @@ public class EditGameView extends FormView {
 
     @Override
     protected void loadExistingData() {
+        System.out.println("Loading data.");
+        String gameId = (String) params.get("gameId");
+        this.game = AppState.getInstance().getCurrentGame();
+
+        // If not in cache, try to load
+        if (this.game == null) {
+            try {
+                this.game = GameManager.getGameById(gameId);
+            } catch (Exception e) {
+                System.err.println("Could not find game!");
+                game = null;
+            }
+        }
+
         HashMap<String, String> gameData = game.toMap();
 
         // Special handling for paths - convert to absolute if relative
@@ -107,15 +104,15 @@ public class EditGameView extends FormView {
         answers = (HashMap<String, String>) formPanel.getAnswers();
         try {
             // remove while still the old instance
-            AppState.getInstance().removeFromCache(game.getId());
+            // AppState.getInstance().removeFromCache(game.getId());
 
             // Update game from answers
             game.setFromMap(answers);
             GameManager.saveGame(game);
-            AppState.getInstance().cacheGame(game);
+            // AppState.getInstance().cacheGame(game);
 
             // Notify other views
-            AppState.getInstance().fireGameUpdated(game);
+            // AppState.getInstance().fireGameUpdated(game);
 
             // Navigate back to library
             navigator.navigateTo("library");

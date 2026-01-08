@@ -7,9 +7,9 @@ package gui.views;
 import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
-import gui.state.AppState;
+//import gui.state.AppState;
+//import core.objects.Game;
 import core.managers.GameManager;
-import core.objects.Game;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,14 +48,16 @@ public class AddGameView extends FormView {
         try {
             // Update game from answers
             GameManager gm = new GameManager();
-            Game game = gm.addGame(answers);
+            // Game game =
+            gm.addGame(answers);
 
-            if (AppState.getInstance().getCachedGame(game.getId()) != null)
-                throw new Exception("Game ID already exsists! Do not use AddGame for updating.");
-            AppState.getInstance().cacheGame(game);
+            // if (AppState.getInstance().getCachedGame(game.getId()) != null)
+            // throw new Exception("Game ID already exsists! Do not use AddGame for
+            // updating.");
+            // AppState.getInstance().cacheGame(game);
 
             // Notify other views
-            AppState.getInstance().fireGameUpdated(game);
+            // AppState.getInstance().fireGameUpdated(game);
 
             // Navigate back
             navigator.goBack();
