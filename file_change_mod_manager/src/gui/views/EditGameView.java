@@ -8,6 +8,7 @@ import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
+import gui.util.IconLoader;
 import core.managers.GameManager;
 import core.objects.Game;
 
@@ -104,16 +105,15 @@ public class EditGameView extends FormView {
 
         answers = (HashMap<String, String>) formPanel.getAnswers();
         try {
-            // remove while still the old instance
-            // AppState.getInstance().removeFromCache(game.getId());
-
             // Update game from answers
             game.setFromMap(answers);
             GameManager.saveGame(game);
-            // AppState.getInstance().cacheGame(game);
 
-            // Notify other views
-            // AppState.getInstance().fireGameUpdated(game);
+            // Try add a new icon
+            if (answers.containsKey("iconFile")) {
+                IconLoader.fetchIcon(Path.of(answers.get("iconFile")));
+                IconLoader.clearCache();
+            }
 
             // Navigate back to library
             navigator.navigateTo("library");

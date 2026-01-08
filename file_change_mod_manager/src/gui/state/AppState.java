@@ -1,3 +1,7 @@
+/*
+ * Author Stephanos B
+ * Date: 8/01/2026
+ */
 package gui.state;
 
 import core.objects.Game;

@@ -6,8 +6,11 @@ package gui.components;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
+
+import gui.util.IconLoader;
 
 /**
  * @author Stephanos + JFormDesigner, refined by DeepSeekV3
@@ -36,7 +39,13 @@ public class GameTile extends JPanel {
 	}
 
 	private void setupGameTile() {
-		gameIconLabel.setText("[Game Icon]");
+		// Load icon
+		ImageIcon icon = IconLoader.loadGameIcon(gameId);
+		gameIconLabel.setIcon(icon);
+
+		// Remove text since we have icon
+		gameIconLabel.setText("");
+
 		gameIconLabel.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(),
 				gameName,

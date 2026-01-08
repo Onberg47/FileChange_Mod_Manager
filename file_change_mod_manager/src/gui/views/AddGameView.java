@@ -7,10 +7,12 @@ package gui.views;
 import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
+import gui.util.IconLoader;
 //import gui.state.AppState;
 //import core.objects.Game;
 import core.managers.GameManager;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,16 +50,13 @@ public class AddGameView extends FormView {
         try {
             // Update game from answers
             GameManager gm = new GameManager();
-            // Game game =
             gm.addGame(answers);
 
-            // if (AppState.getInstance().getCachedGame(game.getId()) != null)
-            // throw new Exception("Game ID already exsists! Do not use AddGame for
-            // updating.");
-            // AppState.getInstance().cacheGame(game);
-
-            // Notify other views
-            // AppState.getInstance().fireGameUpdated(game);
+            // Try add a new icon
+            if (answers.containsKey("iconFile")) {
+                IconLoader.fetchIcon(Path.of(answers.get("iconFile")));
+                IconLoader.clearCache();
+            }
 
             // Navigate back
             navigator.goBack();
