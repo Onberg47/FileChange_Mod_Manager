@@ -65,4 +65,9 @@ public class AddGameView extends FormView {
             showError("Failed to add game: " + e.getMessage());
         }
     }
+
+    @Override
+    protected void onDelete() {
+        // Does nothing in this case.
+    }
 } // Class

@@ -19,6 +19,7 @@ public abstract class FormView extends BaseView {
     protected FormPanel formPanel;
     protected JButton submitButton;
     protected JButton cancelButton;
+    protected JButton deleteButton;
     protected String formTitle;
 
     public FormView(AppNavigator navigator, Map<String, Object> params, String title) {
@@ -44,7 +45,10 @@ public abstract class FormView extends BaseView {
         cancelButton = new JButton("Cancel");
         submitButton = new JButton(getSubmitButtonText());
         submitButton.setEnabled(false);
+        deleteButton = new JButton("Delete");
+        deleteButton.setVisible(false);
 
+        buttonPanel.add(deleteButton);
         buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -55,6 +59,7 @@ public abstract class FormView extends BaseView {
 
     @Override
     protected void setupEventHandlers() {
+        deleteButton.addActionListener(e -> onDelete());
         cancelButton.addActionListener(e -> onCancel());
         submitButton.addActionListener(e -> onSubmit());
 
@@ -74,6 +79,8 @@ public abstract class FormView extends BaseView {
     protected void onCancel() {
         navigator.goBack();
     }
+
+    protected abstract void onDelete();
 
     protected boolean validateAndCollect() {
         if (!formPanel.validateForm()) {

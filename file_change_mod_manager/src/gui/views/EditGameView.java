@@ -28,6 +28,7 @@ public class EditGameView extends FormView {
 
     public EditGameView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Edit Game");
+        deleteButton.setVisible(true);
     }
 
     @Override
@@ -118,6 +119,24 @@ public class EditGameView extends FormView {
             navigator.navigateTo("library");
         } catch (Exception e) {
             showError("Failed to update game: " + e.getMessage());
+        }
+    }
+
+    @Override
+    protected void onDelete() {
+        if (!confirm("Are you sure you want to delete Game: " + game.getName() + "?"))
+            return;
+
+        GameManager gm = new GameManager();
+        try {
+            gm.removeGame(game.getId());
+            AppState.getInstance().setCurrentGame(null);
+
+        } catch (Exception e) {
+            System.err.println("Could not delete Game " + game.getId() + " -> " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            navigator.navigateTo("library");
         }
     }
 } // Class
