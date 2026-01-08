@@ -129,6 +129,13 @@ public class AppNavigator {
         mainFrame.setTitle(baseTitle + " - " + viewTitle);
     }
 
+    /**
+     * Determines the view title for each page.
+     * 
+     * @param viewId The current View.
+     * @param params Parameters being passed to that view.
+     * @return String of the final View Title to displayu
+     */
     private String getViewTitle(String viewId, Map<String, Object> params) {
         switch (viewId) {
             case "library":
@@ -141,7 +148,7 @@ public class AppNavigator {
             default:
                 return viewId;
         }
-    }
+    } // getViewTitle()
 
     public boolean canGoBack() {
         return history.size() > 1;

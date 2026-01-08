@@ -1,0 +1,63 @@
+JFDML JFormDesigner: "8.2.2.0.382" Java: "21.0.2" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {space :::p, par l:::p {comp deployToggleButton:::::x, comp loadOrderSpinner::::50:x}, space u:::p, comp dragHandle:::p::p, space u:::p, par l {comp modDescriptionTextPane::::254:x, comp modTitleLabel::::254:x}, space :::p, par l:::p {comp formattedTextField1:::::x, comp button2:::p:113:p}}}"
+			"$verticalGroup": "par l {seq {comp modTitleLabel:::p:20:p, space :::p, comp modDescriptionTextPane:::::x}, seq t {comp button2:::p::p, space :::p, comp formattedTextField1:::::x}, seq t {comp deployToggleButton:::p::p, space :::p, comp loadOrderSpinner::::85:x}, comp dragHandle::l::112:x}"
+		} ) {
+			name: "this"
+			"preferredSize": new java.awt.Dimension( 380, 120 )
+			"border": new javax.swing.border.EmptyBorder( 4, 6, 4, 6 )
+			add( new FormComponent( "javax.swing.JSpinner" ) {
+				name: "loadOrderSpinner"
+				"preferredSize": new java.awt.Dimension( 45, 80 )
+				"minimumSize": new java.awt.Dimension( 42, 60 )
+				"font": new java.awt.Font( "Noto Sans", 0, 14 )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "dragHandle"
+				"text": "---"
+				"maximumSize": new java.awt.Dimension( 40, 100 )
+				"minimumSize": new java.awt.Dimension( 35, 92 )
+				"border": new javax.swing.border.BevelBorder( 1, null, null, null, null )
+				"preferredSize": new java.awt.Dimension( 35, 92 )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "modTitleLabel"
+				"text": "mod name"
+				"font": new java.awt.Font( "Noto Sans", 1, 14 )
+			} )
+			add( new FormComponent( "javax.swing.JTextPane" ) {
+				name: "modDescriptionTextPane"
+				"text": "description of the mod goes here... This should be able to display lenthy lines that just yap on and on..."
+			} )
+			add( new FormComponent( "javax.swing.JFormattedTextField" ) {
+				name: "formattedTextField1"
+				"text": "download source"
+				"editable": false
+				"horizontalAlignment": 0
+				"toolTipText": "Click to follow link"
+				"font": new java.awt.Font( "Noto Sans", 2, 13 )
+				"requestFocusEnabled": false
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "button2"
+				"text": "edit"
+				"toolTipText": "Edit mod"
+			} )
+			add( new FormComponent( "javax.swing.JToggleButton" ) {
+				name: "deployToggleButton"
+				"text": "enable"
+				"font": new java.awt.Font( "Noto Sans", 0, 12 )
+				"border": new javax.swing.border.BevelBorder( 0, null, null, null, null )
+				"minimumSize": new java.awt.Dimension( 50, 20 )
+				"maximumSize": new java.awt.Dimension( 60, 30 )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 500, 120 )
+		} )
+	}
+}

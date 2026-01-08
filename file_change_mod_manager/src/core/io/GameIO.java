@@ -27,8 +27,8 @@ public class GameIO {
 
         game.setId((String) json.get(Game.JsonFields.id.toString()));
         game.setName((String) json.get(Game.JsonFields.name.toString()));
-        game.setInstallPath((String) json.get(Game.JsonFields.installPath.toString()));
-        game.setModsPath((String) json.get(Game.JsonFields.modsPath.toString()));
+        game.setInstallDirectory((String) json.get(Game.JsonFields.installDirectory.toString()));
+        game.setStoreDirectory((String) json.get(Game.JsonFields.storeDirectory.toString()));
 
         return game;
     } // read()
@@ -45,8 +45,8 @@ public class GameIO {
 
         json.put(Game.JsonFields.id, obj.getId());
         json.put(Game.JsonFields.name, obj.getName());
-        json.put(Game.JsonFields.installPath, obj.getInstallPath());
-        json.put(Game.JsonFields.modsPath, obj.getModsPath());
+        json.put(Game.JsonFields.installDirectory, obj.getInstallDirectory());
+        json.put(Game.JsonFields.storeDirectory, obj.getStoreDirectory());
 
         return json;
     } // write()

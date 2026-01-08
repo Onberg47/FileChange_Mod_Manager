@@ -135,7 +135,7 @@ public class FileUtil {
     public static String printGameState(Game game) throws Exception {
         Path managerPath = config.getManagerDir();
         GameState gState;
-        Path GsPath = Path.of(game.getInstallPath(), managerPath.toString(), GameState.FILE_NAME);
+        Path GsPath = Path.of(game.getInstallDirectory(), managerPath.toString(), GameState.FILE_NAME);
 
         if (!Files.exists(GsPath))
             System.err.println("❗ No mods installed, could not find " + GameState.FILE_NAME);
@@ -162,7 +162,7 @@ public class FileUtil {
         Path manifestPath = config.getManifestDir();
         StringBuilder sb = new StringBuilder();
 
-        Path GsPath = Path.of(game.getInstallPath(), config.getManagerDir().toString(), GameState.FILE_NAME);
+        Path GsPath = Path.of(game.getInstallDirectory(), config.getManagerDir().toString(), GameState.FILE_NAME);
         GameState gState;
         if (!Files.exists(GsPath))
             System.err.println("❗ No mods installed, could not find " + GameState.FILE_NAME);
@@ -178,7 +178,7 @@ public class FileUtil {
         } else
             sb.append("📦 Non-deployed only Mods:\n\t Game: " + game.getName());
 
-        Path storeDir = Path.of(game.getModsPath());
+        Path storeDir = Path.of(game.getStoreDirectory());
         try (Stream<Path> paths = Files.list(storeDir)) {
             // List<ModFile> list = new java.util.ArrayList<ModFile>();
 

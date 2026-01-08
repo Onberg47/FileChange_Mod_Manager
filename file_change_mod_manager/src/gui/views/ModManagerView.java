@@ -1,3 +1,7 @@
+/**
+ * Author Stephanos B
+ * Date //2026
+ */
 package gui.views;
 
 import java.util.Map;

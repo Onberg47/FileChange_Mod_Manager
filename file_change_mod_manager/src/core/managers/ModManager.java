@@ -59,7 +59,7 @@ public class ModManager {
      */
     public ModManager(Game game) {
         this.game = game;
-        GAME_ROOT_PATH = Path.of(game.getInstallPath());
+        GAME_ROOT_PATH = Path.of(game.getInstallDirectory());
 
         BACKUP_DIR = config.getBackupDir();
         LINEAGE_DIR = config.getLineageDir();
@@ -101,31 +101,7 @@ public class ModManager {
         ModManifest mod = new ModManifest();
         mod.setGameId(game.getId());
         try {
-            // if a key is missing, don't set it.
-            // Values will be left from constructor default
-            if (metaMap.containsKey("name"))
-                mod.setName(metaMap.get("name"));
-
-            if (metaMap.containsKey("description"))
-                mod.setDescription(metaMap.get("description"));
-
-            if (metaMap.containsKey("version"))
-                mod.setVersion(metaMap.get("version"));
-
-            if (metaMap.containsKey("source"))
-                mod.setDownloadSource(metaMap.get("source"));
-
-            if (metaMap.containsKey("url"))
-                mod.setDownloadLink(metaMap.get("url"));
-
-            if (metaMap.containsKey("loadorder")) {
-                try {
-                    mod.setLoadOrder(Integer.parseInt(metaMap.get("loadorder")));
-                } catch (NumberFormatException e) {
-                    mod.setLoadOrder(1); // default TODO consider moving this to Mod for consistancy
-                }
-            }
-
+            mod.setFromMap(metaMap);
         } catch (Exception e) {
             // System.err.println("❌ Fatal Error: " + e.getMessage());
             throw new Exception("Failed to pricess meta data.", e);
@@ -139,7 +115,7 @@ public class ModManager {
 
         /// /// 4. Once the Mod is complete, the Mod.JSON file can be created.
         System.out.println("📦 Writing manifest..."); // TODO Debugging
-        Path storagePath = Path.of(game.getModsPath(), mod.getId()); // Path where the Mods will be stored.
+        Path storagePath = Path.of(game.getStoreDirectory(), mod.getId()); // Path where the Mods will be stored.
 
         try {
             Path path = tempDir.resolve(MANIFEST_DIR.toString(), mod.getId() + ".json");
@@ -189,7 +165,7 @@ public class ModManager {
     public void deployMod(String modId) throws Exception {
         ModManifest mod;
         Path tempDir = TEMP_DIR.resolve(modId + "__" + DateUtil.getNumericTimestamp());
-        Path storedDir = Path.of(game.getModsPath(), modId);
+        Path storedDir = Path.of(game.getStoreDirectory(), modId);
 
         try {
             /// 1. Find the Mod's manifest from it's ID and read it.
@@ -368,9 +344,12 @@ public class ModManager {
                                     if (!Files.exists(tmpPath.getParent()))
                                         Files.createDirectories(tmpPath.getParent());
                                     Files.move(flPath, tmpPath);
-                                    FileUtil.cleanDirectories(GAME_ROOT_PATH, LINEAGE_DIR.resolve(mfPath).getParent()); // TODO unify cleaning
+                                    FileUtil.cleanDirectories(GAME_ROOT_PATH, LINEAGE_DIR.resolve(mfPath).getParent()); // TODO
+                                                                                                                        // unify
+                                                                                                                        // cleaning
                                 } else {
-                                    throw new Exception("❗ GAME is not the ONLY entry in File Lineage when it should be!");
+                                    throw new Exception(
+                                            "❗ GAME is not the ONLY entry in File Lineage when it should be!");
                                 }
                             } else {
                                 // Restore from Storage for Mod now current owner.
@@ -596,12 +575,12 @@ public class ModManager {
                         // from the current owner.
                         // This is a fallback check to handle when a mod is re-deployed after it's load
                         // order has been reduced.
-                        if (!HashUtil.verifyFileIntegrity(Path.of(game.getInstallPath()).resolve(modFilePath),
+                        if (!HashUtil.verifyFileIntegrity(Path.of(game.getInstallDirectory()).resolve(modFilePath),
                                 fl.getStack().peek().getHash())) {
                             System.err.println("\t\t❗ File is not what owner expects! Repairing...");
                             try {
                                 Files.copy(
-                                        Path.of(game.getModsPath()).resolve(fl.getStack().peek().getModId(),
+                                        Path.of(game.getStoreDirectory()).resolve(fl.getStack().peek().getModId(),
                                                 modFilePath.toString()),
                                         targetDir.resolve(modFilePath));
                             } catch (IOException e) {
@@ -683,7 +662,7 @@ public class ModManager {
      * @throws Exception Throws is Mod Storage file or manifest is missing.
      */
     private void restoreFromStorage(String modId, String modFilePath) throws Exception {
-        Path source = Path.of(game.getModsPath(), modId, modFilePath);
+        Path source = Path.of(game.getStoreDirectory(), modId, modFilePath);
         if (!Files.exists(source)) {
             throw new FileNotFoundException(
                     "Source file in storage not found: " + source.toString());
@@ -786,7 +765,7 @@ public class ModManager {
      */
     public Mod getModById(String modId) throws Exception {
         Mod mod = new Mod();
-        Path path = Path.of(game.getModsPath(), modId).resolve(MANIFEST_DIR.toString(), modId + ".json");
+        Path path = Path.of(game.getStoreDirectory(), modId).resolve(MANIFEST_DIR.toString(), modId + ".json");
 
         try {
             mod = (Mod) JsonIO.read(
@@ -808,7 +787,7 @@ public class ModManager {
      */
     public ModManifest getModManifestById(String modId) throws Exception {
         ModManifest mod = new ModManifest();
-        Path path = Path.of(game.getModsPath(), modId).resolve(MANIFEST_DIR.toString(), modId + ".json");
+        Path path = Path.of(game.getStoreDirectory(), modId).resolve(MANIFEST_DIR.toString(), modId + ".json");
 
         try {
             mod = (ModManifest) JsonIO.read(

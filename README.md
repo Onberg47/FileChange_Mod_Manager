@@ -16,6 +16,7 @@ The goal is to create a practical project for both real-world usage but also as 
 ### Mods: 
 - Track, add, remove and update Mods deployed into a game.
 - Mods can be deployed individually to a game while automatically backing up game files and tracking mod-overrides.
+- Mods can be re-deployed individually with different load orders, fully handling new load priority **without** re-building from scratch.
 - Individual mods can be removed (safely trashed) from the game restoring original files if needed.
 - Keep meta data for each mod:
   - Display name.
@@ -25,10 +26,14 @@ The goal is to create a practical project for both real-world usage but also as 
   - Add tags to mods for GUI sorting and filtering. (TODO)
 
 ### Games: 
-- Save game states. Keep snapshots of deployed mod lists. These are stored with the game, all data needed to track and remove deployed Mods is stored within the game directory.
+- Stores a current GameState with the game, all data needed to track and remove deployed Mods is stored within the game directory.
 - Track multiple Games.
 - Flexible Mod management, deployment directory and Mod file storage are customisation per a game. This provides support for games with unique mod file locations.
 - Store non-installed mods in a dedicated directory. Stored mods are ready to be deployed or can be packed. (TODO: archive file contents but leave manifest for ease of access)
+
+### GameStates:
+- Keep snapshots of deployed mod lists.
+- Design, record and deploy GameStates. Allows making major changes quickly, automating the re-building process.
 
 ---
 
@@ -40,6 +45,7 @@ The goal is to create a practical project for both real-world usage but also as 
 - Interactive way to reorder mods by dragging mod tiles.
 - Enable/disable mods by dragging them to and from the deployed/stored containers. (Need to see how feasible that is)
 - Plan to use drag and drop areas for compiling new/updated mods. (Never need to open a file-manager yourself)
+- Write changes to a temp GameState or pick from saved profiles. Then Apply the GameState when ready. (TODO)
 
 ### CLI Usage:
 ```bash

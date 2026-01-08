@@ -1,0 +1,22 @@
+JFDML JFormDesigner: "8.2.2.0.382" Java: "21.0.2" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq t {space :::p, comp scrollPane1::::488:x, space :::p}}"
+			"$verticalGroup": "par l {seq l {space :p:55:p, comp scrollPane1:::p:100:p, space ::95:x}}"
+		} ) {
+			name: "this"
+			"minimumSize": new java.awt.Dimension( 200, 250 )
+			"preferredSize": new java.awt.Dimension( 400, 400 )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				"border": new javax.swing.border.CompoundBorder( new javax.swing.border.TitledBorder( null, "Deployed Mods", 2, 1, new java.awt.Font( "Noto Sans", 1, 14 ), null ), new com.formdev.flatlaf.ui.FlatScrollPaneBorder )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 500, 250 )
+		} )
+	}
+}

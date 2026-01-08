@@ -97,7 +97,7 @@ public class JsonTest {
 
         @SuppressWarnings("unused")
         ModManager modManager = new ModManager(game);
-        Path storagePath = Path.of(game.getModsPath(), sampleMod.getId());
+        Path storagePath = Path.of(game.getStoreDirectory(), sampleMod.getId());
 
         try {
             // Write to JSON
@@ -127,7 +127,7 @@ public class JsonTest {
         mod.addFile(new ModFile("data/test_img.png", "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
 
         Path tempDir = Path.of("mod_manager/.temp/", "mod_a");
-        Path storagePath = Path.of(game.getModsPath(), mod.getId());
+        Path storagePath = Path.of(game.getStoreDirectory(), mod.getId());
 
         try {
             if (Files.exists(storagePath)) {

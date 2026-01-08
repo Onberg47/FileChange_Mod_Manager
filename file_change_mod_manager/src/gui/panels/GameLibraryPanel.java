@@ -1,3 +1,9 @@
+/**
+ * Author Stephanos B
+ * Date 8/01/2026
+ */
+package gui.panels;
+
 import java.awt.*;
 import javax.swing.*;
 /*
@@ -21,9 +27,11 @@ public class GameLibraryPanel extends JPanel {
 		label1 = new JLabel();
 		separator1 = new JSeparator();
 		button1 = new JButton();
-		tabbedPane1 = new JTabbedPane();
+		scrollPane = new JScrollPane();
 
 		//======== this ========
+		setMinimumSize(new Dimension(200, 250));
+		setPreferredSize(new Dimension(400, 400));
 		setLayout(new BorderLayout());
 
 		//======== menuBar_main ========
@@ -35,7 +43,7 @@ public class GameLibraryPanel extends JPanel {
 			menuBar_main.add(label1);
 
 			//---- separator1 ----
-			separator1.setMinimumSize(new Dimension(1, 12));
+			separator1.setOrientation(SwingConstants.VERTICAL);
 			menuBar_main.add(separator1);
 
 			//---- button1 ----
@@ -43,7 +51,13 @@ public class GameLibraryPanel extends JPanel {
 			menuBar_main.add(button1);
 		}
 		add(menuBar_main, BorderLayout.NORTH);
-		add(tabbedPane1, BorderLayout.CENTER);
+
+		//======== scrollPane ========
+		{
+			scrollPane.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+			scrollPane.setMinimumSize(new Dimension(80, 80));
+		}
+		add(scrollPane, BorderLayout.CENTER);
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
 	}
 
@@ -53,6 +67,6 @@ public class GameLibraryPanel extends JPanel {
 	private JLabel label1;
 	private JSeparator separator1;
 	private JButton button1;
-	private JTabbedPane tabbedPane1;
+	private JScrollPane scrollPane;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

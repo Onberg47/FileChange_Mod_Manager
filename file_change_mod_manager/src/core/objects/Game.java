@@ -4,6 +4,8 @@
 */
 package core.objects;
 
+import java.util.HashMap;
+
 import org.json.simple.JSONObject;
 
 import core.interfaces.JsonSerializable;
@@ -23,9 +25,9 @@ public class Game implements JsonSerializable {
     /** User-friendly name of the Game for interfaces. */
     private String name;
     /** Path where the Game is installed. (Should be absolute) */
-    private String installPath;
+    private String installDirectory;
     /** Path where the Mods are stored. */
-    private String modsPath;
+    private String storeDirectory;
 
     /**
      * Used to ensure Json Keys are consistent.
@@ -34,33 +36,35 @@ public class Game implements JsonSerializable {
         id,
         releaseVersion,
         name,
-        installPath,
-        modsPath
+        installDirectory,
+        storeDirectory
     }
 
     public Game() {
         id = "unkown01";
         releaseVersion = "0.0.0";
         name = "Unkown Game";
-        installPath = null; // Null because it must be set.
-        modsPath = null;
+        installDirectory = null; // Null because it must be set.
+        storeDirectory = null;
     }
 
     /**
      * Parameterized constructor for Game.
      * 
-     * @param id          The unique identifier for the Game. Used as the directory
-     *                    name.
-     * @param name        The user-friendly name of the Game.
-     * @param installPath The installation path of the Game. (Should be absolute)
-     * @param modsPath    The Mods storage path of the Game.
+     * @param id               The unique identifier for the Game. Used as the
+     *                         directory
+     *                         name.
+     * @param name             The user-friendly name of the Game.
+     * @param installDirectory The installation path of the Game. (Should be
+     *                         absolute)
+     * @param storeDirectory   The Mods storage path of the Game.
      */
-    public Game(String id, String releaseVersion, String name, String installPath, String modsPath) {
+    public Game(String id, String releaseVersion, String name, String installDirectory, String storeDirectory) {
         this.id = id;
         this.releaseVersion = releaseVersion;
         this.name = name;
-        this.installPath = installPath;
-        this.modsPath = modsPath;
+        this.installDirectory = installDirectory;
+        this.storeDirectory = storeDirectory;
     }
 
     /// /// /// Implements /// /// ///
@@ -102,28 +106,73 @@ public class Game implements JsonSerializable {
         this.name = name;
     }
 
-    public String getInstallPath() {
-        return installPath;
+    public String getInstallDirectory() {
+        return installDirectory;
     }
 
     /**
      * 
-     * @param installPath The installation path of the Game. (Should be absolute)
+     * @param installDirectory The installation path of the Game. (Should be
+     *                         absolute)
      */
-    public void setInstallPath(String installPath) {
-        this.installPath = installPath;
+    public void setInstallDirectory(String installDirectory) {
+        this.installDirectory = installDirectory;
     }
 
-    public String getModsPath() {
-        return modsPath;
+    public String getStoreDirectory() {
+        return storeDirectory;
     }
 
-    public void setModsPath(String modsPath) {
-        this.modsPath = modsPath;
+    public void setStoreDirectory(String storeDirectory) {
+        this.storeDirectory = storeDirectory;
     }
 
     // #endregion
     /// /// /// Methods /// /// ///
+
+    /**
+     * For GUI.
+     * Sets all values of the current Game from the passed Map<> and won't override
+     * missing values, allowing for updating instances.
+     * 
+     * @param metaMap Complete or patially complete Meta Map to read values from.
+     */
+    public void setFromMap(HashMap<String, String> metaMap) {
+
+        if (metaMap.containsKey("id")) // This prevents missing values being set to null, allowing updates.
+            this.setId(metaMap.get("id"));
+
+        if (metaMap.containsKey("releaseVersion"))
+            this.setReleaseVersion(metaMap.get("releaseVersion"));
+
+        if (metaMap.containsKey("name"))
+            this.setName(metaMap.get("name"));
+
+        if (metaMap.containsKey("installDirectory")) {
+            this.setInstallDirectory(metaMap.get("installDirectory"));
+        }
+
+        if (metaMap.containsKey("storeDirectory"))
+            this.setStoreDirectory(metaMap.get("storeDirectory"));
+
+    } // setFromMap()
+
+    /**
+     * For GUI.
+     * 
+     * @return HashMap<String, String> of all the instance's fields.
+     */
+    public HashMap<String, String> toMap() {
+        HashMap<String, String> metaMap = new HashMap<>();
+
+        metaMap.put("id", this.getId());
+        metaMap.put("name", this.getName());
+        metaMap.put("releaseVersion", this.getReleaseVersion());
+        metaMap.put("installDirectory", this.getInstallDirectory());
+        metaMap.put("storeDirectory", this.getStoreDirectory());
+
+        return metaMap;
+    } // toMap()
 
     /**
      * Overrides toString() to provide a string representation of the Game object.
@@ -132,8 +181,8 @@ public class Game implements JsonSerializable {
      */
     @Override
     public String toString() {
-        return "Game details: \n\tID = " + id + "\n\tName = " + name + "\n\tInstall Path = " + installPath
-                + "\n\tMods Path = " + modsPath;
+        return "Game details: \n\tID = " + id + "\n\tName = " + name + "\n\tInstall Path = " + installDirectory
+                + "\n\tMods Path = " + storeDirectory;
     } // toString()
 
 } // Class

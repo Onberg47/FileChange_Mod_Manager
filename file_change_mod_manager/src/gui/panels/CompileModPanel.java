@@ -1,3 +1,9 @@
+/**
+ * Author Stephanos B
+ * Date 8/01/2026
+ */
+package gui.panels;
+
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.GroupLayout;
@@ -5,8 +11,6 @@ import javax.swing.LayoutStyle;
 /*
  * Created by JFormDesigner on Tue Jan 06 11:21:46 SAST 2026
  */
-
-
 
 /**
  * @author onberg
@@ -21,7 +25,7 @@ public class CompileModPanel extends JPanel {
 		// Generated using JFormDesigner Educational license - Balden (eduv4822854)
 		menuBar1 = new JMenuBar();
 		label2 = new JLabel();
-		separator1 = new JPopupMenu.Separator();
+		separator2 = new JSeparator();
 		button1 = new JButton();
 		label1 = new JLabel();
 		txtField_name = new JTextField();
@@ -46,7 +50,10 @@ public class CompileModPanel extends JPanel {
 			//---- label2 ----
 			label2.setText("Compile New Mod");
 			menuBar1.add(label2);
-			menuBar1.add(separator1);
+
+			//---- separator2 ----
+			separator2.setOrientation(SwingConstants.VERTICAL);
+			menuBar1.add(separator2);
 
 			//---- button1 ----
 			button1.setText("settings");
@@ -149,7 +156,7 @@ public class CompileModPanel extends JPanel {
 	// Generated using JFormDesigner Educational license - Balden (eduv4822854)
 	private JMenuBar menuBar1;
 	private JLabel label2;
-	private JPopupMenu.Separator separator1;
+	private JSeparator separator2;
 	private JButton button1;
 	private JLabel label1;
 	private JTextField txtField_name;

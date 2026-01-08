@@ -1,10 +1,14 @@
+/**
+ * Author Stephanos B
+ * Date 8/01/2026
+ */
+package gui.panels;
+
 import java.awt.*;
 import javax.swing.*;
 /*
  * Created by JFormDesigner on Tue Jan 06 12:52:55 SAST 2026
  */
-
-
 
 /**
  * @author onberg
@@ -19,7 +23,6 @@ public class ModMetaDataPanel extends JPanel {
 		// Generated using JFormDesigner Educational license - Balden (eduv4822854)
 		menuBar1 = new JMenuBar();
 		label7 = new JLabel();
-		separator1 = new JPopupMenu.Separator();
 		button1 = new JButton();
 		label1 = new JLabel();
 		textField1 = new JTextField();
@@ -49,14 +52,13 @@ public class ModMetaDataPanel extends JPanel {
 			//---- label7 ----
 			label7.setText("Compile Mod");
 			menuBar1.add(label7);
-			menuBar1.add(separator1);
 
 			//---- button1 ----
 			button1.setText("settings");
 			menuBar1.add(button1);
 		}
 		add(menuBar1, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
-			GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+			GridBagConstraints.NORTHEAST, GridBagConstraints.NONE,
 			new Insets(4, 4, 12, 4), 0, 0));
 
 		//---- label1 ----
@@ -119,7 +121,6 @@ public class ModMetaDataPanel extends JPanel {
 	// Generated using JFormDesigner Educational license - Balden (eduv4822854)
 	private JMenuBar menuBar1;
 	private JLabel label7;
-	private JPopupMenu.Separator separator1;
 	private JButton button1;
 	private JLabel label1;
 	private JTextField textField1;

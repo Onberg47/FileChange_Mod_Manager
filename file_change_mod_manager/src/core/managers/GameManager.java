@@ -5,10 +5,14 @@
 package core.managers;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import core.config.AppConfig;
 import core.interfaces.JsonSerializable;
@@ -39,33 +43,17 @@ public class GameManager {
      * 
      * @param metaMap
      */
-    public void addGame(HashMap<String, String> metaMap) throws Exception {
+    public Game addGame(HashMap<String, String> metaMap) throws Exception {
         System.out.println("\n📦 Adding new game..."); // TODO Debugging
         if (this.game == null) {
             System.out.println("init new Game!");
             this.game = new Game(); // Only assigns a fresh instance if non-exsists.
         }
 
-        /// 1. read meta data /
+        /// 1. read meta data.
         try {
             System.out.println("\tReading meta data...");
-
-            if (metaMap.containsKey("id")) // This prevents missing values being set to null, allowing updates.
-                this.game.setId(metaMap.get("id"));
-
-            if (metaMap.containsKey("releaseVersion"))
-                this.game.setReleaseVersion(metaMap.get("releaseVersion"));
-
-            if (metaMap.containsKey("name"))
-                this.game.setName(metaMap.get("name"));
-
-            if (metaMap.containsKey("installPath")) {
-                this.game.setInstallPath(metaMap.get("installPath"));
-            }
-
-            if (metaMap.containsKey("modsPath"))
-                this.game.setModsPath(metaMap.get("modsPath"));
-
+            game.setFromMap(metaMap);
         } catch (Exception e) {
             throw new Exception("Failed to process Meta data.", e);
         }
@@ -74,17 +62,17 @@ public class GameManager {
         System.out.println("\tVerifying game paths...");
         Path path;
         try {
-            path = Path.of(this.game.getInstallPath());
+            path = Path.of(this.game.getInstallDirectory());
             System.out.println("Checking path: " + path.toString());
             if (!path.isAbsolute()) {
                 System.err.println("❌ Game installation path is not absolute!");
             } else if (!Files.exists(path)) {
                 System.err.println("❌ Could not find Game intall path at: " + path.toString()
-                        + "\n\tThis should exsist, will not create. Update if path is invalid.");
+                        + "\n\tThis should exsist, will NOT create. Update if path is invalid.");
             }
             System.out.println("\t\t✔ Game path is good.");
 
-            path = Path.of(game.getModsPath());
+            path = Path.of(game.getStoreDirectory());
             if (!path.isAbsolute()) {
                 System.err.println("❌ Mod storage path is not absolute!");
             } else if (!Files.exists(path)) {
@@ -92,17 +80,14 @@ public class GameManager {
                 try {
                     Files.createDirectories(path);
                 } catch (IOException e) {
-                    System.err.println("❌ Failed to create directories for mod storage! " + path.toString());
-                    e.printStackTrace();
-                    return;
+                    throw new Exception("❌ Failed to create directories for mod storage! " + path.toString(), e);
                 }
             }
             System.out.println("\t\t✔ Mod storage path is good.");
         } catch (InvalidPathException e) {
             throw new Exception("Could not convert paths.", e);
         } catch (Exception e) {
-            System.err.println("Failed to instantiate Game");
-            e.printStackTrace();
+            throw new Exception("Failed to instantiate Game.", e);
         }
 
         /// 3. Write JSON
@@ -112,12 +97,12 @@ public class GameManager {
             if (!Files.exists(path))
                 Files.createDirectories(path.getParent());
             JsonIO.write(game, path.toFile());
-
             System.out.println("📦 New game added!"); // TODO Debugging
+            return game;
+
         } catch (Exception e) {
             throw new Exception("Failed to write Game.json file.", e);
         }
-
     } // addGame()
 
     /**
@@ -201,8 +186,8 @@ public class GameManager {
                         "id",
                         "name",
                         "releaseVersion",
-                        "installPath",
-                        "modsPath"
+                        "installDirectory",
+                        "storeDirectory"
                 },
                 {
                         "ID. You must enter this for CLI usage. (leave empty to auto generate)\n Enter",
@@ -231,5 +216,54 @@ public class GameManager {
         }
         return tmp;
     } // getGameById()
+
+    /// /// /// Public / GUI utils /// /// ///
+
+    /**
+     * Made for GUI use.
+     * 
+     * @return A List<Game> of all the valid game profiles found in the ModManager's
+     *         game-directory.
+     */
+    public static List<Game> getAllGames() {
+        try (Stream<Path> paths = Files.list(config.getGameDir())) {
+            return paths.map(path -> {
+                try {
+                    return (Game) JsonIO.read(path.toFile(), JsonSerializable.ObjectTypes.GAME);
+                } catch (InvalidObjectException e) {
+                    // differentiate between files that are not game types and other errors.
+                    System.err.println(e.getMessage());
+                    return null;
+                } catch (Exception e) {
+                    System.err.println("❌ No existing deployed mods found!");
+                    return null;
+                }
+            }).filter(Objects::nonNull).toList();
+        } catch (Exception e) {
+            System.err.println("❌ Error reading manifest directory!");
+            return null;
+        }
+    } // getAllGames()
+
+    /**
+     * Writes a {@code Game.json}
+     * 
+     * @param game Game instance to save.
+     */
+    public static void saveGame(Game game) throws Exception {
+        System.out.println("\tWriting JSON file for Game " + game.getName());
+        Path path = config.getGameDir().resolve(game.getId() + ".json");
+        try {
+            if (!Files.exists(path)) {
+                System.out.println("File not found, creating new one.");
+                Files.createDirectories(path.getParent());
+            }
+            JsonIO.write(game, path.toFile());
+
+            System.out.println("📦 Game written!"); // TODO Debugging
+        } catch (Exception e) {
+            throw new Exception("Failed to write Game.json file.", e);
+        }
+    } // saveGame()
 
 } // Class

@@ -5,6 +5,7 @@
 package core.objects;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 
 import org.json.simple.JSONObject;
 
@@ -238,6 +239,59 @@ public class Mod implements JsonSerializable {
                 String.format("%05d", version.hashCode() & 0xffff);
         return this.id;
     } // generateModId()
+
+    /**
+     * Sets all values of the current Mod from the passed Map<> and won't override
+     * missing values, allowing for updating instances.
+     * Will not set if casting errors occur.
+     * 
+     * @param metaMap Complete or patially complete Meta Map to read values from.
+     */
+    public void setFromMap(HashMap<String, String> metaMap) {
+        // if a key is missing, don't set it.
+        // Values will be left from constructor default
+        if (metaMap.containsKey("name"))
+            this.setName(metaMap.get("name"));
+
+        if (metaMap.containsKey("description"))
+            this.setDescription(metaMap.get("description"));
+
+        if (metaMap.containsKey("version"))
+            this.setVersion(metaMap.get("version"));
+
+        if (metaMap.containsKey("source"))
+            this.setDownloadSource(metaMap.get("source"));
+
+        if (metaMap.containsKey("url"))
+            this.setDownloadLink(metaMap.get("url"));
+
+        if (metaMap.containsKey("loadorder")) {
+            try {
+                this.setLoadOrder(Integer.parseInt(metaMap.get("loadorder")));
+            } catch (NumberFormatException e) {
+                System.err.println("Casting error, failed to set LoadOrder");
+            }
+        }
+    } // setFromMap()
+
+    /**
+     * For GUI.
+     * 
+     * @return HashMap<String, String> of all the instance's fields.
+     */
+    public HashMap<String, String> toMap() {
+        HashMap<String, String> metaMap = new HashMap<>();
+
+        metaMap.put("id", this.getId());
+        metaMap.put("name", this.getName());
+        metaMap.put("description", this.getDescription());
+        metaMap.put("version", this.getVersion());
+        metaMap.put("source", this.getDownloadSource());
+        metaMap.put("url", this.getDownloadLink());
+        metaMap.put("loadorder", String.valueOf(this.getLoadOrder()));
+
+        return metaMap;
+    } // toMap()
 
     /**
      * Uses the Mod's Name, and Version (hashcode) Ensure all feilds are

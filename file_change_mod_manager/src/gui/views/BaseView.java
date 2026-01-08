@@ -1,4 +1,7 @@
-// src/gui/views/BaseView.java
+/**
+ * Author Stephanos B
+ * Date 7/01/2026
+ */
 package gui.views;
 
 import gui.navigator.AppNavigator;
