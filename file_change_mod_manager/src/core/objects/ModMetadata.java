@@ -70,21 +70,16 @@ public abstract class ModMetadata implements MapSerializable {
      * @param name        User-friendly name, doubles as the filename for the Mod.
      * @param description The description of the Mod.
      */
-    public ModMetadata(String gameId, String downloadSource, String name) {
+    public ModMetadata(String gameId) {
         this();
-        this.name = name;
         this.gameId = gameId;
-        this.downloadSource = downloadSource.toLowerCase();
-        this.id = generateModId(); // NB: Do this last to ensure using input data!
     }
 
     /**
-     * Complete constructor with ALL fields, including the Auto-generated. Meant for
-     * Mod -> Child types initializing.
+     * For childeren casting.
      * 
-     * @param gameIdThe      ID of the Game this Mod is for.
-     * @param id             ID of the mod. Only copied to reduce overhead of
-     *                       regeneration.
+     * @param gameId
+     * @param id
      * @param downloadSource
      * @param version
      * @param name
@@ -92,19 +87,28 @@ public abstract class ModMetadata implements MapSerializable {
      * @param loadOrder
      * @param downloadDate
      * @param downloadLink
+     * @param forceIdUpdate
      */
-    protected ModMetadata(String gameId, String id, String downloadSource, String version, String name,
+    protected ModMetadata(String gameId,
+            String id,
+            String downloadSource,
+            String version,
+            String name,
             String description,
-            int loadOrder, LocalDateTime downloadDate, String downloadLink) {
+            int loadOrder,
+            LocalDateTime downloadDate,
+            String downloadLink) {
+
         this.gameId = gameId;
         this.id = id;
-        this.downloadSource = downloadSource.toLowerCase();
+        this.downloadSource = downloadSource;
         this.version = version;
         this.name = name;
         this.description = description;
         this.loadOrder = loadOrder;
         this.downloadDate = downloadDate;
         this.downloadLink = downloadLink;
+        this.forceIdUpdate = true;
     }
 
     /// /// /// Implements /// /// ///
@@ -137,14 +141,14 @@ public abstract class ModMetadata implements MapSerializable {
             this.setDownloadSource((String) map.get(Keys.downloadSource.toString()));
 
         if (map.containsKey(Keys.downloadLink.toString()))
-            this.setDownloadLink((String) map.get(Keys.downloadLink.toString()));
+            this.setDownloadLink((String) map.get(Keys.downloadLink.toString()).toString());
 
         if (map.containsKey(Keys.downloadDate.toString()))
             this.setDownloadDate(LocalDateTime.parse(map.get(Keys.downloadDate.toString()).toString()));
 
         if (map.containsKey(Keys.loadOrder.toString())) {
             try {
-                this.setLoadOrder(((Long) map.get(Mod.Keys.loadOrder.toString())).intValue());
+                this.setLoadOrder(Integer.parseInt(map.get(Mod.Keys.loadOrder.toString()).toString()));
             } catch (ClassCastException e) {
                 System.err.println("Casting error, failed to set LoadOrder. " + e.getMessage());
             }
@@ -161,8 +165,8 @@ public abstract class ModMetadata implements MapSerializable {
         map.put(Keys.version.toString(), this.getVersion());
         map.put(Keys.loadOrder.toString(), this.getLoadOrder());
 
-        map.put(Keys.gameId.toString(), this.getName());
-        map.put(Keys.gameId.toString(), this.getDescription());
+        map.put(Keys.name.toString(), this.getName());
+        map.put(Keys.description.toString(), this.getDescription());
 
         map.put(Keys.downloadDate.toString(), this.getDownloadDate().toString());
         map.put(Keys.downloadSource.toString(), this.getDownloadSource());
@@ -200,7 +204,7 @@ public abstract class ModMetadata implements MapSerializable {
     /**
      * Private to prevent explicit setting of the ID which may break naming rules.
      */
-    private void setId(String id) {
+    protected void setId(String id) {
         this.id = id;
     }
 

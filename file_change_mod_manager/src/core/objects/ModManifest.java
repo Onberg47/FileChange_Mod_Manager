@@ -37,8 +37,15 @@ public class ModManifest extends ModMetadata {
      * @param mod Complete parent Mod.
      */
     public ModManifest(Mod mod) {
-        super(mod.getGameId(), mod.getId(), mod.getDownloadSource(), mod.getVersion(), mod.getName(),
-                mod.getDescription(), mod.getLoadOrder(), mod.getDownloadDate(), mod.getDownloadLink());
+        super(mod.getGameId(),
+                mod.getId(),
+                mod.getDownloadSource(),
+                mod.getVersion(),
+                mod.getName(),
+                mod.getDescription(),
+                mod.getLoadOrder(),
+                mod.getDownloadDate(),
+                mod.getDownloadLink());
     }
 
     /**
@@ -70,8 +77,20 @@ public class ModManifest extends ModMetadata {
     }
 
     public Mod getAsMod() {
-        return new Mod(gameId, gameId, downloadSource, version, name, description, loadOrder, downloadDate,
-                downloadLink);
+        Mod mod = new Mod();
+        mod.setId(id);
+        mod.setLoadOrder(loadOrder);
+
+        mod.setName(name);
+        mod.setDescription(description);
+        mod.setGameId(gameId);
+        mod.setVersion(version);
+
+        mod.setDownloadDate(downloadDate);
+        mod.setDownloadLink(downloadLink);
+        mod.setDownloadSource(downloadSource);
+
+        return mod;
     }
 
     /// /// /// Implements /// /// ///

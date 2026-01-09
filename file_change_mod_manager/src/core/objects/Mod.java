@@ -25,34 +25,32 @@ public class Mod extends ModMetadata {
     /**
      * Essentials parameterized constructor for Mod.
      * 
-     * @param gameId      The ID of the Game this Mod is for.
-     * @param source      The source of the Mod, used for ID generation.
-     * @param name        User-friendly name, doubles as the filename for the Mod.
-     * @param description The description of the Mod.
+     * @param gameId The ID of the Game this Mod is for.
      */
-    public Mod(String gameId, String downloadSource, String name) {
-        super(gameId, downloadSource, name);
+    public Mod(String gameId) {
+        super(gameId);
     }
 
-    /**
-     * Complete constructor with ALL fields, including the Auto-generated. Meant for
-     * Mod -> Child types initializing.
-     * 
-     * @param gameIdThe      ID of the Game this Mod is for.
-     * @param id             ID of the mod. Only copied to reduce overhead of
-     *                       regeneration.
-     * @param downloadSource
-     * @param version
-     * @param name
-     * @param description
-     * @param loadOrder
-     * @param downloadDate
-     * @param downloadLink
-     */
-    protected Mod(String gameId, String id, String downloadSource, String version, String name, String description,
-            int loadOrder, LocalDateTime downloadDate, String downloadLink) {
+    protected Mod(String gameId,
+            String id,
+            String downloadSource,
+            String version,
+            String name,
+            String description,
+            int loadOrder,
+            LocalDateTime downloadDate,
+            String downloadLink,
+            Boolean forceIdUpdate) {
 
-        super(gameId, id, downloadSource, version, name, description, loadOrder, downloadDate, downloadLink);
+        super(gameId,
+                id,
+                downloadSource,
+                version,
+                name,
+                description,
+                loadOrder,
+                downloadDate,
+                downloadLink);
     }
 
     /// /// /// Implements /// /// ///

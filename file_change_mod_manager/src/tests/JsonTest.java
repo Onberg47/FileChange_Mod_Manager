@@ -74,7 +74,7 @@ public class JsonTest {
 
         int insertIndex = 0; // default to end
         for (int i = temp.getStack().size() - 1; i >= 0; i--) {
-            if (4 >= temp.getStack().get(i).getModId().length()) {
+            if (5 >= temp.getStack().get(i).getModId().length()) {
                 insertIndex = i + 1;
                 break;
             }

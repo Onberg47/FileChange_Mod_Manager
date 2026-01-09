@@ -23,6 +23,7 @@ import core.objects.GameState;
 import core.objects.Mod;
 import core.objects.ModFile;
 import core.objects.ModManifest;
+import core.objects.ModMetadata;
 import core.utils.DateUtil;
 import core.utils.FileUtil;
 import core.utils.HashUtil;
@@ -704,7 +705,7 @@ public class ModManager {
      * @param mod Target Mod
      * @throws Exception Any Fatal error.
      */
-    private void gameStateRemoveMod(Mod mod) throws Exception {
+    public void gameStateRemoveMod(Mod mod) throws Exception {
         GameState gState;
         Path GsPath = GAME_ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
 
@@ -738,12 +739,12 @@ public class ModManager {
     public static HashMap<String, Object> collectUserMetadata() throws Exception {
         String[][] queryMatrix = {
                 {
-                        "name",
-                        "description",
-                        "version",
-                        "loadorder",
-                        "source",
-                        "url"
+                        ModMetadata.Keys.name.toString(),
+                        ModMetadata.Keys.description.toString(),
+                        ModMetadata.Keys.version.toString(),
+                        ModMetadata.Keys.loadOrder.toString(),
+                        ModMetadata.Keys.downloadSource.toString(),
+                        ModMetadata.Keys.downloadLink.toString()
                 },
                 {
                         "*Display Name",
