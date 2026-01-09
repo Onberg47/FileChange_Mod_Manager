@@ -33,7 +33,7 @@ public class GameState implements MapSerializable {
     public static final String FILE_NAME = "game_state.json";
 
     private LocalDateTime lastModified;
-    private List<ModLight> deployedMods;
+    private List<Mod> deployedMods;
 
     public GameState() {
         lastModified = LocalDateTime.now();
@@ -50,8 +50,6 @@ public class GameState implements MapSerializable {
     @SuppressWarnings("unchecked")
     @Override
     public GameState setFromMap(Map<String, Object> map) {
-
-        System.out.println("setFromMap: GameState");
         /// single fields
         if (map.containsKey(Keys.lastModified.toString()))
             this.setLastModified(LocalDateTime.parse(map.get(Keys.lastModified.toString()).toString()));
@@ -60,10 +58,9 @@ public class GameState implements MapSerializable {
         if (map.containsKey(Keys.deployedMods.toString())) {
             ArrayList<HashMap<String, Object>> deployedMods = (ArrayList<HashMap<String, Object>>) map
                     .get(Keys.deployedMods.toString());
-            List<ModLight> ls = new ArrayList<>();
+            List<Mod> ls = new ArrayList<>();
             for (HashMap<String, Object> hashMap : deployedMods) {
-                // Must use ModLight to force not auto-casting to a ModManifest.
-                ls.add(new ModLight().setFromMap(hashMap));
+                ls.add(new Mod().setFromMap(hashMap));
             }
             this.setDeployedMods(ls);
         }
@@ -73,7 +70,6 @@ public class GameState implements MapSerializable {
 
     @Override
     public HashMap<String, Object> toMap() {
-        System.out.println("toMap: GameState");
         HashMap<String, Object> map = new HashMap<>();
 
         /// single fields
@@ -104,15 +100,15 @@ public class GameState implements MapSerializable {
         this.lastModified = LocalDateTime.now();
     }
 
-    public List<ModLight> getDeployedMods() {
+    public List<Mod> getDeployedMods() {
         return deployedMods;
     }
 
-    public void setDeployedMods(List<ModLight> deployedMods) {
+    public void setDeployedMods(List<Mod> deployedMods) {
         this.deployedMods = deployedMods;
     }
 
-    /// /// ///
+    /// /// /// Methods /// /// ///
 
     /**
      * Adds a mod without auto-sorting or updating last modified. For reading
@@ -120,7 +116,7 @@ public class GameState implements MapSerializable {
      * 
      * @param mod
      */
-    public void addMod(ModLight mod) {
+    public void addMod(Mod mod) {
         deployedMods.add(mod);
         updateModified();
     }
@@ -131,7 +127,7 @@ public class GameState implements MapSerializable {
      * 
      * @param mod
      */
-    public void appendMod(ModLight mod) {
+    public void appendMod(Mod mod) {
         if (this.deployedMods.isEmpty())
             deployedMods.add(mod);
         else {
@@ -148,7 +144,7 @@ public class GameState implements MapSerializable {
      * 
      * @param mod
      */
-    public void appendModOnly(ModLight mod) {
+    public void appendModOnly(Mod mod) {
         if (this.deployedMods.isEmpty())
             deployedMods.add(mod);
         else {

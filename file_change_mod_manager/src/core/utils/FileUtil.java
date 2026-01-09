@@ -25,7 +25,6 @@ import core.objects.Game;
 import core.objects.GameState;
 import core.objects.Mod;
 import core.objects.ModFile;
-import core.objects.ModLight;
 
 /**
  * Provides utility methods for scanning files and directories and read-only
@@ -139,13 +138,13 @@ public class FileUtil {
         Path GsPath = Path.of(game.getInstallDirectory(), managerPath.toString(), GameState.FILE_NAME);
 
         if (!Files.exists(GsPath))
-            System.err.println("❗ No mods installed, could not find " + GameState.FILE_NAME);
+            throw new Exception("No mods installed, could not find " + GameState.FILE_NAME);
         try {
             gState = (GameState) JsonIO.read(GsPath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
             return gState.toString();
 
         } catch (Exception e) {
-            throw new Exception("❌ Failed to add Mod to GameState", e);
+            throw new Exception("Error reading GameState", e);
         }
     } // readGameState()
 
@@ -181,8 +180,9 @@ public class FileUtil {
 
         Path storeDir = Path.of(game.getStoreDirectory());
 
-        if(!Files.exists(storeDir))
-        {System.err.println("Could not find: " + storeDir.toString());}
+        if (!Files.exists(storeDir)) {
+            System.err.println("Could not find: " + storeDir.toString());
+        }
 
         try (Stream<Path> paths = Files.list(storeDir)) {
             // List<ModFile> list = new java.util.ArrayList<ModFile>();
@@ -192,10 +192,11 @@ public class FileUtil {
 
                 if (Files.isDirectory(path)) {
                     try {
-                        Mod mod = (ModLight) JsonIO.read(
+                        Mod mod = (Mod) JsonIO.read(
                                 storeDir.resolve(path.getFileName().toString(), manifestPath.toString(),
                                         path.getFileName() + ".json").toFile(),
-                                MapSerializable.ObjectTypes.MOD_MANIFEST);
+                                MapSerializable.ObjectTypes.MOD_MANIFEST,
+                                MapSerializable.ObjectTypes.MOD);
 
                         if (gState.containsMod(mod.getId())) {
                             if (all)

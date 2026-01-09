@@ -33,8 +33,28 @@ public class JsonIO {
      * @throws Exception                An error with the Json process or invalid
      *                                  file (path or extension)
      */
-    @SuppressWarnings("unchecked") // Required for JSONObject to Map casting.
     public static MapSerializable read(File file, String type_string) throws Exception {
+        return read(file, type_string, null);
+    }
+
+    /**
+     * 
+     * @param file        File to try read from. Can handle missing {@code .json}
+     *                    extension.
+     * @param type_string String defining the type of object expected in the file.
+     *                    If Null it will auto-decide.
+     * @param cast_type   Override what object to return. This is for overriding
+     *                    child types. (Mod / ModManifest)
+     * @return
+     * @throws IllegalArgumentException When the type_string is unkown
+     * @throws InvalidObjectException   The provided File does not match the
+     *                                  specified type.
+     * @throws FileNotFoundException    The provided file does not exsist.
+     * @throws Exception                An error with the Json process or invalid
+     *                                  file (path or extension)
+     */
+    @SuppressWarnings("unchecked") // Required for JSONObject to Map casting.
+    public static MapSerializable read(File file, String type_string, String cast_type) throws Exception {
         if (!file.exists()) {
             throw new FileNotFoundException("File path is not a valid .json path. ");
         }
@@ -62,9 +82,11 @@ public class JsonIO {
         String fileType = ((String) json.get(MapSerializable.ObjectTypeKey));
         if (type_string != null && !fileType.equals(type_string))
             throw new InvalidObjectException("The file does not store the desired Object!");
+        if (cast_type == null)
+            cast_type = fileType;
 
         // Queries the actual file type to allow auto-detection
-        switch (fileType) {
+        switch (cast_type) {
             case MapSerializable.ObjectTypes.MOD:
                 return new Mod().setFromMap(json);
             case MapSerializable.ObjectTypes.MOD_MANIFEST:

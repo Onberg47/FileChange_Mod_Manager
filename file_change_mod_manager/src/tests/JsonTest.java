@@ -2,8 +2,7 @@
  * Author: Stephanos B
  * Date: 15/12/2025
  */
-
-package core;
+package tests;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,7 +19,7 @@ import java.util.Stack;
 import java.util.zip.DataFormatException;
 
 import core.config.defaultConfig;
-import core.interfaces.JsonSerializable;
+import core.interfaces.MapSerializable;
 import core.io.JsonIO;
 import core.managers.GameManager;
 import core.managers.ModManager;
@@ -30,8 +29,8 @@ import core.objects.Game;
 import core.objects.GameState;
 import core.objects.Mod;
 import core.objects.ModFile;
-import core.objects.ModLight;
 import core.objects.ModManifest;
+import core.objects.ModMetadata;
 import core.utils.FileUtil;
 import core.utils.HashUtil;
 
@@ -65,14 +64,27 @@ public class JsonTest {
 
         /// Test something...
 
-        //Path path = Path.of("mod_manager/games/example_id.json");
-        //Path path = Path.of("mod_manager/.temp/tsts_cases/manifest.json");
-        Path path = Path.of("tst_fs/game_root/.mod_manager/game_state.json");
-        
-        GameState temp = (GameState) JsonIO.read(path.toFile(), null);
-        System.out.println("Test Read: " + temp.toString());
+        // Path path = Path.of("file_change_mod_manager/src/tests/files/manifest.json");
+        Path path = Path.of("file_change_mod_manager/src/tests/files/fileLineage.json");
+        Path manPath = Path.of("file_change_mod_manager/src/tests/files/manifest.json");
 
-        JsonIO.write(temp, path.getParent().resolve("tmp").toFile());
+        FileLineage temp = (FileLineage) JsonIO.read(path.toFile(), null);
+
+        System.out.println("Test Read: " + temp.toString() + "\nPeek: " + temp.peek().toString());
+
+        int insertIndex = 0; // default to end
+        for (int i = temp.getStack().size() - 1; i >= 0; i--) {
+            if (4 >= temp.getStack().get(i).getModId().length()) {
+                insertIndex = i + 1;
+                break;
+            }
+        }
+        temp.getStack().insertElementAt(new FileVersion("x", "23121321"), insertIndex);
+        
+        System.out.println("Test Push: " + temp.toString() + "\nPeek: " + temp.peek().toString());
+        System.out.println("Insert at: " + (temp.getStack().size() - 1 - insertIndex)); // make it so 0 is top.
+
+        // JsonIO.write(temp, path.getParent().resolve("tmp").toFile());
 
     } // psvm()
 

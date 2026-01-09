@@ -13,7 +13,7 @@ import java.util.Map;
  * 
  * @author Stephanos B
  */
-public class ModManifest extends Mod {
+public class ModManifest extends ModMetadata {
 
     private ModFile[] contentsArr; // Array of contents inside the ModFile.
 
@@ -69,6 +69,11 @@ public class ModManifest extends Mod {
         this.contentsArr = contentsArr;
     }
 
+    public Mod getAsMod() {
+        return new Mod(gameId, gameId, downloadSource, version, name, description, loadOrder, downloadDate,
+                downloadLink);
+    }
+
     /// /// /// Implements /// /// ///
 
     @Override
@@ -79,7 +84,6 @@ public class ModManifest extends Mod {
     @SuppressWarnings("unchecked")
     @Override
     public ModManifest setFromMap(Map<String, Object> map) {
-        System.out.println("setFromMap: ModManifest");
         super.setFromMap(map);
 
         if (map.containsKey(JsonFields.files.toString())) {
@@ -100,7 +104,6 @@ public class ModManifest extends Mod {
 
     @Override
     public HashMap<String, Object> toMap() {
-        System.out.println("toMap: ModManifest");
         HashMap<String, Object> map = super.toMap();
 
         ArrayList<HashMap<String, Object>> arrLs = new ArrayList<>();
@@ -169,10 +172,7 @@ public class ModManifest extends Mod {
      */
     @Override
     public String toString() {
-        return String.format(
-                "Mod Details:\nID: %s | Game ID: %s\nVersion: %s\n Download Source: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s\nContents:\n%s",
-                id, gameId, version, downloadSource, name, description, loadOrder, downloadDate.toString(),
-                downloadLink, printContents());
+        return (super.toString() + "\nContents: " + printContents());
     } // toString()
 
 } // Class

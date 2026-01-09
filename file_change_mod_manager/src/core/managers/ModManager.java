@@ -22,7 +22,6 @@ import core.objects.Game;
 import core.objects.GameState;
 import core.objects.Mod;
 import core.objects.ModFile;
-import core.objects.ModLight;
 import core.objects.ModManifest;
 import core.utils.DateUtil;
 import core.utils.FileUtil;
@@ -84,7 +83,7 @@ public class ModManager {
      * @return Complete Mod that was created. Allows quick access to the exact data
      *         written without needing to read the JSON. (Mainly for data checking)
      */
-    public Mod compileMod(String dirName, HashMap<String, Object> metaMap) throws Exception {
+    public ModManifest compileMod(String dirName, HashMap<String, Object> metaMap) throws Exception {
         /// /// 1. Verify Directory is valid.
         // Path tempDir = Path.of(TEMP_DIR, dirName);
         Path tempDir = TEMP_DIR.resolve(dirName);
@@ -99,35 +98,35 @@ public class ModManager {
         System.out.println("📦 Processing meta data: " + tempDir.getFileName()); // TODO Debugging
 
         /// /// 2. Process passed HashMap to extract Mod data.
-        ModManifest mod = new ModManifest();
-        mod.setGameId(game.getId());
+        ModManifest manifest = new ModManifest();
+        manifest.setGameId(game.getId());
         try {
-            mod.setFromMap(metaMap);
+            manifest.setFromMap(metaMap);
         } catch (Exception e) {
             // System.err.println("❌ Fatal Error: " + e.getMessage());
             throw new Exception("Failed to pricess meta data.", e);
         }
-        mod.generateModId(); // Can only create an id once required fields are collected.
+        manifest.generateModId(); // Can only create an id once required fields are collected.
 
         System.out.println("\n📦 Compiling mod: " + tempDir.getFileName()); // TODO Debugging
 
         /// /// 3. Analyze exsisting files, generate ModFile objects with hashes
-        mod.setContentsArr(FileUtil.getDirectoryModFiles(tempDir, tempDir).toArray(new ModFile[0]));
+        manifest.setContentsArr(FileUtil.getDirectoryModFiles(tempDir, tempDir).toArray(new ModFile[0]));
 
         /// /// 4. Once the Mod is complete, the Mod.JSON file can be created.
         System.out.println("📦 Writing manifest..."); // TODO Debugging
-        Path storagePath = Path.of(game.getStoreDirectory(), mod.getId()); // Path where the Mods will be stored.
+        Path storagePath = Path.of(game.getStoreDirectory(), manifest.getId()); // Path where the Mods will be stored.
 
         try {
-            Path path = tempDir.resolve(MANIFEST_DIR.toString(), mod.getId() + ".json");
+            Path path = tempDir.resolve(MANIFEST_DIR.toString(), manifest.getId() + ".json");
             Files.createDirectories(path.getParent());
             // Write to JSON
-            JsonIO.write(mod, new File(path.toString()));
+            JsonIO.write(manifest, new File(path.toString()));
             System.out.println("✔ Written! to: " + path.toString()); // Debug
 
         } catch (FileNotFoundException e) {
             throw new Exception("Failed to write Manifest: "
-                    + storagePath.resolve(MANIFEST_DIR.toString(), mod.getId() + ".json").toString(), e);
+                    + storagePath.resolve(MANIFEST_DIR.toString(), manifest.getId() + ".json").toString(), e);
         } catch (Exception e) {
             throw new Exception("Failed to write manifest.", e);
         }
@@ -144,7 +143,7 @@ public class ModManager {
             // ((Integer)mod.getLoadOrder()).toString());
             Files.move(tempDir, storagePath);
             System.out.println("✔");
-            return mod;
+            return manifest;
         } catch (IOException e) {
             // thrown by deleteDirectory()
             throw new Exception("Failed to move or delete exsisting Mod data at path: " + storagePath.toString(), e);
@@ -164,7 +163,7 @@ public class ModManager {
      *                      overhead)
      */
     public void deployMod(String modId) throws Exception {
-        ModManifest mod;
+        ModManifest manifest;
         Path tempDir = TEMP_DIR.resolve(modId + "__" + DateUtil.getNumericTimestamp());
         Path storedDir = Path.of(game.getStoreDirectory(), modId);
 
@@ -172,10 +171,10 @@ public class ModManager {
             /// 1. Find the Mod's manifest from it's ID and read it.
             System.out.println("📦 Attempting to deploy Mod...");
             try {
-                mod = (ModManifest) JsonIO.read(
+                manifest = (ModManifest) JsonIO.read(
                         storedDir.resolve(MANIFEST_DIR.toString(), modId + ".json").toFile(),
                         MapSerializable.ObjectTypes.MOD_MANIFEST);
-                System.out.println("\tManifest of Mod: " + mod.getName() + " found! ✔");
+                System.out.println("\tManifest of Mod: " + manifest.getName() + " found! ✔");
 
                 Path manPath = MANIFEST_DIR.resolve(modId + ".json");
                 Files.createDirectories(tempDir.resolve(manPath.getParent()));
@@ -196,8 +195,8 @@ public class ModManager {
             // left behind.
             try {
                 System.out.println("\tCopying files to temp...");
-                for (ModFile mf : mod.getContentsArr()) { // Try to copy each file from the Manifest.
-                    copyModFile(storedDir, tempDir, Path.of(mf.getFilePath()), mod);
+                for (ModFile mf : manifest.getContentsArr()) { // Try to copy each file from the Manifest.
+                    copyModFile(storedDir, tempDir, Path.of(mf.getFilePath()), manifest);
                 }
 
             } catch (FileNotFoundException e) {
@@ -221,7 +220,7 @@ public class ModManager {
             }
 
             /// 4. Add to GameState
-            this.gameStateAddMod(mod);
+            this.gameStateAddMod(manifest.getAsMod());
 
         } catch (Exception e) {
             throw new Exception("Fatal Error!\n" + e.getMessage() + "\nTemp files remain for review/recovery.", e);
@@ -250,23 +249,23 @@ public class ModManager {
      */
     public void trashMod(String modId) throws Exception {
         /// /// 1. Find the Mod's manifest from it's ID and read it.
-        ModManifest mod;
+        ModManifest manifest;
         Path manifestPath = MANIFEST_DIR.resolve(modId + ".json");
 
         // Create directories in Trash.
         try {
-            mod = (ModManifest) JsonIO.read(GAME_ROOT_PATH.resolve(manifestPath).toFile(),
+            manifest = (ModManifest) JsonIO.read(GAME_ROOT_PATH.resolve(manifestPath).toFile(),
                     MapSerializable.ObjectTypes.MOD_MANIFEST);
-            System.out.println("\t✔ Manifest of Mod: " + mod.getName() + " found!");
+            System.out.println("\t✔ Manifest of Mod: " + manifest.getName() + " found!");
         } catch (Exception e) {
             throw new Exception("Mod manifest does not exsists.", e);
         }
 
         /// /// 2. Use data from manifest to safley remove Mod files.
-        System.out.println("🗑 Removing mod: " + mod.getName() + "\n\tMoving files...");
+        System.out.println("🗑 Removing mod: " + manifest.getName() + "\n\tMoving files...");
         try {
             Path src;
-            Path targetDir = TRASH_DIR.resolve(mod.getId() + "__" + DateUtil.getNumericTimestamp());
+            Path targetDir = TRASH_DIR.resolve(manifest.getId() + "__" + DateUtil.getNumericTimestamp());
 
             // Delete any exsiting trash of the Mod and create target directory.
             try {
@@ -282,7 +281,7 @@ public class ModManager {
             }
 
             Path mfPath; // Path of ModFile entry.
-            for (ModFile mf : mod.getContentsArr()) {
+            for (ModFile mf : manifest.getContentsArr()) {
                 mfPath = Path.of(mf.getFilePath());
                 src = GAME_ROOT_PATH.resolve(mfPath);
                 Path flPath = GAME_ROOT_PATH.resolve(LINEAGE_DIR.resolve(mfPath + ".json"));
@@ -386,7 +385,7 @@ public class ModManager {
             Files.move(GAME_ROOT_PATH.resolve(manifestPath), targetDir.resolve(manifestPath));
 
             /// /// 3. Remove Mod from GameState
-            this.gameStateRemoveMod(mod);
+            this.gameStateRemoveMod(manifest.getAsMod());
 
             // clean the .manifest/ if it's empty.
             FileUtil.cleanDirectories(GAME_ROOT_PATH, MANIFEST_DIR);
@@ -499,7 +498,7 @@ public class ModManager {
      * 
      * @see Doc/diagrams/ModFile_copy_logic.png in Project for logic-breakdown.
      */
-    private void copyModFile(Path sourceDir, Path targetDir, Path modFilePath, Mod mod) throws Exception {
+    private void copyModFile(Path sourceDir, Path targetDir, Path modFilePath, ModManifest mod) throws Exception {
         String modId = mod.getId();
         int loadOrder = mod.getLoadOrder();
 
@@ -690,7 +689,7 @@ public class ModManager {
                 gState = (GameState) JsonIO.read(GsPath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
             else
                 gState = new GameState();
-            gState.appendModOnly((ModLight) mod); // Will ensure no duplicates occur
+            gState.appendModOnly(mod); // Will ensure no duplicates occur
 
             JsonIO.write(gState, GsPath.toFile());
         } catch (Exception e) {
@@ -771,6 +770,7 @@ public class ModManager {
         try {
             mod = (Mod) JsonIO.read(
                     path.toFile(),
+                    MapSerializable.ObjectTypes.MOD_MANIFEST,
                     MapSerializable.ObjectTypes.MOD);
         } catch (InvalidObjectException e) {
             throw new Exception("❌ Mod file does not exsists! " + path.toString(), e);

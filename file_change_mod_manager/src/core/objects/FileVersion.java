@@ -135,7 +135,7 @@ public class FileVersion implements MapSerializable {
         // needed.
         Mod mod = (Mod) JsonIO.read(
                 MANIFEST_DIR.resolve(this.modId + ".json").toFile(),
-                MapSerializable.ObjectTypes.MOD_MANIFEST);
+                MapSerializable.ObjectTypes.MOD_MANIFEST, MapSerializable.ObjectTypes.MOD);
         return mod.getLoadOrder();
     } // getLoadOrder()
 
