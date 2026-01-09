@@ -7,6 +7,7 @@ package core.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -19,6 +20,7 @@ public class DateUtil {
 
     // For directory names: 2024-12-13_19-26-00
     private static final DateTimeFormatter DIR_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     // For display in GUI: Dec 13, 2024 7:26 PM
     private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a");
@@ -34,6 +36,10 @@ public class DateUtil {
      */
     public static String getDirTimestamp() {
         return LocalDateTime.now().format(DIR_FORMATTER);
+    }
+
+    public static String getDirDatestamp() {
+        return LocalDate.now().format(DATE_FORMATTER);
     }
 
     public static String getDisplayTimestamp(LocalDateTime time) {

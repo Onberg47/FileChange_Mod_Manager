@@ -19,6 +19,7 @@ import core.interfaces.MapSerializable;
 import core.io.JsonIO;
 import core.objects.Game;
 import core.utils.DateUtil;
+import core.utils.Logger;
 import core.utils.ScannerUtil;
 
 /**
@@ -28,6 +29,7 @@ import core.utils.ScannerUtil;
  */
 public class GameManager {
     private static AppConfig config = AppConfig.getInstance();
+    private static Logger log = Logger.getInstance();
 
     private final Path ICON_DIR = config.getGameDir().resolve("icons");
 
@@ -44,46 +46,49 @@ public class GameManager {
      * @param metaMap
      */
     public Game addGame(HashMap<String, Object> metaMap) throws Exception {
-        System.out.println("\n📦 Adding new game..."); // TODO Debugging
+        log.logEntry(0, "\n📦 Adding new game...");
+
         if (this.game == null) {
-            System.out.println("init new Game!");
+            log.logEntry(1, null, "init new Game.");
             this.game = new Game(); // Only assigns a fresh instance if non-exsists.
         }
 
         /// 1. read meta data.
         try {
-            System.out.println("\tReading meta data...");
+            log.logEntry(1, "Reading meta data...");
             game.setFromMap(metaMap);
         } catch (Exception e) {
             throw new Exception("Failed to process Meta data.", e);
         }
 
         /// 2. Verify game paths.
-        System.out.println("\tVerifying game paths...");
+        log.logEntry(1, "Verifying game paths...");
         Path path;
         try {
             path = Path.of(this.game.getInstallDirectory());
-            System.out.println("Checking path: " + path.toString());
+            log.logEntry(1, null, "Checking path: " + path.toString()); // silent log
             if (!path.isAbsolute()) {
-                System.err.println("❌ Game installation path is not absolute!");
+                log.logWarning(1, "Game installation path is not absolute.", null);
             } else if (!Files.exists(path)) {
-                System.err.println("❌ Could not find Game intall path at: " + path.toString()
-                        + "\n\tThis should exsist, will NOT create. Update if path is invalid.");
+                log.logWarning(1, "Could not find Game intall path at: " + path.toString()
+                        + "\n\tThis should exsist, will NOT create. Update if path is invalid.", null);
             }
-            System.out.println("\t\t✔ Game path is good.");
+            log.logEntry(2, "✔ Game path is good.");
 
             path = Path.of(game.getStoreDirectory());
+            log.logEntry(1, null, "Checking path: " + path.toString());
             if (!path.isAbsolute()) {
-                System.err.println("❌ Mod storage path is not absolute!");
+                log.logWarning(1, "Mod storage path is not absolute.", null);
             } else if (!Files.exists(path)) {
-                System.err.println("❗ Could not find Mod storage path at: " + path.toString() + "\n\tCreating it...");
+                log.logWarning(1, "Could not find Mod storage path at: " + path.toString() + "\n\tCreating it...",
+                        null);
                 try {
                     Files.createDirectories(path);
                 } catch (IOException e) {
-                    throw new Exception("❌ Failed to create directories for mod storage! " + path.toString(), e);
+                    throw new Exception("Failed to create directories for mod storage! " + path.toString(), e);
                 }
             }
-            System.out.println("\t\t✔ Mod storage path is good.");
+            log.logEntry(2, "✔ Mod storage path is good.");
         } catch (InvalidPathException e) {
             throw new Exception("Could not convert paths.", e);
         } catch (Exception e) {
@@ -91,13 +96,13 @@ public class GameManager {
         }
 
         /// 3. Write JSON
-        System.out.println("\tWriting JSON file for Game " + game.getName());
+        log.logEntry(1, "Writing JSON file for Game " + game.getName());
         path = config.getGameDir().resolve(game.getId() + ".json");
         try {
             if (!Files.exists(path))
                 Files.createDirectories(path.getParent());
             JsonIO.write(game, path.toFile());
-            System.out.println("📦 New game added!"); // TODO Debugging
+            log.logEntry(0, "📦 New game added!");
             return game;
 
         } catch (Exception e) {
@@ -113,14 +118,15 @@ public class GameManager {
      * @param gameId Game ID to remove.
      */
     public void removeGame(String gameId) throws Exception {
-        System.out.println("🗑 Removing Game: " + gameId);
+        log.logEntry(0, "🗑 Removing Game: " + gameId);
+
         Path path = config.getGameDir().resolve(gameId + ".json");
         if (!Files.exists(path)) {
             throw new Exception("Failed to find file: " + path.toString());
         }
 
         try {
-            System.out.println("\tTrying to move file to trash...");
+            log.logEntry(1, "Trying to move file to trash...");
             Path target = config.getTrashDir().resolve("games", gameId + ".json__" + DateUtil.getNumericTimestamp());
             if (!Files.exists(target.getParent()))
                 Files.createDirectories(target.getParent());
@@ -130,13 +136,13 @@ public class GameManager {
             target = config.getTrashDir().resolve("games", "icons", gameId);
 
             if (Files.exists(path) && Files.isRegularFile(path)) {
-                System.out.println("\tIcon file found moving to trash at: " + target.toString());
+                log.logEntry(1, "Icon file found moving to trash at: " + target.toString());
 
                 if (!Files.exists(target.getParent()))
                     Files.createDirectories(target.getParent());
                 Files.move(path, target);
             }
-            System.out.println("🗑 Game sucessfully trashed!");
+            log.logEntry(0, "🗑 Game sucessfully trashed!");
         } catch (Exception e) {
             throw new Exception("Faild to delete game.", e);
         }
@@ -155,7 +161,7 @@ public class GameManager {
         try {
             game = GameManager.getGameById(gameId);
             this.addGame(metaMap); // creates a new game, using the exsisting game data.
-            System.out.println("Game updated.");
+            log.logEntry(0, "Game updated.");
 
             if (!game.getId().equals(gameId)) {
                 // ID has been changed, must remove old file.
@@ -168,8 +174,6 @@ public class GameManager {
             throw new Exception("Failed to update Game: " + gameId, e);
         }
     } // updateGame()
-
-    /// /// /// Core Helper Methods /// /// ///
 
     /// /// /// Public Helper Methods /// /// ///
 
@@ -212,7 +216,7 @@ public class GameManager {
                     path.toFile(),
                     MapSerializable.ObjectTypes.GAME);
         } catch (Exception e) {
-            throw new Exception("❌ Failed to get Game by ID: " + path.toString(), e);
+            throw new Exception("Failed to get Game by ID: " + path.toString(), e);
         }
         return tmp;
     } // getGameById()
@@ -234,15 +238,15 @@ public class GameManager {
                     return (Game) JsonIO.read(path.toFile(), MapSerializable.ObjectTypes.GAME);
                 } catch (InvalidObjectException e) {
                     // differentiate between files that are not game types and other errors.
-                    System.err.println(e.getMessage());
+                    log.logError(e.getMessage(), e);
                     return null;
                 } catch (Exception e) {
-                    System.err.println("Error reading file: " + path.toString() + " -> " + e);
+                    log.logError("Error reading file: " + path.toString() + " -> ", e);
                     return null;
                 }
             }).filter(Objects::nonNull).toList();
         } catch (Exception e) {
-            System.err.println("❌ Error reading manifest directory!");
+            log.logError("Error reading manifest directory.", e);
             return null;
         }
     } // getAllGames()
@@ -253,16 +257,16 @@ public class GameManager {
      * @param game Game instance to save.
      */
     public static void saveGame(Game game) throws Exception {
-        System.out.println("\tWriting JSON file for Game " + game.getName());
         Path path = config.getGameDir().resolve(game.getId() + ".json");
         try {
+            log.logEntry("Writing JSON file for Game " + game.getName());
             if (!Files.exists(path)) {
-                System.out.println("File not found, creating new one.");
+                log.logWarning("File not found, creating new one.", null);
                 Files.createDirectories(path.getParent());
             }
             JsonIO.write(game, path.toFile());
 
-            System.out.println("📦 Game written!"); // TODO Debugging
+            log.logEntry("📦 Game written.");
         } catch (Exception e) {
             throw new Exception("Failed to write Game.json file.", e);
         }

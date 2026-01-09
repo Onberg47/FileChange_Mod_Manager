@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 import core.config.AppConfig;
 import core.objects.Game;
+import core.utils.Logger;
 
 /**
  * Central CLI command handler.
@@ -72,7 +73,7 @@ public class CLIManager {
                     modHandler.handleCommand(command, args, this);
                 }
             } catch (Exception e) {
-                System.err.println("❌ Error: " + e.getMessage());
+                Logger.getInstance().logError("CLI Error.", e);
             }
 
         } while (true);

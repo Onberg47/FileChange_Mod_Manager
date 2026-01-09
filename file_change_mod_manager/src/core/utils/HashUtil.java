@@ -95,7 +95,7 @@ public class HashUtil {
         } catch (IOException e) {
             return false;
         } catch (Exception e) {
-            System.err.println("Error Hashing the file! : " + e.getMessage());
+            Logger.getInstance().logError("Error Hashing the file.", e);
             return false;
         }
     }
@@ -123,7 +123,7 @@ public class HashUtil {
         } catch (IOException e) {
             return false;
         } catch (Exception e) {
-            System.err.println("Error Hashing the file! : " + e.getMessage());
+            Logger.getInstance().logError("Error Hashing the file.", e);
             return false;
         }
     } // verifyFileIntegrity()

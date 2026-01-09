@@ -34,6 +34,7 @@ import core.objects.ModFile;
  */
 public class FileUtil {
     private static AppConfig config = AppConfig.getInstance();
+    private static Logger log = Logger.getInstance();
 
     /**
      * Recursively scans a directory and prints all files and directories with
@@ -91,18 +92,17 @@ public class FileUtil {
                                 relative.relativize(path).toString(),
                                 HashUtil.computeFileHash(path),
                                 Files.size(path));
-                        System.out.println(
+                        log.logEntry(0,
                                 String.format("%s🗒  Found File: %s", " ".repeat(depth * 3),
                                         prefix + path.getFileName()));
                         return Stream.of(modFile);
                     } else if (Files.isDirectory(path)) {
                         // Create ModFile for directory (if needed) or recurse
                         String tmpPrefix = prefix + path.getFileName().toString() + "/";
-                        System.out
-                                .println(String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
+                        log.logEntry(0, String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
 
                         if (depth >= maxDepth) {
-                            System.err.println("❗ Maximum depth reached, stopping recursion.");
+                            log.logWarning(0, "Maximum depth reached, stopping recursion.", null);
                             return Stream.empty();
                         }
 
@@ -165,7 +165,7 @@ public class FileUtil {
         Path GsPath = Path.of(game.getInstallDirectory(), config.getManagerDir().toString(), GameState.FILE_NAME);
         GameState gState;
         if (!Files.exists(GsPath))
-            System.err.println("❗ No mods installed, could not find " + GameState.FILE_NAME);
+            log.logWarning("No mods installed, could not find " + GameState.FILE_NAME, null);
         try {
             gState = (GameState) JsonIO.read(GsPath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
 
@@ -181,7 +181,7 @@ public class FileUtil {
         Path storeDir = Path.of(game.getStoreDirectory());
 
         if (!Files.exists(storeDir)) {
-            System.err.println("Could not find: " + storeDir.toString());
+            log.logWarning("Could not find: " + storeDir.toString(), null);
         }
 
         try (Stream<Path> paths = Files.list(storeDir)) {
@@ -211,7 +211,7 @@ public class FileUtil {
                 }
             }
         } catch (Exception e) {
-            throw new Exception("❌ Failed to read Storage mods: " + e.getMessage(), e);
+            throw new Exception("Failed to read Storage mods: " + e.getMessage(), e);
         }
 
         return sb.toString();
@@ -353,11 +353,12 @@ public class FileUtil {
 
         // Validate that we're working with a valid path
         if (!Files.exists(resolvedPath)) {
-            System.err.println("❌ Invalid path! [relative] -> [working] : " + relative + " -> " + working);
+            log.logError("Invalid path! [relative] -> [working] : " + relative + " -> " + working, null);
             return -1;
         }
 
         int count = 0;
+        String workingSrt = working.toString(); // for printing out the initial value.
         // Walk up the directory tree from working path
         while (working != null) {
             Path currentPath = relative.resolve(working);
@@ -378,7 +379,7 @@ public class FileUtil {
                     }
                 }
             } catch (IOException e) {
-                System.err.println("❌ Error processing directory " + currentPath + ": " + e.getMessage());
+                log.logError("Error processing directory " + currentPath + ": " + e.getMessage(), e);
                 return -1;
             }
 
@@ -386,8 +387,8 @@ public class FileUtil {
             working = working.getParent();
         } // while()
 
-        System.out.println("✔ Cleaned [" + count + "] empty directories in: [relative] -> [working] : " + relative
-                + " -> " + working);
+        log.logEntry("✔ Cleaned [" + count + "] empty directories in: [relative] -> [working] : " + relative + " -> "
+                + workingSrt);
         return count;
     } // cleanDirectories()
 

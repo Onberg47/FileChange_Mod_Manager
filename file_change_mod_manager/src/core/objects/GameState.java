@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import core.interfaces.MapSerializable;
+import core.utils.Logger;
 
 /**
  * Object that is stored within the Game's Manifest directory. Used for
@@ -172,7 +173,7 @@ public class GameState implements MapSerializable {
             this.deployedMods.remove(index);
             updateModified();
         } catch (IndexOutOfBoundsException e) {
-            System.err.println("Index: " + index + " is out of bounds.");
+            Logger.getInstance().logWarning("Index: " + index + " is out of bounds.", e);
         }
     }
 
