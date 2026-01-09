@@ -46,7 +46,7 @@ public class AddGameView extends FormView {
         if (!validateAndCollect())
             return;
 
-        HashMap<String, String> answers = (HashMap<String, String>) formPanel.getAnswers();
+        HashMap<String, Object> answers = (HashMap<String, Object>) formPanel.getAnswers();
         try {
             // Update game from answers
             GameManager gm = new GameManager();
@@ -54,7 +54,7 @@ public class AddGameView extends FormView {
 
             // Try add a new icon
             if (answers.containsKey("iconFile")) {
-                IconLoader.fetchIcon(Path.of(answers.get("iconFile")));
+                IconLoader.fetchIcon(Path.of((String) answers.get("iconFile")));
                 IconLoader.clearCache();
             }
 

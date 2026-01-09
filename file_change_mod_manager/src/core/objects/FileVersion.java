@@ -6,8 +6,10 @@ package core.objects;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
-import core.interfaces.JsonSerializable;
+import core.interfaces.MapSerializable;
 import core.io.JsonIO;
 
 /**
@@ -15,7 +17,7 @@ import core.io.JsonIO;
  * 
  * @author Stephanos B
  */
-public class FileVersion {
+public class FileVersion implements MapSerializable {
 
     private String modId; // Path of the content file within the Mod
     private String hash; // Hexadecimal string, of file contents
@@ -26,7 +28,7 @@ public class FileVersion {
     /**
      * Used to ensure Json Keys are consistent.
      */
-    public enum JsonFields {
+    public enum Keys {
         modId,
         hash,
         timestamp
@@ -48,6 +50,40 @@ public class FileVersion {
         this(modId, hash);
         this.timestamp = timestamp;
     }
+
+    /// /// /// Implements /// /// ///
+
+    @Override
+    public String getObjectType() {
+        // return ObjectTypes.FILE_VERSION;
+        return "FileVersion (component)"; // This is never used as a standalone file, so this is never used.
+    }
+
+    @Override
+    public FileVersion setFromMap(Map<String, Object> map) {
+
+        if (map.containsKey(Keys.modId.toString()))
+            this.setModId((String) map.get(Keys.modId.toString()));
+
+        if (map.containsKey(Keys.hash.toString()))
+            this.setHash((String) map.get(Keys.hash.toString()));
+
+        if (map.containsKey(Keys.timestamp.toString()))
+            this.setTimestamp(LocalDateTime.parse(map.get(Keys.timestamp.toString()).toString()));
+
+        return this;
+    } // setFromMap()
+
+    @Override
+    public HashMap<String, Object> toMap() {
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put(Keys.modId.toString(), this.getModId());
+        map.put(Keys.hash.toString(), this.getHash());
+        map.put(Keys.timestamp.toString(), this.getTimestamp().toString());
+
+        return map;
+    } // toMap()
 
     /// /// /// Getters and Setters /// /// ///
 
@@ -99,12 +135,12 @@ public class FileVersion {
         // needed.
         Mod mod = (Mod) JsonIO.read(
                 MANIFEST_DIR.resolve(this.modId + ".json").toFile(),
-                JsonSerializable.ObjectTypes.MOD_MANIFEST);
+                MapSerializable.ObjectTypes.MOD_MANIFEST);
         return mod.getLoadOrder();
     } // getLoadOrder()
 
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("File Version: Owner ModId: %s, Hash: %s", modId, hash);
     }
 }// Class

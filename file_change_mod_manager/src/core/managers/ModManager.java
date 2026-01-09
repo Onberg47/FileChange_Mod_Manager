@@ -14,7 +14,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 
 import core.config.AppConfig;
-import core.interfaces.JsonSerializable;
+import core.interfaces.MapSerializable;
 import core.io.JsonIO;
 import core.objects.FileLineage;
 import core.objects.FileVersion;
@@ -22,6 +22,7 @@ import core.objects.Game;
 import core.objects.GameState;
 import core.objects.Mod;
 import core.objects.ModFile;
+import core.objects.ModLight;
 import core.objects.ModManifest;
 import core.utils.DateUtil;
 import core.utils.FileUtil;
@@ -83,7 +84,7 @@ public class ModManager {
      * @return Complete Mod that was created. Allows quick access to the exact data
      *         written without needing to read the JSON. (Mainly for data checking)
      */
-    public Mod compileMod(String dirName, HashMap<String, String> metaMap) throws Exception {
+    public Mod compileMod(String dirName, HashMap<String, Object> metaMap) throws Exception {
         /// /// 1. Verify Directory is valid.
         // Path tempDir = Path.of(TEMP_DIR, dirName);
         Path tempDir = TEMP_DIR.resolve(dirName);
@@ -173,7 +174,7 @@ public class ModManager {
             try {
                 mod = (ModManifest) JsonIO.read(
                         storedDir.resolve(MANIFEST_DIR.toString(), modId + ".json").toFile(),
-                        JsonSerializable.ObjectTypes.MOD_MANIFEST);
+                        MapSerializable.ObjectTypes.MOD_MANIFEST);
                 System.out.println("\tManifest of Mod: " + mod.getName() + " found! ✔");
 
                 Path manPath = MANIFEST_DIR.resolve(modId + ".json");
@@ -255,7 +256,7 @@ public class ModManager {
         // Create directories in Trash.
         try {
             mod = (ModManifest) JsonIO.read(GAME_ROOT_PATH.resolve(manifestPath).toFile(),
-                    JsonSerializable.ObjectTypes.MOD_MANIFEST);
+                    MapSerializable.ObjectTypes.MOD_MANIFEST);
             System.out.println("\t✔ Manifest of Mod: " + mod.getName() + " found!");
         } catch (Exception e) {
             throw new Exception("Mod manifest does not exsists.", e);
@@ -293,7 +294,7 @@ public class ModManager {
                 try { // Stop single file errors from haulting entire process.
                     FileLineage fl = (FileLineage) JsonIO.read(
                             flPath.toFile(),
-                            JsonSerializable.ObjectTypes.FILE_LINEAGE);
+                            MapSerializable.ObjectTypes.FILE_LINEAGE);
                     fl.removeAllOf(modId); // Current Mod has forefit any ownership.
 
                     if (fl.getStack().isEmpty()) {
@@ -423,7 +424,7 @@ public class ModManager {
         GameState gState = new GameState();
         try {
             // gState = GameStateIO.read(gameStatePath.toFile());
-            gState = (GameState) JsonIO.read(gameStatePath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
+            gState = (GameState) JsonIO.read(gameStatePath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
             gState.sortDeployedMods();
 
             for (Mod mod : gState.getDeployedMods()) {
@@ -448,7 +449,7 @@ public class ModManager {
 
         try {
             if (Files.exists(GsPath))
-                gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
+                gState = (GameState) JsonIO.read(GsPath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
             else
                 throw new Exception("No gameState.");
 
@@ -556,7 +557,7 @@ public class ModManager {
                 System.out.println("\t\t✔ Exsisting Lineage found.");
                 fl = (FileLineage) JsonIO.read(
                         GAME_ROOT_PATH.resolve(lineagePath).toFile(),
-                        JsonSerializable.ObjectTypes.FILE_LINEAGE);
+                        MapSerializable.ObjectTypes.FILE_LINEAGE);
 
                 try {
                     if (fl.insertOrderedVersion(new FileVersion(modId, modFile.getHash()),
@@ -686,10 +687,10 @@ public class ModManager {
         Path GsPath = GAME_ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
         try {
             if (Files.exists(GsPath))
-                gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
+                gState = (GameState) JsonIO.read(GsPath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
             else
                 gState = new GameState();
-            gState.appendModOnly(mod); // Will ensure no duplicates occur
+            gState.appendModOnly((ModLight) mod); // Will ensure no duplicates occur
 
             JsonIO.write(gState, GsPath.toFile());
         } catch (Exception e) {
@@ -711,7 +712,7 @@ public class ModManager {
         if (!Files.exists(GsPath))
             throw new FileNotFoundException("File for GameState is missing!");
         try {
-            gState = (GameState) JsonIO.read(GsPath.toFile(), JsonSerializable.ObjectTypes.GAME_STATE);
+            gState = (GameState) JsonIO.read(GsPath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
             gState.removeMod(mod);
 
             // If removed Mod was last, delete file.
@@ -735,7 +736,7 @@ public class ModManager {
      * 
      * @throws Exception
      */
-    public static HashMap<String, String> collectUserMetadata() throws Exception {
+    public static HashMap<String, Object> collectUserMetadata() throws Exception {
         String[][] queryMatrix = {
                 {
                         "name",
@@ -770,7 +771,7 @@ public class ModManager {
         try {
             mod = (Mod) JsonIO.read(
                     path.toFile(),
-                    JsonSerializable.ObjectTypes.MOD);
+                    MapSerializable.ObjectTypes.MOD);
         } catch (InvalidObjectException e) {
             throw new Exception("❌ Mod file does not exsists! " + path.toString(), e);
         } catch (Exception e) {
@@ -792,7 +793,7 @@ public class ModManager {
         try {
             mod = (ModManifest) JsonIO.read(
                     path.toFile(),
-                    JsonSerializable.ObjectTypes.MOD_MANIFEST);
+                    MapSerializable.ObjectTypes.MOD_MANIFEST);
         } catch (InvalidObjectException e) {
             throw new Exception("❌ Mod file does not exsists! " + path.toString(), e);
         } catch (Exception e) {

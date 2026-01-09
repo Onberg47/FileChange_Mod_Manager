@@ -6,12 +6,12 @@ package core.objects;
 
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
-import org.json.simple.JSONObject;
-
-import core.interfaces.JsonSerializable;
-import core.io.FileLineageIO;
+import core.interfaces.MapSerializable;
 
 /**
  * Object for keeping a Stack of FileVersions. Reads/Writes to a Json, so it
@@ -19,14 +19,14 @@ import core.io.FileLineageIO;
  * 
  * @author Stephanos B
  */
-public class FileLineage implements JsonSerializable {
+public class FileLineage implements MapSerializable {
 
     private Stack<FileVersion> stack = new Stack<FileVersion>();
 
     /**
      * Used to ensure Json Keys are consistent.
      */
-    public enum JsonFields {
+    public enum keys {
         stack
     }
 
@@ -49,10 +49,36 @@ public class FileLineage implements JsonSerializable {
         return ObjectTypes.FILE_LINEAGE;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public JSONObject toJsonObject() {
-        return FileLineageIO.write(this); // keeps IO operations seperate
-    } // toJsonObject()
+    public FileLineage setFromMap(Map<String, Object> map) {
+
+        /// stack
+        if (map.containsKey(keys.stack.toString())) {
+            ArrayList<HashMap<String, Object>> files = (ArrayList<HashMap<String, Object>>) map
+                    .get(keys.stack.toString());
+            this.stack.clear();
+            for (HashMap<String, Object> hashMap : files) { // TODO REDO THIS TO ENSURE ORDERING IS CORRECT!
+                this.stack.add(new FileVersion().setFromMap(hashMap));
+            }
+        }
+
+        return this;
+    } // setFromMap()
+
+    @Override
+    public HashMap<String, Object> toMap() {
+        HashMap<String, Object> map = new HashMap<>();
+
+        ArrayList<HashMap<String, Object>> arrLs = new ArrayList<>();
+        /// Get map of each modFile stored.
+        for (FileVersion tmp : this.getStack()) { // TODO REDO THIS TO ENSURE ORDERING IS CORRECT!
+            arrLs.add((HashMap<String, Object>) tmp.toMap());
+        }
+        map.put(keys.stack.toString(), arrLs);
+
+        return map;
+    } // toMap()
 
     /// /// /// Getters and Setters /// /// ///
 
@@ -131,7 +157,7 @@ public class FileLineage implements JsonSerializable {
         // Cannot just use stack.contains() because Hashes or timestamps could differ.
         for (FileVersion existing : stack) {
             if (existing.getModId().equals(fVersion.getModId())) {
-                //throw new Exception("❗ Mod already has a version!");
+                // throw new Exception("❗ Mod already has a version!");
                 System.out.println("❗ Mod already present in Lineage. Removing first...");
                 this.removeAllOf(fVersion.getModId());
                 break;
@@ -141,14 +167,14 @@ public class FileLineage implements JsonSerializable {
         try {
             // Find insertion point
             int insertIndex = 0; // default to end
-            for (int i = stack.size()-1; i >= 0; i--) {
+            for (int i = stack.size() - 1; i >= 0; i--) {
                 if (loadOrder >= stack.get(i).getLoadOrder(manifestPath)) {
-                    insertIndex = i+1;
+                    insertIndex = i + 1;
                     break;
                 }
             }
             stack.insertElementAt(fVersion, insertIndex); // Insert at correct position
-            return (stack.size()-1 - insertIndex); // make it so 0 is top.
+            return (stack.size() - 1 - insertIndex); // make it so 0 is top.
 
         } catch (Exception e) {
             throw new Exception("Could not determine load order! " + e.getMessage(), e);
@@ -173,5 +199,17 @@ public class FileLineage implements JsonSerializable {
         }
         this.stack = tmpStack;
     } // removeAllOf()
+
+    @Override
+    public String toString(){
+        StringBuilder str = new StringBuilder();
+
+        str.append("File Lineage:\n");
+        for (FileVersion fileVersion : stack) {
+            str.append(" - " + fileVersion.toString() + "\n");
+        }
+
+        return str.toString();
+    }
 
 } // Class

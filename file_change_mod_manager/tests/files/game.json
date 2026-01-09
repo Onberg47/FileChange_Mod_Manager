@@ -1,0 +1,8 @@
+{
+    "name": "GhostRecon",
+    "ObjectType": "Game",
+    "id": "gr",
+    "storeDirectory": "\/home\/hdd700\/Programming\/java\/JarProjects\/FileChange_Mod_Manager\/mod_manager\/mod_storage\/gr",
+    "installDirectory": "\/home\/hdd700\/Programming\/java\/JarProjects\/FileChange_Mod_Manager\/tst_fs\/gr",
+    "releaseVersion": "1.23.2a"
+}

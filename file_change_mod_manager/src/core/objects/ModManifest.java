@@ -2,12 +2,11 @@
  * Author: Stephanos B
  * Date: 15/12/2025
 */
-
 package core.objects;
 
-import org.json.simple.JSONObject;
-
-import core.io.ModManifestIO;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a Mod.JSON file for tracking contents and metadata of a Mod.
@@ -77,10 +76,42 @@ public class ModManifest extends Mod {
         return ObjectTypes.MOD_MANIFEST;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public JSONObject toJsonObject() {
-        return ModManifestIO.write(this); // keeps IO operations seperate
-    } // toJsonObject()
+    public ModManifest setFromMap(Map<String, Object> map) {
+        System.out.println("setFromMap: ModManifest");
+        super.setFromMap(map);
+
+        if (map.containsKey(JsonFields.files.toString())) {
+            ArrayList<HashMap<String, Object>> files = (ArrayList<HashMap<String, Object>>) map
+                    .get(JsonFields.files.toString());
+
+            ModFile[] arr = new ModFile[files.size()];
+            int i = 0;
+            for (HashMap<String, Object> hashMap : files) {
+                arr[i] = new ModFile().setFromMap(hashMap);
+                i++;
+            }
+            this.setContentsArr(arr);
+        }
+
+        return this;
+    } // setFromMap()
+
+    @Override
+    public HashMap<String, Object> toMap() {
+        System.out.println("toMap: ModManifest");
+        HashMap<String, Object> map = super.toMap();
+
+        ArrayList<HashMap<String, Object>> arrLs = new ArrayList<>();
+        /// Get map of each modFile stored.
+        for (ModFile tmp : this.getContentsArr()) {
+            arrLs.add((HashMap<String, Object>) tmp.toMap());
+        }
+        map.put(JsonFields.files.toString(), arrLs);
+
+        return map;
+    } // toMap()
 
     /// /// /// Getters and Setters /// /// ///
 

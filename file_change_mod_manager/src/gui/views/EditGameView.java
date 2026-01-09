@@ -8,6 +8,7 @@ import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
+import gui.util.GUIUtils;
 import gui.util.IconLoader;
 import core.managers.GameManager;
 import core.objects.Game;
@@ -45,7 +46,6 @@ public class EditGameView extends FormView {
 
     @Override
     protected void loadExistingData() {
-        System.out.println("Loading data.");
         String gameId = (String) params.get("gameId");
         this.game = AppState.getInstance().getCurrentGame();
 
@@ -59,23 +59,17 @@ public class EditGameView extends FormView {
             }
         }
 
-        HashMap<String, String> gameData = game.toMap();
+        HashMap<String, String> gameData = (HashMap<String, String>) GUIUtils.toStringOnlyMap(game.toMap());
 
         // Special handling for paths - convert to absolute if relative
-        if (gameData.containsKey("gameDirectory") && !gameData.get("gameDirectory").isEmpty()) {
-            Path dir = Paths.get(gameData.get("gameDirectory"));
+        if (gameData.containsKey("installDirectory") && !gameData.get("installDirectory").isEmpty()) {
+            Path dir = Paths.get(gameData.get("installDirectory"));
             if (!dir.isAbsolute()) {
+                System.err.println("Making absolute...");
                 // Convert to absolute path for display
                 dir = dir.toAbsolutePath();
-                gameData.put("gameDirectory", dir.toString());
+                gameData.put("installDirectory", dir.toString());
             }
-        }
-
-        // Special handling for mod count (if displaying)
-        if (gameData.containsKey("modCount")) {
-            // Could format as "X mods installed"
-            int count = Integer.parseInt(gameData.get("modCount"));
-            gameData.put("modCountDisplay", count + " mod" + (count != 1 ? "s" : ""));
         }
 
         formPanel.setAnswers(gameData);
@@ -103,10 +97,13 @@ public class EditGameView extends FormView {
         if (!validateAndCollect())
             return;
 
-        answers = (HashMap<String, String>) formPanel.getAnswers();
+        answers = (HashMap<String, String>) GUIUtils.toStringOnlyMap(formPanel.getAnswers());
         try {
+            System.out.println("Current Version: " + game.getReleaseVersion());
+
             // Update game from answers
-            game.setFromMap(answers);
+            game.setFromMap(formPanel.getAnswers());
+            System.out.println("Version in: " + answers.get("releaseVersion"));
             GameManager.saveGame(game);
 
             // Try add a new icon
@@ -116,6 +113,7 @@ public class EditGameView extends FormView {
             }
 
             // Navigate back to library
+            AppState.getInstance().setCurrentGame(null);
             navigator.navigateTo("library");
         } catch (Exception e) {
             showError("Failed to update game: " + e.getMessage());

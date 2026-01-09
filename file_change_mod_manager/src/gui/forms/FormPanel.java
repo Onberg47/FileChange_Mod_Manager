@@ -10,9 +10,15 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+/**
+ * A standard panel that implements FormCards to display modular questions and
+ * retreive answers.
+ * 
+ * @author Stephanos B
+ */
 public class FormPanel extends JPanel {
     private final List<QuestionCard> questionCards = new ArrayList<>();
-    private final Map<String, String> answers = new HashMap<>();
+    private final Map<String, Object> answers = new HashMap<>();
 
     public FormPanel(List<FormQuestion> questions) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -26,10 +32,16 @@ public class FormPanel extends JPanel {
         }
     }
 
-    public Map<String, String> getAnswers() {
+    /**
+     * Empty/Blank fields are not added, the key will not be present.
+     * 
+     * @return Map<String, String> of answers to each question-key.
+     */
+    public Map<String, Object> getAnswers() {
         answers.clear();
         for (QuestionCard card : questionCards) {
-            answers.put(card.getKey(), card.getValue());
+            if (!card.getValue().isBlank())
+                answers.put(card.getKey(), card.getValue());
         }
         return new HashMap<>(answers);
     }

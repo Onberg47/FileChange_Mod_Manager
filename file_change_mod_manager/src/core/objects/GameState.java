@@ -8,12 +8,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.json.simple.JSONObject;
-
-import core.interfaces.JsonSerializable;
-import core.io.GameStateIO;
+import core.interfaces.MapSerializable;
 
 /**
  * Object that is stored within the Game's Manifest directory. Used for
@@ -21,9 +20,9 @@ import core.io.GameStateIO;
  * 
  * @author Stephanos B
  */
-public class GameState implements JsonSerializable {
+public class GameState implements MapSerializable {
 
-    public enum JsonFields {
+    public enum Keys {
         lastModified,
         deployedMods
     }
@@ -34,7 +33,7 @@ public class GameState implements JsonSerializable {
     public static final String FILE_NAME = "game_state.json";
 
     private LocalDateTime lastModified;
-    private List<Mod> deployedMods;
+    private List<ModLight> deployedMods;
 
     public GameState() {
         lastModified = LocalDateTime.now();
@@ -48,10 +47,48 @@ public class GameState implements JsonSerializable {
         return ObjectTypes.GAME_STATE;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public JSONObject toJsonObject() {
-        return GameStateIO.write(this); // keeps IO operations seperate
-    } // toJsonObject()
+    public GameState setFromMap(Map<String, Object> map) {
+
+        System.out.println("setFromMap: GameState");
+        /// single fields
+        if (map.containsKey(Keys.lastModified.toString()))
+            this.setLastModified(LocalDateTime.parse(map.get(Keys.lastModified.toString()).toString()));
+
+        /// deployed Mods
+        if (map.containsKey(Keys.deployedMods.toString())) {
+            ArrayList<HashMap<String, Object>> deployedMods = (ArrayList<HashMap<String, Object>>) map
+                    .get(Keys.deployedMods.toString());
+            List<ModLight> ls = new ArrayList<>();
+            for (HashMap<String, Object> hashMap : deployedMods) {
+                // Must use ModLight to force not auto-casting to a ModManifest.
+                ls.add(new ModLight().setFromMap(hashMap));
+            }
+            this.setDeployedMods(ls);
+        }
+
+        return this;
+    } // setFromMap()
+
+    @Override
+    public HashMap<String, Object> toMap() {
+        System.out.println("toMap: GameState");
+        HashMap<String, Object> map = new HashMap<>();
+
+        /// single fields
+        map.put(Keys.lastModified.toString(), this.getLastModified().toString());
+
+        /// deployed Mods
+        ArrayList<HashMap<String, Object>> arrLs = new ArrayList<>();
+        // Get map of each.
+        for (Mod tmp : this.getDeployedMods()) {
+            arrLs.add((HashMap<String, Object>) tmp.toMap());
+        }
+        map.put(Keys.deployedMods.toString(), arrLs);
+
+        return map;
+    } // toMap()
 
     /// /// /// Getters and Setters /// /// ///
 
@@ -67,11 +104,11 @@ public class GameState implements JsonSerializable {
         this.lastModified = LocalDateTime.now();
     }
 
-    public List<Mod> getDeployedMods() {
+    public List<ModLight> getDeployedMods() {
         return deployedMods;
     }
 
-    public void setDeployedMods(List<Mod> deployedMods) {
+    public void setDeployedMods(List<ModLight> deployedMods) {
         this.deployedMods = deployedMods;
     }
 
@@ -83,7 +120,7 @@ public class GameState implements JsonSerializable {
      * 
      * @param mod
      */
-    public void addMod(Mod mod) {
+    public void addMod(ModLight mod) {
         deployedMods.add(mod);
         updateModified();
     }
@@ -94,7 +131,7 @@ public class GameState implements JsonSerializable {
      * 
      * @param mod
      */
-    public void appendMod(Mod mod) {
+    public void appendMod(ModLight mod) {
         if (this.deployedMods.isEmpty())
             deployedMods.add(mod);
         else {
@@ -111,7 +148,7 @@ public class GameState implements JsonSerializable {
      * 
      * @param mod
      */
-    public void appendModOnly(Mod mod) {
+    public void appendModOnly(ModLight mod) {
         if (this.deployedMods.isEmpty())
             deployedMods.add(mod);
         else {

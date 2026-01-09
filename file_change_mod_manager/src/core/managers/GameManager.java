@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import core.config.AppConfig;
-import core.interfaces.JsonSerializable;
+import core.interfaces.MapSerializable;
 import core.io.JsonIO;
 import core.objects.Game;
 import core.utils.DateUtil;
@@ -43,7 +43,7 @@ public class GameManager {
      * 
      * @param metaMap
      */
-    public Game addGame(HashMap<String, String> metaMap) throws Exception {
+    public Game addGame(HashMap<String, Object> metaMap) throws Exception {
         System.out.println("\n📦 Adding new game..."); // TODO Debugging
         if (this.game == null) {
             System.out.println("init new Game!");
@@ -150,7 +150,7 @@ public class GameManager {
      * @param metaMap An incomplete metaMap of ONLY the fields to override. Can
      *                support id-changes.
      */
-    public void updateGame(String gameId, HashMap<String, String> metaMap) throws Exception {
+    public void updateGame(String gameId, HashMap<String, Object> metaMap) throws Exception {
 
         try {
             game = GameManager.getGameById(gameId);
@@ -180,7 +180,7 @@ public class GameManager {
      * @return HashMap<String, String> of keyed metaData
      * @throws Exception
      */
-    public static HashMap<String, String> collectUserMetadata() throws Exception {
+    public static HashMap<String, Object> collectUserMetadata() throws Exception {
         String[][] queryMatrix = {
                 {
                         "id",
@@ -210,7 +210,7 @@ public class GameManager {
         try {
             tmp = (Game) JsonIO.read(
                     path.toFile(),
-                    JsonSerializable.ObjectTypes.GAME);
+                    MapSerializable.ObjectTypes.GAME);
         } catch (Exception e) {
             throw new Exception("❌ Failed to get Game by ID: " + path.toString(), e);
         }
@@ -231,7 +231,7 @@ public class GameManager {
                 if (!Files.isRegularFile(path))
                     return null; // ignore non-regular files.
                 try {
-                    return (Game) JsonIO.read(path.toFile(), JsonSerializable.ObjectTypes.GAME);
+                    return (Game) JsonIO.read(path.toFile(), MapSerializable.ObjectTypes.GAME);
                 } catch (InvalidObjectException e) {
                     // differentiate between files that are not game types and other errors.
                     System.err.println(e.getMessage());

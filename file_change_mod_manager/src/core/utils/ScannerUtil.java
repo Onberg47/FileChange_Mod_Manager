@@ -27,8 +27,8 @@ public class ScannerUtil {
      * @return A HashMap<String, String> of key-to-question answers.
      * @throws Exception Scanner errors.
      */
-    public static HashMap<String, String> checklistConsole(String[][] checklist) throws Exception {
-        HashMap<String, String> hMap = new HashMap<>();
+    public static HashMap<String, Object> checklistConsole(String[][] checklist) throws Exception {
+        HashMap<String, Object> hMap = new HashMap<>();
 
         @SuppressWarnings("resource") // THIS IS BY DESIGN!
         // This method is only ever called within the CLI. The CLI has an open System.in

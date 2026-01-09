@@ -64,7 +64,7 @@ public class GameCommandHandler {
     }
 
     private void updateGame() throws Exception {
-        HashMap<String, String> tmpMap = new HashMap<>();
+        HashMap<String, Object> tmpMap = new HashMap<>();
         String gameid = cli.getRequired("id");
 
         System.out.println("Enter new data for the Game. (Leave empty to not update)");

@@ -1,0 +1,15 @@
+{
+    "ObjectType": "FileLineage",
+    "stack": [
+        {
+            "modId": "GAME",
+            "hash": "ba1fdf21a8c4573156e60828ddab6a7a",
+            "timestamp": "2026-01-09T14:48:36.047889536"
+        },
+        {
+            "modId": "packer-19590-00050",
+            "hash": "ba1fdf21a8c4573156e60828ddab6a7a",
+            "timestamp": "2026-01-09T14:48:36.047959119"
+        }
+    ]
+}

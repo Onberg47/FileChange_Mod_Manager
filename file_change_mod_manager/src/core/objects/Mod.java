@@ -6,18 +6,16 @@ package core.objects;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
 
-import org.json.simple.JSONObject;
-
-import core.interfaces.JsonSerializable;
-import core.io.ModIO;
+import core.interfaces.MapSerializable;
 
 /**
  * Represents a Mod.JSON file for tracking contents and metadata of a Mod.
  * 
  * @author Stephanos B
  */
-public class Mod implements JsonSerializable {
+public class Mod implements MapSerializable {
 
     protected String gameId; // ID of the Game this Mod is for.
     protected String id; // Unique identifier for the Mod.
@@ -39,7 +37,7 @@ public class Mod implements JsonSerializable {
      * 
      * @author Stephanos B
      */
-    public enum JsonFields {
+    public enum Keys {
         id,
         gameId,
         version,
@@ -120,9 +118,64 @@ public class Mod implements JsonSerializable {
     }
 
     @Override
-    public JSONObject toJsonObject() {
-        return ModIO.write(this); // keeps IO operations seperate
-    } // toJsonObject()
+    public Mod setFromMap(Map<String, Object> map) {
+
+        System.out.println("setFromMap: Mod");
+        // if a key is missing, don't set it.
+        // Values will be left from constructor default
+        if (map.containsKey(Keys.id.toString()))
+            this.setId((String) map.get(Keys.id.toString()));
+
+        if (map.containsKey(Keys.gameId.toString()))
+            this.setGameId((String) map.get(Keys.gameId.toString()));
+
+        if (map.containsKey(Keys.name.toString()))
+            this.setName((String) map.get(Keys.name.toString()));
+
+        if (map.containsKey(Keys.description.toString()))
+            this.setDescription((String) map.get(Keys.description.toString()));
+
+        if (map.containsKey(Keys.version.toString()))
+            this.setVersion((String) map.get(Keys.version.toString()));
+
+        if (map.containsKey(Keys.downloadSource.toString()))
+            this.setDownloadSource((String) map.get(Keys.downloadSource.toString()));
+
+        if (map.containsKey(Keys.downloadLink.toString()))
+            this.setDownloadLink((String) map.get(Keys.downloadLink.toString()));
+
+        if (map.containsKey(Keys.downloadDate.toString()))
+            this.setDownloadDate(LocalDateTime.parse(map.get(Keys.downloadDate.toString()).toString()));
+
+        if (map.containsKey(Keys.loadOrder.toString())) {
+            try {
+                this.setLoadOrder(((Long) map.get(Mod.Keys.loadOrder.toString())).intValue());
+            } catch (ClassCastException e) {
+                System.err.println("Casting error, failed to set LoadOrder");
+            }
+        }
+        return this;
+    } // setFromMap()
+
+    @Override
+    public HashMap<String, Object> toMap() {
+        System.out.println("toMap: Mod");
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put(Keys.id.toString(), this.getId());
+        map.put(Keys.gameId.toString(), this.getGameId());
+        map.put(Keys.version.toString(), this.getVersion());
+        map.put(Keys.loadOrder.toString(), this.getLoadOrder());
+
+        map.put(Keys.gameId.toString(), this.getName());
+        map.put(Keys.gameId.toString(), this.getDescription());
+
+        map.put(Keys.downloadDate.toString(), this.getDownloadDate().toString());
+        map.put(Keys.downloadSource.toString(), this.getDownloadSource());
+        map.put(Keys.downloadLink.toString(), this.getDownloadLink());
+
+        return map;
+    } // toMap()
 
     /// /// /// Getters and Setters /// /// ///
 
@@ -239,59 +292,6 @@ public class Mod implements JsonSerializable {
                 String.format("%05d", version.hashCode() & 0xffff);
         return this.id;
     } // generateModId()
-
-    /**
-     * Sets all values of the current Mod from the passed Map<> and won't override
-     * missing values, allowing for updating instances.
-     * Will not set if casting errors occur.
-     * 
-     * @param metaMap Complete or patially complete Meta Map to read values from.
-     */
-    public void setFromMap(HashMap<String, String> metaMap) {
-        // if a key is missing, don't set it.
-        // Values will be left from constructor default
-        if (metaMap.containsKey("name"))
-            this.setName(metaMap.get("name"));
-
-        if (metaMap.containsKey("description"))
-            this.setDescription(metaMap.get("description"));
-
-        if (metaMap.containsKey("version"))
-            this.setVersion(metaMap.get("version"));
-
-        if (metaMap.containsKey("source"))
-            this.setDownloadSource(metaMap.get("source"));
-
-        if (metaMap.containsKey("url"))
-            this.setDownloadLink(metaMap.get("url"));
-
-        if (metaMap.containsKey("loadorder")) {
-            try {
-                this.setLoadOrder(Integer.parseInt(metaMap.get("loadorder")));
-            } catch (NumberFormatException e) {
-                System.err.println("Casting error, failed to set LoadOrder");
-            }
-        }
-    } // setFromMap()
-
-    /**
-     * For GUI.
-     * 
-     * @return HashMap<String, String> of all the instance's fields.
-     */
-    public HashMap<String, String> toMap() {
-        HashMap<String, String> metaMap = new HashMap<>();
-
-        metaMap.put("id", this.getId());
-        metaMap.put("name", this.getName());
-        metaMap.put("description", this.getDescription());
-        metaMap.put("version", this.getVersion());
-        metaMap.put("source", this.getDownloadSource());
-        metaMap.put("url", this.getDownloadLink());
-        metaMap.put("loadorder", String.valueOf(this.getLoadOrder()));
-
-        return metaMap;
-    } // toMap()
 
     /**
      * Uses the Mod's Name, and Version (hashcode) Ensure all feilds are

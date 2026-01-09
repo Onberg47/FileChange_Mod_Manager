@@ -5,18 +5,16 @@
 package core.objects;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import org.json.simple.JSONObject;
-
-import core.interfaces.JsonSerializable;
-import core.io.GameIO;
+import core.interfaces.MapSerializable;
 
 /**
  * Represents a Game. This sets the general parameters for the Mod deployment.
  * 
  * @author Stephanos B
  */
-public class Game implements JsonSerializable {
+public class Game implements MapSerializable {
 
     /** Unique identifier for the Game. Used as the directory name. */
     private String id;
@@ -32,7 +30,7 @@ public class Game implements JsonSerializable {
     /**
      * Used to ensure Json Keys are consistent.
      */
-    public enum JsonFields {
+    public enum Keys {
         id,
         releaseVersion,
         name,
@@ -75,9 +73,38 @@ public class Game implements JsonSerializable {
     }
 
     @Override
-    public JSONObject toJsonObject() {
-        return GameIO.write(this); // keeps IO operations seperate
-    } // toJsonObject()
+    public Game setFromMap(Map<String, Object> map) {
+
+        if (map.containsKey(Keys.id.toString()))
+            this.setId((String) map.get(Keys.id.toString()));
+
+        if (map.containsKey(Keys.name.toString()))
+            this.setName((String) map.get(Keys.name.toString()));
+
+        if (map.containsKey(Keys.releaseVersion.toString()))
+            this.setReleaseVersion((String) map.get(Keys.releaseVersion.toString()));
+
+        if (map.containsKey(Keys.installDirectory.toString()))
+            this.setInstallDirectory((String) map.get(Keys.installDirectory.toString()));
+
+        if (map.containsKey(Keys.storeDirectory.toString()))
+            this.setStoreDirectory((String) map.get(Keys.storeDirectory.toString()));
+
+        return this;
+    } // setFromMap()
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put(Keys.id.toString(), this.getId());
+        map.put(Keys.name.toString(), this.getName());
+        map.put(Keys.releaseVersion.toString(), this.getReleaseVersion());
+        map.put(Keys.installDirectory.toString(), this.getInstallDirectory());
+        map.put(Keys.storeDirectory.toString(), this.getStoreDirectory());
+
+        return map;
+    } // toMap()
 
     /// /// /// Getters and Setters /// /// ///
     // #region
@@ -131,57 +158,16 @@ public class Game implements JsonSerializable {
     /// /// /// Methods /// /// ///
 
     /**
-     * For GUI.
-     * Sets all values of the current Game from the passed Map<> and won't override
-     * missing values, allowing for updating instances.
-     * 
-     * @param metaMap Complete or patially complete Meta Map to read values from.
-     */
-    public void setFromMap(HashMap<String, String> metaMap) {
-
-        if (metaMap.containsKey("id")) // This prevents missing values being set to null, allowing updates.
-            this.setId(metaMap.get("id"));
-
-        if (metaMap.containsKey("releaseVersion"))
-            this.setReleaseVersion(metaMap.get("releaseVersion"));
-
-        if (metaMap.containsKey("name"))
-            this.setName(metaMap.get("name"));
-
-        if (metaMap.containsKey("installDirectory")) {
-            this.setInstallDirectory(metaMap.get("installDirectory"));
-        }
-
-        if (metaMap.containsKey("storeDirectory"))
-            this.setStoreDirectory(metaMap.get("storeDirectory"));
-
-    } // setFromMap()
-
-    /**
-     * For GUI.
-     * 
-     * @return HashMap<String, String> of all the instance's fields.
-     */
-    public HashMap<String, String> toMap() {
-        HashMap<String, String> metaMap = new HashMap<>();
-
-        metaMap.put("id", this.getId());
-        metaMap.put("name", this.getName());
-        metaMap.put("releaseVersion", this.getReleaseVersion());
-        metaMap.put("installDirectory", this.getInstallDirectory());
-        metaMap.put("storeDirectory", this.getStoreDirectory());
-
-        return metaMap;
-    } // toMap()
-
-    /**
      * Overrides toString() to provide a string representation of the Game object.
      * 
      * @return A string representation of the Game object.
      */
     @Override
     public String toString() {
-        return "Game details: \n\tID = " + id + "\n\tName = " + name + "\n\tInstall Path = " + installDirectory
+        return "Game details: \n\tID = " + id
+                + "\n\tName = " + name
+                + "\n\tRelease Version: " + releaseVersion
+                + "\n\tInstall Path = " + installDirectory
                 + "\n\tMods Path = " + storeDirectory;
     } // toString()
 

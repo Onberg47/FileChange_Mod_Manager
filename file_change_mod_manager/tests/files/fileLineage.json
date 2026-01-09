@@ -1,0 +1,25 @@
+{
+    "ObjectType": "FileLineage",
+    "stack": [
+        {
+            "modId": "1",
+            "hash": "41215e61fbe96ab9cee6b463bbb59bb2",
+            "timestamp": "2026-01-07T21:20:46.711322300"
+        },
+        {
+            "modId": "2",
+            "hash": "41215e61fbe96ab9cee6b463bbb59bb2",
+            "timestamp": "2026-01-07T21:20:46.711322300"
+        },
+        {
+            "modId": "3",
+            "hash": "41215e61fbe96ab9cee6b463bbb59bb2",
+            "timestamp": "2026-01-07T21:20:46.711322300"
+        },
+        {
+            "modId": "4",
+            "hash": "41215e61fbe96ab9cee6b463bbb59bb2",
+            "timestamp": "2026-01-07T21:20:46.711322300"
+        }
+    ]
+}

@@ -1,1 +1,8 @@
-{"ObjectType":"Game","installDirectory":"\/home\/onberg\/Pictures","storeDirectory":"\/home\/onberg\/Desktop","id":"example_id","name":"Example Game 1"}
+{
+    "name": "Example Game 1",
+    "ObjectType": "Game",
+    "id": "example_id",
+    "releaseVersion": "1.0.1",
+    "storeDirectory": "mod_manager\/mod_storage\/game_1\/",
+    "installDirectory": "tst_fs\/game_root\/"
+}

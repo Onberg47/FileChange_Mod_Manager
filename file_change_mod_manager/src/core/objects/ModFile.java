@@ -5,12 +5,17 @@
 
 package core.objects;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import core.interfaces.MapSerializable;
+
 /**
  * Represents the File Contents of a Mod within the Mod.JSON file.
  * 
  * @author Stephanos B
  */
-public class ModFile {
+public class ModFile implements MapSerializable {
 
     private String filePath; // Path of the content file within the Mod
     private String hash; // SHA-256 stored as a hexadecimal string, of file contents
@@ -57,6 +62,39 @@ public class ModFile {
         // this.operation = FileOperation.ADD;
         this.size = size;
     }
+
+    /// /// /// Implements /// /// ///
+
+    @Override
+    public String getObjectType() {
+        // return ObjectTypes.MOD_FILE;
+        return "ModFile (component)"; // This is never used as a standalone file, so this is never used.
+    }
+
+    @Override
+    public ModFile setFromMap(Map<String, Object> map) {
+        if (map.containsKey(JsonFields.filePath.toString()))
+            this.setFilePath((String) map.get(JsonFields.filePath.toString()));
+
+        if (map.containsKey(JsonFields.hash.toString()))
+            this.setHash((String) map.get(JsonFields.hash.toString()));
+
+        if (map.containsKey(JsonFields.size.toString()))
+            this.setSize((Long) map.get(JsonFields.size.toString()));
+
+        return this;
+    } // setFromMap()
+
+    @Override
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> map = new HashMap<>();
+
+        map.put(JsonFields.filePath.toString(), this.getFilePath());
+        map.put(JsonFields.hash.toString(), this.getHash());
+        map.put(JsonFields.size.toString(), this.getSize());
+
+        return map;
+    } // toMap()
 
     /// /// /// Getters and Setters /// /// ///
 

@@ -10,7 +10,12 @@ import java.util.HashMap;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import core.interfaces.JsonSerializable;
+import core.interfaces.MapSerializable;
+import core.objects.FileLineage;
+import core.objects.Game;
+import core.objects.GameState;
+import core.objects.Mod;
+import core.objects.ModManifest;
 
 public class JsonIO {
 
@@ -28,7 +33,8 @@ public class JsonIO {
      * @throws Exception                An error with the Json process or invalid
      *                                  file (path or extension)
      */
-    public static JsonSerializable read(File file, String type_string) throws Exception {
+    @SuppressWarnings("unchecked") // Required for JSONObject to Map casting.
+    public static MapSerializable read(File file, String type_string) throws Exception {
         if (!file.exists()) {
             throw new FileNotFoundException("File path is not a valid .json path. ");
         }
@@ -53,24 +59,24 @@ public class JsonIO {
             // otherwise it cannot be closed.
         }
 
-        String fileType = ((String) json.get(JsonSerializable.ObjectTypeKey));
+        String fileType = ((String) json.get(MapSerializable.ObjectTypeKey));
         if (type_string != null && !fileType.equals(type_string))
             throw new InvalidObjectException("The file does not store the desired Object!");
 
         // Queries the actual file type to allow auto-detection
         switch (fileType) {
-            case JsonSerializable.ObjectTypes.MOD:
-                return ModIO.read(json);
-            case JsonSerializable.ObjectTypes.MOD_MANIFEST:
-                return ModManifestIO.read(json);
+            case MapSerializable.ObjectTypes.MOD:
+                return new Mod().setFromMap(json);
+            case MapSerializable.ObjectTypes.MOD_MANIFEST:
+                return new ModManifest().setFromMap(json);
 
-            case JsonSerializable.ObjectTypes.GAME:
-                return GameIO.read(json);
-            case JsonSerializable.ObjectTypes.GAME_STATE:
-                return GameStateIO.read(json);
+            case MapSerializable.ObjectTypes.GAME:
+                return new Game().setFromMap(json);
+            case MapSerializable.ObjectTypes.GAME_STATE:
+                return new GameState().setFromMap(json);
 
-            case JsonSerializable.ObjectTypes.FILE_LINEAGE:
-                return FileLineageIO.read(json);
+            case MapSerializable.ObjectTypes.FILE_LINEAGE:
+                return new FileLineage().setFromMap(json);
 
             default:
                 throw new IllegalArgumentException("Unknown object type: " + type_string);
@@ -86,7 +92,7 @@ public class JsonIO {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public static void write(JsonSerializable object, File file) throws Exception {
+    public static void write(MapSerializable object, File file) throws Exception {
         if (object == null) {
             throw new IllegalArgumentException("Object cannot be null");
         }
@@ -99,8 +105,9 @@ public class JsonIO {
         }
         // end of checks...
 
-        JSONObject json = object.toJsonObject(); // Create JSONObject from the object
-        json.put(JsonSerializable.ObjectTypeKey, object.getObjectType()); // always add the file-type written.
+        JSONObject json = new JSONObject(); // Create JSONObject from the object
+        json.putAll(object.toMap()); // Map cannot be directly cast to a JSONObject.
+        json.put(MapSerializable.ObjectTypeKey, object.getObjectType()); // always add the file-type written.
 
         // Write to file
         try (
