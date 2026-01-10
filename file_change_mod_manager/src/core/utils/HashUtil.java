@@ -64,6 +64,7 @@ public class HashUtil {
      * @throws Exception Hashing error
      */
     public static String computeFileHash(Path filePath, HashAlgorithm algorithm) throws Exception {
+        System.out.println("Hashing File: " + filePath.toString());
         MessageDigest digest = MessageDigest.getInstance(algorithm.algorithm);
 
         try (InputStream is = Files.newInputStream(filePath)) {

@@ -4,6 +4,8 @@
 */
 package core.objects;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,9 +25,9 @@ public class Game implements MapSerializable {
     /** User-friendly name of the Game for interfaces. */
     private String name;
     /** Path where the Game is installed. (Should be absolute) */
-    private String installDirectory;
+    private Path installDirectory;
     /** Path where the Mods are stored. */
-    private String storeDirectory;
+    private Path storeDirectory;
 
     /**
      * Used to ensure Json Keys are consistent.
@@ -42,8 +44,8 @@ public class Game implements MapSerializable {
         id = "unkown01";
         releaseVersion = "0.0.0";
         name = "Unkown Game";
-        installDirectory = null; // Null because it must be set.
-        storeDirectory = null;
+        installDirectory = Path.of(""); // Null because it must be set.
+        storeDirectory = Path.of("");
     }
 
     /**
@@ -57,12 +59,12 @@ public class Game implements MapSerializable {
      *                         absolute)
      * @param storeDirectory   The Mods storage path of the Game.
      */
-    public Game(String id, String releaseVersion, String name, String installDirectory, String storeDirectory) {
+    public Game(String id, String releaseVersion, String name, Path installDirectory, Path storeDirectory) {
         this.id = id;
         this.releaseVersion = releaseVersion;
         this.name = name;
-        this.installDirectory = installDirectory;
-        this.storeDirectory = storeDirectory;
+        this.setInstallDirectory(installDirectory);
+        this.setStoreDirectory(storeDirectory);
     }
 
     /// /// /// Implements /// /// ///
@@ -74,7 +76,6 @@ public class Game implements MapSerializable {
 
     @Override
     public Game setFromMap(Map<String, Object> map) {
-
         if (map.containsKey(Keys.id.toString()))
             this.setId((String) map.get(Keys.id.toString()));
 
@@ -133,7 +134,7 @@ public class Game implements MapSerializable {
         this.name = name;
     }
 
-    public String getInstallDirectory() {
+    public Path getInstallDirectory() {
         return installDirectory;
     }
 
@@ -142,16 +143,24 @@ public class Game implements MapSerializable {
      * @param installDirectory The installation path of the Game. (Should be
      *                         absolute)
      */
-    public void setInstallDirectory(String installDirectory) {
-        this.installDirectory = installDirectory;
+    public void setInstallDirectory(Path installDirectory) {
+        this.installDirectory = installDirectory != null ? installDirectory.normalize() : null;
     }
 
-    public String getStoreDirectory() {
+    public void setInstallDirectory(String installDirectoryStr) {
+        this.installDirectory = installDirectoryStr != null ? Paths.get(installDirectoryStr).normalize() : null;
+    }
+
+    public Path getStoreDirectory() {
         return storeDirectory;
     }
 
-    public void setStoreDirectory(String storeDirectory) {
-        this.storeDirectory = storeDirectory;
+    public void setStoreDirectory(Path storeDirectory) {
+        this.storeDirectory = storeDirectory != null ? storeDirectory.normalize() : null;
+    }
+
+    public void setStoreDirectory(String storeDirectoryStr) {
+        this.storeDirectory = storeDirectoryStr != null ? Paths.get(storeDirectoryStr).normalize() : null;
     }
 
     // #endregion

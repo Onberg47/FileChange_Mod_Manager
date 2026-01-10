@@ -56,7 +56,7 @@ public class JsonIO {
     @SuppressWarnings("unchecked") // Required for JSONObject to Map casting.
     public static MapSerializable read(File file, String type_string, String cast_type) throws Exception {
         if (!file.exists()) {
-            throw new FileNotFoundException("File path is not a valid .json path. ");
+            throw new InvalidObjectException("File path is not a valid .json path: " + file.toPath().toString());
         }
         if (!file.isFile()) { // Check if it's actually a file (not a directory)
             throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());

@@ -6,6 +6,7 @@ package core.utils;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -21,7 +22,8 @@ import core.config.AppConfig;
 public class Logger {
 
     private enum ErrorCodes {
-        NOTIFY(0, "Note"),
+        INFO(0, "Info"),
+        SUCCESS(1, "Success"),
         WARNING(200, "Warning"),
         NORMAL_ERROR(400, "Error"),
         CRITICAL_ERROR(401, "Unexpected Error");
@@ -47,39 +49,44 @@ public class Logger {
 
     private static AppConfig config = new AppConfig();
     private final Path logPath;
-    private final FileWriter logFile;
+    private final FileWriter writer;
 
     private int indent;
 
     private Logger() {
         Builder build = new Builder().build();
         this.logPath = build.logPath;
-        this.logFile = build.logFile;
+        this.writer = build.writer;
     }
 
     private static class Builder {
         Path logPath;
-        FileWriter logFile;
+        FileWriter writer;
 
         public Builder build() {
-            logPath = config.getLogDir().resolve("log__" + DateUtil.getDirDatestamp());
+            logPath = config.getLogDir().resolve("log__" + DateUtil.getDirDatestamp() + ".log");
 
-            logFile = null;
+            Boolean fileFound = false;
+            if (Files.exists(logPath))
+                fileFound = true;
+
+            writer = null;
             try {
-                logFile = new FileWriter(logPath.toFile(), true);
+                // this creates the file, so .exists() checks need to be done before.
+                writer = new FileWriter(logPath.toString(), true);
 
-                if (!Files.exists(logPath)) {
-                    logFile.append("Log file created at: "
+                if (!fileFound) {
+                    writer.write("Log file created at: "
                             + DateUtil.getDisplayTimestamp(LocalDateTime.now())
-                            + "\nConfig:\n" + config.toString());
+                            + "\n" + config.toString() + "\n" + "=".repeat(24));
                 }
-                logFile.append("\nProgram started logging...\n");
+                writer.write("\nProgram started logging...\n");
+                writer.flush();
             } catch (Exception e) {
-                //
+                System.err.println("Log file failed to build: " + e.getMessage());
             }
-
             return this;
-        }
+        } // build()
     } // Builder
 
     /// /// /// Singleton /// /// ///
@@ -97,6 +104,18 @@ public class Logger {
         return instance;
     }
 
+    public void close() {
+        synchronized (this) {
+            logEntry("Closing logger.");
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    System.err.println("Error closing logger: " + e.getMessage());
+                }
+            }
+        }
+    }
     /// /// /// Usage Methods /// /// ///
 
     /**
@@ -129,10 +148,10 @@ public class Logger {
             System.out.println("\t".repeat(indent) + msg);
 
         if (verboseMsg != null)
-            printToLog(verboseMsg, null, ErrorCodes.NOTIFY);
+            printToLog(verboseMsg, null, ErrorCodes.INFO);
     }
 
-    ///
+    /// Warning
 
     public void logWarning(int indent, String msg, Exception f) {
         this.indent = indent;
@@ -141,15 +160,21 @@ public class Logger {
 
     //
     public void logWarning(String msg, Exception f) {
-        System.out.println("\t".repeat(indent) + "❗ " + msg + " : " + f.getMessage());
         printToLog(msg, f, ErrorCodes.WARNING);
+        if (f == null) {
+            f = new Exception("No exception passed.");
+        }
+        System.out.println("\t".repeat(indent) + "❗ " + msg + " : " + f.getMessage());
     }
 
-    ///
+    /// Error
 
     public void logError(String msg, Exception f) {
-        System.out.println("❌ " + msg + " : " + f.getMessage());
         printToLog(msg, f, ErrorCodes.NORMAL_ERROR);
+        if (f == null) {
+            f = new Exception("No exception passed.");
+        }
+        System.out.println("❌ " + msg + " : " + f.getMessage());
     }
 
     /// /// /// Helpers /// /// ///
@@ -159,7 +184,7 @@ public class Logger {
             if (!Files.exists(logPath))
                 throw new FileNotFoundException();
 
-            String str;
+            String str = "Error log";
 
             if (f == null) { // No Exception
                 str = String.format("[%s] - [%s] : %s\n",
@@ -169,7 +194,7 @@ public class Logger {
 
             } else { // Exception
                 String stack = readStackTrace(f);
-                str = String.format("[%s] - [%s] [%s] : %s\nStack Trace: %s\n",
+                str = String.format("[%s] - [%s] [%s] : %s\n\t%s%s\n",
                         DateUtil.getDisplayTimestamp(LocalDateTime.now()),
                         code.getName(),
                         f.getClass(),
@@ -177,8 +202,8 @@ public class Logger {
                         f.getMessage(),
                         stack);
             }
-
-            logFile.append(str);
+            writer.write(str);
+            writer.flush();
 
         } catch (Exception e) {
             System.err.println("Log file error: " + e.getMessage());
@@ -189,9 +214,9 @@ public class Logger {
         if (f.getStackTrace().length <= 0)
             return "";
 
-        StringBuilder stack = new StringBuilder();
+        StringBuilder stack = new StringBuilder("\n\tStack Trace:\n");
         for (StackTraceElement tr : f.getStackTrace()) {
-            stack.append("\t" + tr);
+            stack.append("\t\t" + tr.toString() + "\n");
         }
         return stack.toString();
     }

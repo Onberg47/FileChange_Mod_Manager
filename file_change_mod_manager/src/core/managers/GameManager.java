@@ -65,7 +65,7 @@ public class GameManager {
         log.logEntry(1, "Verifying game paths...");
         Path path;
         try {
-            path = Path.of(this.game.getInstallDirectory());
+            path = this.game.getInstallDirectory();
             log.logEntry(1, null, "Checking path: " + path.toString()); // silent log
             if (!path.isAbsolute()) {
                 log.logWarning(1, "Game installation path is not absolute.", null);
@@ -75,7 +75,7 @@ public class GameManager {
             }
             log.logEntry(2, "✔ Game path is good.");
 
-            path = Path.of(game.getStoreDirectory());
+            path = game.getStoreDirectory();
             log.logEntry(1, null, "Checking path: " + path.toString());
             if (!path.isAbsolute()) {
                 log.logWarning(1, "Mod storage path is not absolute.", null);

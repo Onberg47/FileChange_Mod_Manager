@@ -3,6 +3,8 @@
  * Date: 30/12/2025
  */
 
+import core.utils.Logger;
+
 /**
  * Main app executable.
  */
@@ -13,5 +15,6 @@ public class App {
         } else {
             cli.CLIManager.main(args);
         }
+        Logger.getInstance().close();
     } // psvm()
 } // Class

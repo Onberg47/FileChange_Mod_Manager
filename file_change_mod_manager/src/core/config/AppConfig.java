@@ -20,7 +20,7 @@ public final class AppConfig {
     /// Core:
     // #region
 
-    private static final String AppVersion = "2.1"; // Program's version
+    private static final String AppVersion = "2.2"; // Program's version
 
     /// Program Paths:
     /**
@@ -79,11 +79,12 @@ public final class AppConfig {
                 HashMap<String, String> hMap = JsonIO.readHashMap(configIn.toFile());
                 // If the file is missing, this will be null and default values will be used.
 
-                this.gameDir = Path.of(hMap.getOrDefault("GAME_DIR", defaultConfig.GAME_DIR.toString()));
-                this.tempDir = Path.of(hMap.getOrDefault("TEMP_DIR", defaultConfig.TEMP_DIR.toString()));
-                this.trashDir = Path.of(hMap.getOrDefault("TRASH_DIR", defaultConfig.TRASH_DIR.toString()));
-                this.logDir = Path.of(hMap.getOrDefault("LOG_DIR", defaultConfig.LOG_DIR.toString()));
-                this.managerDir = Path.of(hMap.getOrDefault("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString()));
+                this.gameDir = Path.of(hMap.getOrDefault("GAME_DIR", defaultConfig.GAME_DIR.toString())).normalize();
+                this.tempDir = Path.of(hMap.getOrDefault("TEMP_DIR", defaultConfig.TEMP_DIR.toString())).normalize();
+                this.trashDir = Path.of(hMap.getOrDefault("TRASH_DIR", defaultConfig.TRASH_DIR.toString())).normalize();
+                this.logDir = Path.of(hMap.getOrDefault("LOG_DIR", defaultConfig.LOG_DIR.toString())).normalize();
+                this.managerDir = Path.of(hMap.getOrDefault("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString()))
+                        .normalize();
 
             } catch (Exception e) {
                 System.err.println("❌ Failed to initialize config! " + e.getMessage());
@@ -105,9 +106,9 @@ public final class AppConfig {
         this.LOG_DIR = builder.logDir;
         this.MANAGER_DIR = builder.managerDir;
 
-        this.LINEAGE_DIR = MANAGER_DIR.resolve("lineages/");
-        this.BACKUP_DIR = MANAGER_DIR.resolve("backups/");
-        this.MANIFEST_DIR = MANAGER_DIR.resolve("manifests/");
+        this.LINEAGE_DIR = MANAGER_DIR.resolve("lineages/").normalize();
+        this.BACKUP_DIR = MANAGER_DIR.resolve("backups/").normalize();
+        this.MANIFEST_DIR = MANAGER_DIR.resolve("manifests/").normalize();
     }
 
     /**

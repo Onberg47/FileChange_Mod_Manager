@@ -5,6 +5,8 @@
 
 package core.objects;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,10 +19,8 @@ import core.interfaces.MapSerializable;
  */
 public class ModFile implements MapSerializable {
 
-    private String filePath; // Path of the content file within the Mod
+    private Path filePath; // Path of the content file within the Mod
     private String hash; // SHA-256 stored as a hexadecimal string, of file contents
-    private String originalHash; // Hash of file BEFORE mod (for safe removal)
-    private FileOperation operation; // ADD, REPLACE, DELETE
     private long size = 0; // For info/validation
 
     /**
@@ -29,8 +29,6 @@ public class ModFile implements MapSerializable {
     public enum JsonFields {
         filePath,
         hash,
-        originalHash,
-        operation,
         size
     }
 
@@ -41,10 +39,8 @@ public class ModFile implements MapSerializable {
     }
 
     public ModFile() {
-        this.filePath = "";
+        this.filePath = Path.of("");
         this.hash = "";
-        // this.originalHash = "";
-        // this.operation = FileOperation.ADD;
         this.size = 0;
     }
 
@@ -54,12 +50,10 @@ public class ModFile implements MapSerializable {
      * @param filePath The path of the content file within the Mod.
      * @param hash     The SHA-256 hash of the file contents.
      */
-    public ModFile(String filePath, String hash, long size) {
+    public ModFile(Path filePath, String hash, long size) {
         this();
-        this.filePath = filePath;
+        this.setFilePath(filePath);
         this.hash = hash.toLowerCase();
-        // this.originalHash = hash.toLowerCase();
-        // this.operation = FileOperation.ADD;
         this.size = size;
     }
 
@@ -98,12 +92,16 @@ public class ModFile implements MapSerializable {
 
     /// /// /// Getters and Setters /// /// ///
 
-    public String getFilePath() {
+    public Path getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    public void setFilePath(Path filePath) {
+        this.filePath = filePath != null ? filePath.normalize() : null;
+    }
+
+    public void setFilePath(String filePathStr) {
+        this.filePath = filePathStr != null ? Paths.get(filePathStr).normalize() : null;
     }
 
     public String getHash() {
@@ -112,22 +110,6 @@ public class ModFile implements MapSerializable {
 
     public void setHash(String hash) {
         this.hash = hash.toLowerCase();
-    }
-
-    public String getOriginalHash() {
-        return originalHash;
-    }
-
-    public void setOriginalHash(String originalHash) {
-        this.originalHash = originalHash.toLowerCase();
-    }
-
-    public FileOperation getOperation() {
-        return operation;
-    }
-
-    public void setOperation(FileOperation operation) {
-        this.operation = operation;
     }
 
     public long getSize() {

@@ -58,7 +58,7 @@ public class FileLineage implements MapSerializable {
             ArrayList<HashMap<String, Object>> files = (ArrayList<HashMap<String, Object>>) map
                     .get(keys.stack.toString());
             this.stack.clear();
-            for (HashMap<String, Object> hashMap : files) { // TODO REDO THIS TO ENSURE ORDERING IS CORRECT!
+            for (HashMap<String, Object> hashMap : files) {
                 this.stack.add(new FileVersion().setFromMap(hashMap));
             }
         }
@@ -72,7 +72,7 @@ public class FileLineage implements MapSerializable {
 
         ArrayList<HashMap<String, Object>> arrLs = new ArrayList<>();
         /// Get map of each modFile stored.
-        for (FileVersion tmp : this.getStack()) { // TODO REDO THIS TO ENSURE ORDERING IS CORRECT!
+        for (FileVersion tmp : this.getStack()) {
             arrLs.add((HashMap<String, Object>) tmp.toMap());
         }
         map.put(keys.stack.toString(), arrLs);

@@ -62,7 +62,7 @@ public class ModManager {
      */
     public ModManager(Game game) {
         this.game = game;
-        GAME_ROOT_PATH = Path.of(game.getInstallDirectory());
+        GAME_ROOT_PATH = game.getInstallDirectory();
 
         BACKUP_DIR = config.getBackupDir();
         LINEAGE_DIR = config.getLineageDir();
@@ -118,7 +118,7 @@ public class ModManager {
 
         /// /// 4. Once the Mod is complete, the Mod.JSON file can be created.
         log.logEntry(0, "📦 Writing manifest...");
-        Path storagePath = Path.of(game.getStoreDirectory(), manifest.getId()); // Path where the Mods will be stored.
+        Path storagePath = game.getStoreDirectory().resolve(manifest.getId()); // Path where the Mods will be stored.
 
         try {
             Path path = tempDir.resolve(MANIFEST_DIR.toString(), manifest.getId() + ".json");
@@ -168,7 +168,7 @@ public class ModManager {
     public void deployMod(String modId) throws Exception {
         ModManifest manifest;
         Path tempDir = TEMP_DIR.resolve(modId + "__" + DateUtil.getNumericTimestamp());
-        Path storedDir = Path.of(game.getStoreDirectory(), modId);
+        Path storedDir = game.getStoreDirectory().resolve(modId);
 
         try {
             /// 1. Find the Mod's manifest from it's ID and read it.
@@ -199,15 +199,15 @@ public class ModManager {
             try {
                 log.logEntry(1, "Copying files to temp...");
                 for (ModFile mf : manifest.getContentsArr()) { // Try to copy each file from the Manifest.
-                    copyModFile(storedDir, tempDir, Path.of(mf.getFilePath()), manifest);
+                    copyModFile(storedDir, tempDir, mf.getFilePath(), manifest);
                 }
 
             } catch (FileNotFoundException e) {
-                throw new Exception("Missing File!" + e.getStackTrace(), e);
+                throw new Exception("Missing ModFile: " + e.getMessage(), e);
             } catch (IOException e) {
-                throw new Exception("Failed IO operation!" + e.getMessage(), e);
+                throw new IOException("Failed IO operation on ModFiles: " + e.getMessage(), e);
             } catch (Exception e) {
-                throw new Exception("Failed safe copy operation!" + e.getMessage() + e);
+                throw new Exception("Failed safe copy operation: " + e.getMessage() + e);
             }
 
             /// 3. Copy from temp/{mod_id} to game_root and clean temp.
@@ -285,7 +285,7 @@ public class ModManager {
 
             Path mfPath; // Path of ModFile entry.
             for (ModFile mf : manifest.getContentsArr()) {
-                mfPath = Path.of(mf.getFilePath());
+                mfPath = mf.getFilePath();
                 src = GAME_ROOT_PATH.resolve(mfPath);
                 Path flPath = GAME_ROOT_PATH.resolve(LINEAGE_DIR.resolve(mfPath + ".json"));
                 if (!Files.exists(flPath)) {
@@ -504,21 +504,31 @@ public class ModManager {
             // If the parent directories don't exsist create them.
             // Therefore the file won't exsist so no conflict.
             try {
+                log.logEntry("directory created.", "ModFile directory created: " + targetDir.getFileName());
                 Files.createDirectories(targetDir.getParent());
             } catch (IOException e) {
                 throw new IOException("Failed to create directorie(s): " + targetDir.getParent(), e);
             }
         }
 
-        FileLineage fl; // declare because no matter what we will write/rewrite.
-        ModFile modFile = new ModFile(
-                modFilePath.toString(),
-                HashUtil.computeFileHash(sourceDir.resolve(modFilePath)),
-                Files.size(sourceDir.resolve(modFilePath)));
+        System.out.println("Directories created.");
 
-        Path lineagePath = LINEAGE_DIR.resolve(modFile.getFilePath() + ".json"); // where it should be.
+        FileLineage fl; // declare because no matter what we will write/rewrite.
+        ModFile modFile = new ModFile();
+        try {
+            modFile = new ModFile(
+                    modFilePath,
+                    HashUtil.computeFileHash(sourceDir.resolve(modFilePath)),
+                    Files.size(sourceDir.resolve(modFilePath)));
+        } catch (Exception e) {
+            throw new Exception("Failed to construct ModFile: " + e.getMessage());
+        }
+
+        System.out.println("Lineage path set to: " + LINEAGE_DIR.resolve(modFilePath + ".json"));
+        Path lineagePath = LINEAGE_DIR.resolve(modFilePath + ".json"); // where it should be.
         Boolean copy = false;
 
+        System.out.println("File ready, checking conflicts...");
         if (Files.exists(GAME_ROOT_PATH.resolve(modFilePath))) { // If the file exsists (conflict)
             // create and instance of the exsisting ModFile.
             log.logEntry(1, "⚫ Found file conflict, resolving...");
@@ -536,11 +546,11 @@ public class ModManager {
                     Files.copy(GAME_ROOT_PATH.resolve(modFilePath), backupPath);
                 } catch (IOException e) {
                     // Clarifying that it is the Game File backup copy that has failed.
-                    throw new Exception("Error creating file backup! " + e.getMessage(), e);
+                    throw new IOException("Error creating file backup! " + e.getMessage(), e);
                 }
                 // Setup lineage
                 fl = new FileLineage(
-                        new ModFile(modFilePath.toString(),
+                        new ModFile(modFilePath,
                                 HashUtil.computeFileHash(sourceDir.resolve(modFilePath)),
                                 Files.size(sourceDir.resolve(modFilePath))),
                         FileVersion.GAME_OWNER); // initialize with Game Version
@@ -571,16 +581,16 @@ public class ModManager {
 
                         // This is a fallback check to handle when a mod is re-deployed after it's load
                         // order has been reduced.
-                        if (!HashUtil.verifyFileIntegrity(Path.of(game.getInstallDirectory()).resolve(modFilePath),
+                        if (!HashUtil.verifyFileIntegrity(game.getInstallDirectory().resolve(modFilePath),
                                 fl.getStack().peek().getHash())) {
                             log.logWarning(2, "File is not what owner expects! Repairing...", null);
                             try {
                                 Files.copy(
-                                        Path.of(game.getStoreDirectory()).resolve(fl.getStack().peek().getModId(),
+                                        game.getStoreDirectory().resolve(fl.getStack().peek().getModId(),
                                                 modFilePath.toString()),
                                         targetDir.resolve(modFilePath));
                             } catch (IOException e) {
-                                throw new Exception("Failed to restore file from owner.", e);
+                                throw new IOException("Failed to restore file from owner.", e);
                             }
                         }
                     }
@@ -627,7 +637,7 @@ public class ModManager {
      * @throws IOException           File IO errors.
      * @throws Exception             A process error
      */
-    private void restoreBackup(String modFilePath) throws Exception {
+    private void restoreBackup(Path modFilePath) throws Exception {
         Path backup = GAME_ROOT_PATH.resolve(BACKUP_DIR.resolve(modFilePath + ".backup"));
         Path gameModFile = GAME_ROOT_PATH.resolve(modFilePath);
 
@@ -657,8 +667,8 @@ public class ModManager {
      * @param modFilePath ModFile path in manifest to fetch.
      * @throws Exception Throws is Mod Storage file or manifest is missing.
      */
-    private void restoreFromStorage(String modId, String modFilePath) throws Exception {
-        Path source = Path.of(game.getStoreDirectory(), modId, modFilePath);
+    private void restoreFromStorage(String modId, Path modFilePath) throws Exception {
+        Path source = game.getStoreDirectory().resolve(modId, modFilePath.toString());
         if (!Files.exists(source)) {
             throw new FileNotFoundException(
                     "Source file in storage not found: " + source.toString());
@@ -761,7 +771,7 @@ public class ModManager {
      */
     public Mod getModById(String modId) throws Exception {
         Mod mod = new Mod();
-        Path path = Path.of(game.getStoreDirectory(), modId).resolve(MANIFEST_DIR.toString(), modId + ".json");
+        Path path = game.getStoreDirectory().resolve(modId, MANIFEST_DIR.toString(), modId + ".json");
 
         try {
             mod = (Mod) JsonIO.read(
@@ -784,7 +794,7 @@ public class ModManager {
      */
     public ModManifest getModManifestById(String modId) throws Exception {
         ModManifest mod = new ModManifest();
-        Path path = Path.of(game.getStoreDirectory(), modId).resolve(MANIFEST_DIR.toString(), modId + ".json");
+        Path path = game.getStoreDirectory().resolve(modId, MANIFEST_DIR.toString(), modId + ".json");
 
         try {
             mod = (ModManifest) JsonIO.read(

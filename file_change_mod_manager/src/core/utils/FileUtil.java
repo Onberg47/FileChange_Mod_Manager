@@ -89,7 +89,7 @@ public class FileUtil {
                     if (Files.isRegularFile(path)) {
                         // Create ModFile for regular file
                         ModFile modFile = new ModFile(
-                                relative.relativize(path).toString(),
+                                relative.relativize(path),
                                 HashUtil.computeFileHash(path),
                                 Files.size(path));
                         log.logEntry(0,
@@ -135,7 +135,7 @@ public class FileUtil {
     public static String printGameState(Game game) throws Exception {
         Path managerPath = config.getManagerDir();
         GameState gState;
-        Path GsPath = Path.of(game.getInstallDirectory(), managerPath.toString(), GameState.FILE_NAME);
+        Path GsPath = game.getInstallDirectory().resolve(managerPath.toString(), GameState.FILE_NAME);
 
         if (!Files.exists(GsPath))
             throw new Exception("No mods installed, could not find " + GameState.FILE_NAME);
@@ -162,7 +162,7 @@ public class FileUtil {
         Path manifestPath = config.getManifestDir();
         StringBuilder sb = new StringBuilder();
 
-        Path GsPath = Path.of(game.getInstallDirectory(), config.getManagerDir().toString(), GameState.FILE_NAME);
+        Path GsPath = game.getInstallDirectory().resolve(config.getManagerDir().toString(), GameState.FILE_NAME);
         GameState gState;
         if (!Files.exists(GsPath))
             log.logWarning("No mods installed, could not find " + GameState.FILE_NAME, null);
@@ -178,7 +178,7 @@ public class FileUtil {
         } else
             sb.append("📦 Non-deployed only Mods:\n\t Game: " + game.getName());
 
-        Path storeDir = Path.of(game.getStoreDirectory());
+        Path storeDir = game.getStoreDirectory();
 
         if (!Files.exists(storeDir)) {
             log.logWarning("Could not find: " + storeDir.toString(), null);
@@ -231,20 +231,18 @@ public class FileUtil {
 
         Path gameDir = config.getGameDir();
         try (Stream<Path> paths = Files.list(gameDir)) {
-            // List<ModFile> list = new java.util.ArrayList<ModFile>();
+            log.logEntry(null, ("Files detected: " + Files.list(gameDir)));
 
             for (Path path : (Iterable<Path>) paths::iterator) {
                 // Process each file
-
                 if (Files.isRegularFile(path)) {
                     try {
                         Game game = (Game) JsonIO.read(
                                 path.toFile(),
                                 MapSerializable.ObjectTypes.GAME);
-
                         sb.append("\n\t\t⚪ " + game.getName() + " [id: " + game.getId() + "]");
-
                     } catch (InvalidObjectException e) {
+                        log.logEntry(null, "File was not a Game.");
                         // Just skips silently. Other errors are caught outside to stop process.
                     }
                 }

@@ -42,8 +42,11 @@ import core.utils.HashUtil;
 @SuppressWarnings("unused")
 public class JsonTest {
 
-    public static final Game game = new Game("game_1", "0.0.0", "Test Game", "tst_fs/game_root",
-            "mod_manager/mod_storage/game_1");
+    public static final Game game = new Game("game_1",
+            "0.0.0",
+            "Test Game",
+            Path.of("tst_fs/game_root"),
+            Path.of("mod_manager/mod_storage/game_1"));
 
     public static void main(String[] args) throws Exception {
 
@@ -52,8 +55,8 @@ public class JsonTest {
         mod.setLoadOrder(3);
         mod.setDownloadSource("steam workshop");
         mod.setDescription("A mod for testing purposes.");
-        mod.addFile(new ModFile("data/test.txt", "abc123", 111));
-        mod.addFile(new ModFile("data/test_img.png", "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
+        mod.addFile(new ModFile(Path.of("data/test.txt"), "abc123", 111));
+        mod.addFile(new ModFile(Path.of("data/test_img.png"), "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
         // System.out.println(mod.toString());
 
         // sampleModTest();
@@ -80,7 +83,7 @@ public class JsonTest {
             }
         }
         temp.getStack().insertElementAt(new FileVersion("x", "23121321"), insertIndex);
-        
+
         System.out.println("Test Push: " + temp.toString() + "\nPeek: " + temp.peek().toString());
         System.out.println("Insert at: " + (temp.getStack().size() - 1 - insertIndex)); // make it so 0 is top.
 
@@ -112,13 +115,13 @@ public class JsonTest {
         // Create a sample Mod with multiple files
         ModManifest sampleMod = new ModManifest(game.getId(), "local", "Sample Mod");
         sampleMod.setDescription("This is a sample mod for testing the Mod JSON creation.");
-        sampleMod.addFile(new ModFile("example_file_1.txt", "checksum1", 111));
-        sampleMod.addFile(new ModFile("data/example_file_2.txt", "checksum2", 222));
-        sampleMod.addFile(new ModFile("data/example_file_3.txt", "checksum3", 333));
+        sampleMod.addFile(new ModFile(Path.of("example_file_1.txt"), "checksum1", 111));
+        sampleMod.addFile(new ModFile(Path.of("data/example_file_2.txt"), "checksum2", 222));
+        sampleMod.addFile(new ModFile(Path.of("data/example_file_3.txt"), "checksum3", 333));
 
         @SuppressWarnings("unused")
         ModManager modManager = new ModManager(game);
-        Path storagePath = Path.of(game.getStoreDirectory(), sampleMod.getId());
+        Path storagePath = game.getStoreDirectory().resolve(sampleMod.getId());
 
         try {
             // Write to JSON
@@ -144,11 +147,11 @@ public class JsonTest {
         mod.setVersion("2.0");
         mod.setDownloadSource("steam workshop");
         mod.setDescription("A mod for testing purposes.");
-        mod.addFile(new ModFile("data/test.txt", "abc123", 111));
-        mod.addFile(new ModFile("data/test_img.png", "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
+        mod.addFile(new ModFile(Path.of("data/test.txt"), "abc123", 111));
+        mod.addFile(new ModFile(Path.of("data/test_img.png"), "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
 
         Path tempDir = Path.of("mod_manager/.temp/", "mod_a");
-        Path storagePath = Path.of(game.getStoreDirectory(), mod.getId());
+        Path storagePath = game.getStoreDirectory().resolve(mod.getId());
 
         try {
             if (Files.exists(storagePath)) {
