@@ -1,0 +1,73 @@
+JFDML JFormDesigner: "8.2.2.0.382" Java: "21.0.2" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq {space :p::p, par l {comp utilityPanel:::::x, seq l {par t:::p {comp filterStatusLabel:::::x, comp filterNameLabel::t:::x}, space :p::p, par l {comp filterStatusComboBox:::p::p, comp filterNameTextField::::1096:x}}, seq l {comp filterTagsLabel:::p:86:p, space :::p, comp filterTagsTextField:::::x}, comp modCardScrollPane::l:::x}, space :p::p}}"
+			"$verticalGroup": "par l {seq l {space :::p, comp utilityPanel:::p::p, space s:::p, par b {comp filterStatusComboBox::b:p::p, comp filterStatusLabel::b:p:25:p}, space :::p, par b {comp filterNameTextField::b:p::p, comp filterNameLabel::b:p:25:p}, space :::p, par b {comp filterTagsLabel::b:p::p, comp filterTagsTextField::b:p::p}, space u:::p, comp modCardScrollPane::::619:x, space :::p}}"
+		} ) {
+			name: "panel1"
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+				"$horizontalGroup": "par l {seq l {space :::p, comp ApplyButton:::p::p, space :::p, comp separator2:::p:30:p, space :::p, comp compileNewButton:::p::p, space ::831:x, comp separator1:::p:30:p, space :::p, comp goBackButton:::p::p, space :::p}}"
+				"$verticalGroup": "par l {seq t {space :::p, par t {comp separator2::l::36:x, par b:l {comp separator1::t::36:x, comp goBackButton::l:::x, comp ApplyButton::b::36:x}, comp compileNewButton::l::36:x}, space :::p}}"
+			} ) {
+				name: "utilityPanel"
+				"border": new javax.swing.border.BevelBorder( 1, null, null, null, null )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "ApplyButton"
+					"text": "Apply"
+					"toolTipText": "Apply the current mod layout"
+				} )
+				add( new FormComponent( "javax.swing.JSeparator" ) {
+					name: "separator1"
+					"orientation": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "goBackButton"
+					"text": "Go Back"
+					"toolTipText": "Page back"
+				} )
+				add( new FormComponent( "javax.swing.JSeparator" ) {
+					name: "separator2"
+					"orientation": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "compileNewButton"
+					"text": "Compile New"
+					"toolTipText": "Go to compile new mod"
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "modCardScrollPane"
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "filterNameTextField"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "filterNameLabel"
+				"text": "Search Name:"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "filterStatusLabel"
+				"text": "Status:"
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "filterStatusComboBox"
+				"maximumRowCount": 6
+				"prototypeDisplayValue": "disabled"
+				"toolTipText": "Filter mod status"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "filterTagsLabel"
+				"text": "Search Tags:"
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "filterTagsTextField"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 1200, 800 )
+		} )
+	}
+}

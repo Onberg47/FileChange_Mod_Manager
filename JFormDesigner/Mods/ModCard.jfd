@@ -1,0 +1,73 @@
+JFDML JFormDesigner: "8.2.2.0.382" Java: "21.0.2" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {space :::p, par l:::p {comp deployToggleButton:::::x, comp loadOrderSpinner:::::x}, space u:::p, comp DraggingLabel:::p::p, space u:::p, par l {comp modDescriptionTextPane::::781:x, comp modTitleLabel::::781:x}, space :::p, par l:::p {comp sourceFormattedTextField:::::x, comp editButton:::::x}, space :::p}}"
+			"$verticalGroup": "par l {seq t {par t {seq l {space :p:5:p, par l {comp editButton:::::x, comp modTitleLabel:::p:25:p}, space :::p, par l {comp sourceFormattedTextField:::::x, comp modDescriptionTextPane:::::x}}, seq l {space :::p, par l {comp DraggingLabel:::::x, seq {comp deployToggleButton:::p::p, space :::p, comp loadOrderSpinner::::0:x}}}}, space :::p}}"
+		} ) {
+			name: "this"
+			"preferredSize": new java.awt.Dimension( 1000, 120 )
+			"border": new javax.swing.border.CompoundBorder( new javax.swing.border.EmptyBorder( 2, 2, 2, 2 ), new javax.swing.border.LineBorder( sfield java.awt.Color green, 1, true ) )
+			add( new FormComponent( "javax.swing.JSpinner" ) {
+				name: "loadOrderSpinner"
+				"preferredSize": new java.awt.Dimension( 45, 80 )
+				"minimumSize": new java.awt.Dimension( 42, 60 )
+				"font": new java.awt.Font( "Noto Sans", 0, 14 )
+				"toolTipText": "Adjust load order"
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "modTitleLabel"
+				"text": "mod name"
+				"font": new java.awt.Font( "Noto Sans", 1, 14 )
+			} )
+			add( new FormComponent( "javax.swing.JTextPane" ) {
+				name: "modDescriptionTextPane"
+				"text": "description of the mod goes here... This should be able to display lenthy lines that just yap on and on..."
+			} )
+			add( new FormComponent( "javax.swing.JFormattedTextField" ) {
+				name: "sourceFormattedTextField"
+				"text": "download source"
+				"editable": false
+				"horizontalAlignment": 0
+				"toolTipText": "Click to follow link {URL}"
+				"font": new java.awt.Font( "Noto Sans", 2, 13 )
+				"requestFocusEnabled": false
+				"preferredSize": new java.awt.Dimension( 90, 76 )
+				"minimumSize": new java.awt.Dimension( 90, 76 )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "editButton"
+				"text": "edit"
+				"toolTipText": "Edit mod"
+			} )
+			add( new FormComponent( "javax.swing.JToggleButton" ) {
+				name: "deployToggleButton"
+				"text": "enable"
+				"font": new java.awt.Font( "Noto Sans", 0, 12 )
+				"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, true )
+				"minimumSize": new java.awt.Dimension( 50, 20 )
+				"maximumSize": new java.awt.Dimension( 60, 30 )
+				"toolTipText": "Toggle enabled"
+				"preferredSize": new java.awt.Dimension( 50, 25 )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "DraggingLabel"
+				"text": "⋮"
+				"horizontalAlignment": 0
+				"border": new javax.swing.border.BevelBorder( 0, null, null, null, null )
+				"toolTipText": "Drag to reorder"
+				"enabled": false
+				"cursor": new java.awt.Cursor( 12 )
+				"preferredSize": new java.awt.Dimension( 35, 106 )
+				"minimumSize": new java.awt.Dimension( 20, 20 )
+				"maximumSize": new java.awt.Dimension( 40, 150 )
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "DraggingLabelMouseClicked", true ) )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 1000, 120 )
+		} )
+	}
+}

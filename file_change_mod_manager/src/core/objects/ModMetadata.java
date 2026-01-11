@@ -3,6 +3,7 @@ package core.objects;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import core.interfaces.MapSerializable;
 
@@ -25,6 +26,8 @@ public abstract class ModMetadata implements MapSerializable {
 
     protected LocalDateTime downloadDate; // Used for update checks.
     protected String downloadLink;
+
+    protected Set<String> tagSet;
 
     private Boolean forceIdUpdate = false; // When true the ID will be regenerated on get(Id)
 
@@ -267,6 +270,10 @@ public abstract class ModMetadata implements MapSerializable {
 
     public void setDownloadLink(String downloadLink) {
         this.downloadLink = downloadLink;
+    }
+
+    public Set<String> getTagSet(){
+        return this.tagSet;
     }
 
     /// /// /// Methods /// /// ///

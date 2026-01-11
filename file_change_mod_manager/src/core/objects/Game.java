@@ -101,8 +101,8 @@ public class Game implements MapSerializable {
         map.put(Keys.id.toString(), this.getId());
         map.put(Keys.name.toString(), this.getName());
         map.put(Keys.releaseVersion.toString(), this.getReleaseVersion());
-        map.put(Keys.installDirectory.toString(), this.getInstallDirectory());
-        map.put(Keys.storeDirectory.toString(), this.getStoreDirectory());
+        map.put(Keys.installDirectory.toString(), this.getInstallDirectory().toAbsolutePath().toString());
+        map.put(Keys.storeDirectory.toString(), this.getStoreDirectory().toAbsolutePath().toString());
 
         return map;
     } // toMap()

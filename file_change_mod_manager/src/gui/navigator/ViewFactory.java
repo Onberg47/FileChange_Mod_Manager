@@ -31,12 +31,13 @@ public class ViewFactory {
         navigator.registerView("editGame", params -> new EditGameView(navigator, params));
 
         /// Mods
-        //navigator.registerView("modManager", params -> new ModManagerView(navigator, params));
-        //navigator.registerView("editMod", params -> new EditModView(navigator, params));
+        navigator.registerView("modManager", params -> new ModManagerView(navigator, params));
         //navigator.registerView("compileMod", params -> new CompileModView(navigator, params));
+        //navigator.registerView("editMod", params -> new EditModView(navigator, params));
 
         /// Other
-        //navigator.registerView("settings", params -> new SettingsView(navigator, params));
+        // navigator.registerView("settings", params -> new SettingsView(navigator,
+        // params));
 
         // Add more views as needed
     }

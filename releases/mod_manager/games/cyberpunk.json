@@ -1,7 +1,1 @@
-{
-    "name": "CyberPunk 2077",
-    "ObjectType": "Game",
-    "installPath": "D:\\SteamLibrary\\steamapps\\common\\Cyberpunk 2077\\",
-    "modsPath": "E:\\Mods\\#_FCMM\\cyberpunk\\",
-    "id": "cyberpunk"
-}
+{"name":"CyberPunk 2077","ObjectType":"Game","id":"cyberpunk","releaseVersion":"19999047","storeDirectory":"E:\\Mods\\#_FCMM\\cyberpunk","installDirectory":"D:\\SteamLibrary\\steamapps\\common\\Cyberpunk 2077"}

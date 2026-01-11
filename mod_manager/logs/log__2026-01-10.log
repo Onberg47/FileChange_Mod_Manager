@@ -1,0 +1,15 @@
+Log file created at: Jan 10, 2026 5:57 pm
+Current configuration
+	Version: 2.2
+Manager:
+	Game data dir   : mod_manager/games
+	Temp dir        : mod_manager/.temp
+	Trash dir       : mod_manager/.temp/trash
+	logging dir     : mod_manager/logs
+Game Structure:
+	Manager data dir : .mod_manager
+
+========================
+Program started logging...
+[Jan 10, 2026 5:57 pm] - [Info] : Writing JSON file for Game GhostRecon
+[Jan 10, 2026 5:57 pm] - [Info] : 📦 Game written.

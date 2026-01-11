@@ -83,7 +83,7 @@ public class ModFile implements MapSerializable {
     public Map<String, Object> toMap() {
         HashMap<String, Object> map = new HashMap<>();
 
-        map.put(JsonFields.filePath.toString(), this.getFilePath());
+        map.put(JsonFields.filePath.toString(), this.getFilePath().toString());
         map.put(JsonFields.hash.toString(), this.getHash());
         map.put(JsonFields.size.toString(), this.getSize());
 

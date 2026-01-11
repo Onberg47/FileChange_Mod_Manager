@@ -15,6 +15,8 @@ import java.util.Map;
  */
 public class Mod extends ModMetadata {
 
+    private Boolean enabled;
+
     /**
      * Empty constructor for Mod.
      */
@@ -70,6 +72,16 @@ public class Mod extends ModMetadata {
     public HashMap<String, Object> toMap() {
         return super.toMap();
     } // toMap()
+
+    /// /// /// Getters and Setters /// /// ///
+
+    public Boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 
     /// /// /// Methods /// /// ///
 

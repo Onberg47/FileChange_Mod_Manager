@@ -1,0 +1,26 @@
+JFDML JFormDesigner: "8.2.2.0.382" Java: "21.0.2" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {space :::p, comp modTitleLabel::::986:x, space :::p}}"
+			"$verticalGroup": "par l {seq t {space :::p, comp modTitleLabel::::86:x, space :::p}}"
+		} ) {
+			name: "this"
+			"preferredSize": new java.awt.Dimension( 1000, 120 )
+			"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, true )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "modTitleLabel"
+				"text": "Disabled Mods"
+				"font": new java.awt.Font( "Noto Sans", 1, 16 )
+				"horizontalAlignment": 0
+				"border": new javax.swing.border.CompoundBorder( new javax.swing.border.BevelBorder( 1, null, null, null, null ), new javax.swing.border.CompoundBorder( new javax.swing.border.LineBorder( sfield java.awt.Color green, 6, false ), new javax.swing.border.BevelBorder( 0, null, null, null, null ) ) )
+				"toolTipText": "Divider"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 1000, 100 )
+		} )
+	}
+}

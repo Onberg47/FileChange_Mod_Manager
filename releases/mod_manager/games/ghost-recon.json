@@ -1,7 +1,1 @@
-{
-    "name": "Ghost Recon BreakPoint",
-    "ObjectType": "Game",
-    "installPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Ghost Recon Breakpoint\\Extracted\\",
-    "modsPath": "E:\\Mods\\#_FCMM\\ghost-recon\\",
-    "id": "ghost-recon"
-}
+{"name":"Ghost Recon BreakPoint","ObjectType":"Game","id":"ghost-recon","releaseVersion":"12284183","storeDirectory":"E:\\Mods\\#_FCMM\\ghost-recon","installDirectory":"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Ghost Recon Breakpoint\\Extracted"}

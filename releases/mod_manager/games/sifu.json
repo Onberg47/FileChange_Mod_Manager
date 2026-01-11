@@ -1,7 +1,1 @@
-{
-    "installPath": "D:\\SteamLibrary\\steamapps\\common\\Sifu\\Sifu\\Content\\Paks\\~mods\\",
-    "ObjectType": "Game",
-    "name": "Sifu",
-    "id": "sifu",
-    "modsPath": "E:\\Mods\\#_FCMM\\sifu\\"
-}
+{"name":"Sifu","ObjectType":"Game","id":"sifu","releaseVersion":"18739835","storeDirectory":"E:\\Mods\\#_FCMM\\sifu","installDirectory":"D:\\SteamLibrary\\steamapps\\common\\Sifu\\Sifu\\Content\\Paks\\~mods"}

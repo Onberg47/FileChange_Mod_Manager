@@ -45,6 +45,7 @@ public class ModManager {
     private Game game;
     private final Path GAME_ROOT_PATH; // Path to the Game_Root directory where mods are deployed.
     // (cannot be determined prior to constuctor but is final.)
+    // private final GameStateManager stateManager;
 
     // Comes from config.
     private final Path MANAGER_DIR;
@@ -63,6 +64,8 @@ public class ModManager {
     public ModManager(Game game) {
         this.game = game;
         GAME_ROOT_PATH = game.getInstallDirectory();
+
+        // stateManager = new GameStateManager(game);
 
         BACKUP_DIR = config.getBackupDir();
         LINEAGE_DIR = config.getLineageDir();
@@ -414,24 +417,36 @@ public class ModManager {
      * @throws Exception Allows fatal throws from deployMod() to propagate.
      */
     public void deployGameState(Path gameStatePath) throws Exception {
+        log.logEntry(0, "Reading GameState from Path...");
+
         if (!Files.exists(gameStatePath)) {
             throw new Exception("GameState file does not exsist! " + gameStatePath);
         }
-
         GameState gState = new GameState();
         try {
             // gState = GameStateIO.read(gameStatePath.toFile());
             gState = (GameState) JsonIO.read(gameStatePath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
             gState.sortDeployedMods();
 
-            for (Mod mod : gState.getDeployedMods()) {
-                deployMod(mod.getId());
-            } // for each Mod
+            this.deployGameState(gState);
 
         } catch (NullPointerException e) {
             log.logWarning("Nothing to do, GameState has no Mods.", e);
             return;
         }
+    }
+
+    public void deployGameState(GameState gState) throws Exception {
+        log.logEntry("Starting to deploying GameState...");
+
+        // TODO Add more complex checking to only remove mods not in the GameState.
+        trashAll();
+
+        for (Mod mod : gState.getDeployedMods()) {
+            deployMod(mod.getId());
+        } // for each Mod
+
+        log.logEntry(0, "Done deploying GameState.");
     } // deployGameState()
 
     /**
@@ -677,7 +692,7 @@ public class ModManager {
     } // restoreFromManifest()
 
     // #endregion
-    /// /// /// Helpers /// /// ///
+    /// /// /// GameState /// /// ///
     // #region
 
     /**
@@ -710,7 +725,7 @@ public class ModManager {
      * @param mod Target Mod
      * @throws Exception Any Fatal error.
      */
-    public void gameStateRemoveMod(Mod mod) throws Exception {
+    private void gameStateRemoveMod(Mod mod) throws Exception {
         GameState gState;
         Path GsPath = GAME_ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
 
