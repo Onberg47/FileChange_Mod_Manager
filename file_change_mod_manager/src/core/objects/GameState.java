@@ -4,6 +4,8 @@
 */
 package core.objects;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,8 +13,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import core.interfaces.MapSerializable;
+import core.io.JsonIO;
 import core.utils.Logger;
 
 /**
@@ -33,6 +37,7 @@ public class GameState implements MapSerializable {
      */
     public static final String FILE_NAME = "game_state.json";
 
+    // fields
     private LocalDateTime lastModified;
     private List<Mod> deployedMods;
 
@@ -107,7 +112,60 @@ public class GameState implements MapSerializable {
 
     public void setDeployedMods(List<Mod> deployedMods) {
         this.deployedMods = deployedMods;
+        this.updateModified();
     }
+
+    /**
+     * Set the deployed Mods from a pre-sorted List by LoadOrder. This will update
+     * the loadOrder values of each Mod.
+     * 
+     * @param deployedMods List<Mod> pre-sorted.
+     */
+    public void setOrderedMods(List<Mod> deployedMods) {
+        this.deployedMods = deployedMods;
+
+        // set the load order of each mod to match it's position in the List
+        IntStream.range(0, deployedMods.size())
+                .forEach(index -> deployedMods.get(index).setLoadOrder(index));
+
+        // If I want to keep reading the Manifests for loadOrder, then all manifests
+        // must be updated here. Instead, using GameState to avoid that and reduce
+        // overhead for FileLineage checking
+        this.updateModified();
+    }
+
+    /// /// /// File I/O Methods /// /// ///
+
+    /**
+     * 
+     * @param filePath
+     * @return
+     * @throws Exception
+     */
+    public static GameState loadFromFile(Path filePath) throws Exception {
+        Logger.getInstance().logEntry("Loading GameState from: " + filePath);
+        return (GameState) JsonIO.read(filePath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
+    }
+
+    /**
+     * Saves the current GameState to a JSON file.
+     * 
+     * @param filePath
+     * @throws Exception
+     */
+    public void saveToFile(Path filePath) throws Exception {
+        Logger.getInstance().logEntry("Saving GameState to: " + filePath);
+        try {
+            // If removed Mod was last, delete file.
+            if (this.deployedMods.isEmpty())
+                Files.delete(filePath);
+            else
+                JsonIO.write(this, filePath.toFile());
+
+        } catch (Exception e) {
+            throw new Exception("Failed to remove Mod from GameState.", e);
+        }
+    } // saveToFile()
 
     /// /// /// Methods /// /// ///
 
@@ -204,6 +262,34 @@ public class GameState implements MapSerializable {
     } // sortDeployedMods()
 
     /**
+     * Checks if a Mod with the given Id is within the GameState's deployed mods.
+     * 
+     * @param modId
+     * @return
+     */
+    public Boolean containsMod(String modId) {
+        for (Mod mod : deployedMods) {
+            if (mod.getId().equals(modId))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Reads the LoadOrder of the modId from within the GameState.
+     * 
+     * @param modId modId to find.
+     * @return The load order of the mod or -404 if the mod was not found.
+     */
+    public int getLoadOrder(String modId) {
+        for (Mod mod : deployedMods) {
+            if (mod.getId().equals(modId))
+                return mod.getLoadOrder();
+        }
+        return -404;
+    }
+
+    /**
      * Creates a String for printing a single-line display of each mod in the
      * GameState.
      * For CLI use.
@@ -216,22 +302,6 @@ public class GameState implements MapSerializable {
             sb.append("\n\t\t⚫ " + mod.printLite());
         }
         return sb.toString();
-    }
-
-    /// /// /// Public Utils /// /// ///
-
-    /**
-     * Checks if a Mod with the given Id is within the GameState's deployed mods.
-     * 
-     * @param modId
-     * @return
-     */
-    public Boolean containsMod(String modId) {
-        for (Mod mod : deployedMods) {
-            if (mod.getId().equals(modId))
-                return true;
-        }
-        return false;
     }
 
     @Override

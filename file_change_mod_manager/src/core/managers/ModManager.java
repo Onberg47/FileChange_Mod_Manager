@@ -42,10 +42,9 @@ public class ModManager {
     private AppConfig config = AppConfig.getInstance();
     private static Logger log = Logger.getInstance();
 
-    private Game game;
     private final Path GAME_ROOT_PATH; // Path to the Game_Root directory where mods are deployed.
-    // (cannot be determined prior to constuctor but is final.)
-    // private final GameStateManager stateManager;
+    private Game game;
+    private GameState gameState;
 
     // Comes from config.
     private final Path MANAGER_DIR;
@@ -65,14 +64,19 @@ public class ModManager {
         this.game = game;
         GAME_ROOT_PATH = game.getInstallDirectory();
 
-        // stateManager = new GameStateManager(game);
-
         BACKUP_DIR = config.getBackupDir();
         LINEAGE_DIR = config.getLineageDir();
         MANAGER_DIR = config.getManagerDir();
         MANIFEST_DIR = config.getManifestDir();
         TEMP_DIR = config.getTempDir();
         TRASH_DIR = config.getTrashDir();
+
+        try {
+            gameState = GameState.loadFromFile(GAME_ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME));
+        } catch (Exception e) {
+            gameState = new GameState();
+            log.logWarning("Could not find GameState. Creating a new one.", e);
+        }
     } // Constructor
 
     /// /// /// Core Methods /// /// ///
@@ -109,7 +113,6 @@ public class ModManager {
         try {
             manifest.setFromMap(metaMap);
         } catch (Exception e) {
-            // System.err.println("❌ Fatal Error: " + e.getMessage());
             throw new Exception("Failed to pricess meta data.", e);
         }
         manifest.generateModId(); // Can only create an id once required fields are collected.
@@ -226,22 +229,11 @@ public class ModManager {
             }
 
             /// 4. Add to GameState
-            this.gameStateAddMod(manifest.getAsMod());
+            this.gameState.appendModOnly(manifest.getAsMod());
+            this.gameState.saveToFile(GAME_ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME));
 
         } catch (Exception e) {
             throw new Exception("Fatal Error!\n" + e.getMessage() + "\nTemp files remain for review/recovery.", e);
-            /*
-             * //Not cleaning to allow debugging
-             * if (Files.exists(tempDir))
-             * try {
-             * System.err.println("Cleaning temp/...");
-             * FileUtil.deleteDirectory(tempDir);
-             * System.err.println("temp/ Cleaning completed.");
-             * } catch (IOException f) {
-             * System.err.println("❌ ERROR! Failed to clean temp." + f);
-             * e.printStackTrace();
-             * }
-             */
         }
     } // deployMod()
 
@@ -257,8 +249,6 @@ public class ModManager {
         /// /// 1. Find the Mod's manifest from it's ID and read it.
         ModManifest manifest;
         Path manifestPath = MANIFEST_DIR.resolve(modId + ".json");
-
-        // Create directories in Trash.
         try {
             manifest = (ModManifest) JsonIO.read(GAME_ROOT_PATH.resolve(manifestPath).toFile(),
                     MapSerializable.ObjectTypes.MOD_MANIFEST);
@@ -387,7 +377,9 @@ public class ModManager {
             Files.move(GAME_ROOT_PATH.resolve(manifestPath), targetDir.resolve(manifestPath));
 
             /// /// 3. Remove Mod from GameState
-            this.gameStateRemoveMod(manifest.getAsMod());
+            // this.gameStateRemoveMod(manifest.getAsMod()); // TODO
+            gameState.removeMod(manifest.getAsMod());
+            gameState.saveToFile(GAME_ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME));
 
             // clean the .manifest/ if it's empty.
             FileUtil.cleanDirectories(GAME_ROOT_PATH, MANIFEST_DIR);
@@ -404,7 +396,7 @@ public class ModManager {
         }
     } // trashMod()
 
-    ///
+    /// /// /// Core Method users /// /// ///
 
     public void reorderMod(String modId, int order) throws Exception {
         // TODO can just re-deploy without needing to trash
@@ -525,9 +517,6 @@ public class ModManager {
                 throw new IOException("Failed to create directorie(s): " + targetDir.getParent(), e);
             }
         }
-
-        System.out.println("Directories created.");
-
         FileLineage fl; // declare because no matter what we will write/rewrite.
         ModFile modFile = new ModFile();
         try {
@@ -539,11 +528,8 @@ public class ModManager {
             throw new Exception("Failed to construct ModFile: " + e.getMessage());
         }
 
-        System.out.println("Lineage path set to: " + LINEAGE_DIR.resolve(modFilePath + ".json"));
         Path lineagePath = LINEAGE_DIR.resolve(modFilePath + ".json"); // where it should be.
         Boolean copy = false;
-
-        System.out.println("File ready, checking conflicts...");
         if (Files.exists(GAME_ROOT_PATH.resolve(modFilePath))) { // If the file exsists (conflict)
             // create and instance of the exsisting ModFile.
             log.logEntry(1, "⚫ Found file conflict, resolving...");
@@ -582,8 +568,7 @@ public class ModManager {
                         MapSerializable.ObjectTypes.FILE_LINEAGE);
 
                 try {
-                    if (fl.insertOrderedVersion(new FileVersion(modId, modFile.getHash()),
-                            GAME_ROOT_PATH.resolve(MANIFEST_DIR), loadOrder) == 0) {
+                    if (fl.insertOrderedVersion(new FileVersion(modId, modFile.getHash()), gameState, loadOrder) == 0) {
                         // If it was top:
                         // COPY
                         copy = true;
@@ -690,61 +675,6 @@ public class ModManager {
         }
         Files.copy(source, GAME_ROOT_PATH.resolve(modFilePath), StandardCopyOption.REPLACE_EXISTING);
     } // restoreFromManifest()
-
-    // #endregion
-    /// /// /// GameState /// /// ///
-    // #region
-
-    /**
-     * Adds target Mod to the GameState's deployed Mods. Will create it if missing
-     * but warns in case of FilePath error.
-     * 
-     * @param mod Target Mod
-     * @throws Exception Any Fatal error.
-     */
-    private void gameStateAddMod(Mod mod) throws Exception {
-        GameState gState;
-        Path GsPath = GAME_ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
-        try {
-            if (Files.exists(GsPath))
-                gState = (GameState) JsonIO.read(GsPath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
-            else
-                gState = new GameState();
-            gState.appendModOnly(mod); // Will ensure no duplicates occur
-
-            JsonIO.write(gState, GsPath.toFile());
-        } catch (Exception e) {
-            throw new Exception("Failed to add Mod to GameState", e);
-        }
-    } // addMod()
-
-    /**
-     * Removes the target Mod from the GameState's deployed Mods. Will remove the
-     * file if no mods are left.
-     * 
-     * @param mod Target Mod
-     * @throws Exception Any Fatal error.
-     */
-    private void gameStateRemoveMod(Mod mod) throws Exception {
-        GameState gState;
-        Path GsPath = GAME_ROOT_PATH.resolve(MANAGER_DIR.toString(), GameState.FILE_NAME);
-
-        if (!Files.exists(GsPath))
-            throw new FileNotFoundException("File for GameState is missing!");
-        try {
-            gState = (GameState) JsonIO.read(GsPath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
-            gState.removeMod(mod);
-
-            // If removed Mod was last, delete file.
-            if (gState.getDeployedMods().isEmpty())
-                Files.delete(GsPath);
-            else
-                JsonIO.write(gState, GsPath.toFile());
-
-        } catch (Exception e) {
-            throw new Exception("Failed to remove Mod from GameState", e);
-        }
-    } // removeMod()
 
     // #endregion
     /// /// /// Public Helpers /// /// ///

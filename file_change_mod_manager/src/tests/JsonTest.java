@@ -62,31 +62,25 @@ public class JsonTest {
         // sampleModTest();
         // moveFromTempTest();
 
-        ModManager modManager = new ModManager(game);
-        GameManager gm = new GameManager();
+        //ModManager modManager = new ModManager(game);
+        //GameManager gm = new GameManager();
 
         /// Test something...
 
         // Path path = Path.of("file_change_mod_manager/src/tests/files/manifest.json");
-        Path path = Path.of("file_change_mod_manager/src/tests/files/fileLineage.json");
         Path manPath = Path.of("file_change_mod_manager/src/tests/files/manifest.json");
+        Path flPath = Path.of("file_change_mod_manager/src/tests/files/fileLineage.json");
+        Path gsPath = Path.of("file_change_mod_manager/src/tests/files/game_state.json");
 
-        FileLineage temp = (FileLineage) JsonIO.read(path.toFile(), null);
+        FileLineage fileLineage = (FileLineage) JsonIO.read(flPath.toFile(), null);
+        GameState gameState = (GameState) JsonIO.read(gsPath.toFile(), null);
 
-        System.out.println("Test Read: " + temp.toString() + "\nPeek: " + temp.peek().toString());
+        System.out.println("\nTest Read: " + fileLineage.toString() + "\nPeek: " + fileLineage.peek().toString());
+        System.out.println("\nTest Read: " + gameState.toString());
+        System.out.println("InsertOrdered: " + fileLineage.insertOrderedVersion(new FileVersion("lineage_tst", null), gameState, 7));
 
-        int insertIndex = 0; // default to end
-        for (int i = temp.getStack().size() - 1; i >= 0; i--) {
-            if (5 >= temp.getStack().get(i).getModId().length()) {
-                insertIndex = i + 1;
-                break;
-            }
-        }
-        temp.getStack().insertElementAt(new FileVersion("x", "23121321"), insertIndex);
-
-        System.out.println("Test Push: " + temp.toString() + "\nPeek: " + temp.peek().toString());
-        System.out.println("Insert at: " + (temp.getStack().size() - 1 - insertIndex)); // make it so 0 is top.
-
+        gameState.appendModOnly(mod.getAsMod());
+        System.out.println("\nTest Sorted: " + gameState.toString());
         // JsonIO.write(temp, path.getParent().resolve("tmp").toFile());
 
     } // psvm()

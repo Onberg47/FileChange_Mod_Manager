@@ -403,6 +403,8 @@ public class ModManagerView extends BaseView {
             //ModManager.saveModConfiguration(manager, allMods);
 
             // Apply to game files
+            gameState.setDeployedMods(enabledMods);
+            gameState.saveToFile();
             manager.deployGameState(gameState);
 
             JOptionPane.showMessageDialog(this,

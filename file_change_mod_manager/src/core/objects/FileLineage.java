@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import core.interfaces.MapSerializable;
+import core.utils.Logger;
 
 /**
  * Object for keeping a Stack of FileVersions. Reads/Writes to a Json, so it
@@ -157,8 +158,7 @@ public class FileLineage implements MapSerializable {
         // Cannot just use stack.contains() because Hashes or timestamps could differ.
         for (FileVersion existing : stack) {
             if (existing.getModId().equals(fVersion.getModId())) {
-                // throw new Exception("❗ Mod already has a version!");
-                System.out.println("❗ Mod already present in Lineage. Removing first...");
+                Logger.getInstance().logWarning("Mod already present in Lineage. Removing first...", null);
                 this.removeAllOf(fVersion.getModId());
                 break;
             }
@@ -182,6 +182,45 @@ public class FileLineage implements MapSerializable {
     } // insertOrderedVersion()
 
     /**
+     * Attempts to insert a new FileVersion into the stack while respecting Load
+     * Ordering.
+     * 
+     * @param fVersion  The FileVersion to be inserted where appropriate.
+     * @param gameState Current GameState to use for loadOrder checks.
+     * @return The index from the top inserted at. Where 0 is the top.
+     * @throws Exception Throws if it cannot determine where to insert the mod.
+     */
+    public int insertOrderedVersion(FileVersion fVersion, GameState gameState, int loadOrder) throws Exception {
+        // Check for duplicate mod ID.
+        // Cannot just use stack.contains() because Hashes or timestamps could differ.
+        for (FileVersion existing : stack) {
+            if (existing.getModId().equals(fVersion.getModId())) {
+                Logger.getInstance().logWarning("Mod already present in Lineage. Removing first...", null);
+                this.removeAllOf(fVersion.getModId());
+                break;
+            }
+        }
+
+        try {
+            // Find insertion point
+            int insertIndex = 0; // default to end
+            for (int i = stack.size() - 1; i >= 0; i--) {
+                // System.out.printf("if l:%d >= g:%d\n", loadOrder,
+                // gameState.getLoadOrder(stack.get(i).getModId())); // TODO remove debug
+                if (loadOrder >= gameState.getLoadOrder(stack.get(i).getModId())) {
+                    insertIndex = i + 1;
+                    break;
+                }
+            }
+            stack.insertElementAt(fVersion, insertIndex); // Insert at correct position
+            return (stack.size() - 1 - insertIndex); // make it so 0 is top.
+
+        } catch (Exception e) {
+            throw new Exception("Could not determine load order! " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Removes all occurances of Versions that belong to the given ID without
      * effecting the order of other instances.
      * 
@@ -201,7 +240,7 @@ public class FileLineage implements MapSerializable {
     } // removeAllOf()
 
     @Override
-    public String toString(){
+    public String toString() {
         StringBuilder str = new StringBuilder();
 
         str.append("File Lineage:\n");

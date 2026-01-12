@@ -20,7 +20,7 @@ public final class AppConfig {
     /// Core:
     // #region
 
-    private static final String AppVersion = "3.0"; // Program's version
+    private static final String AppVersion = "3.1"; // Program's version
 
     /// Program Paths:
     /**

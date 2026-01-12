@@ -131,9 +131,9 @@ public class CLIManager {
             // System.out.println(" help - Show this help");
             // System.out.println(" exit/quit - Exit the program");
 
-            System.out.printf("%-3s, %-10s | %s\n", "-L", "list", "List all installed Mods");
-            System.out.printf("%15s | %s\n", "[--a]", "All avaialbe Mods in storage");
-            System.out.printf("%15s | %s\n", "[--u]", "Only uninstalled Mods in storage");
+            System.out.printf("%-3s, %-10s | %s\n", "-L", "list", "List all available Mods");
+            System.out.printf("%15s | %s\n", "[--i]", "Only installed Mods");
+            System.out.printf("%15s | %s\n", "[--u]", "Only uninstalled Mods");
 
             System.out.printf("%-3s, %-10s | %s\n", "-D", "deploy", "Deploy a mod to game files");
 
@@ -147,7 +147,7 @@ public class CLIManager {
             System.out.printf("%15s | %s\n", "--n <number>", "new load order");
 
             System.out.printf("%-3s, %-10s | %s\n", "-c", "compile", "Compile a new mod");
-            System.out.printf("%15s | %s\n", "--dir <name>", "name-only of the directory withing temp");
+            System.out.printf("%15s | %s\n", "--dir <name>", "name-only of the directory within temp");
 
             System.out.printf("%-15s | %s\n", "delete", "Delete a mod from storage, cannot be installed");
             System.out.printf("%15s | %s\n", "--id <target>", "target mod id");

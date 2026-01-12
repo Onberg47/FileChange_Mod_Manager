@@ -53,12 +53,12 @@ public class ModCommandHandler {
     } // handleCommand()
 
     private void listMods() throws Exception {
-        if (cli.hasFlag("a"))
-            System.out.println(FileUtil.printStoredMods(game, true));
+        if (cli.hasFlag("i"))
+            System.out.println(FileUtil.printGameState(game));
         else if (cli.hasFlag("u"))
             System.out.println(FileUtil.printStoredMods(game, false));
         else
-            System.out.println(FileUtil.printGameState(game));
+            System.out.println(FileUtil.printStoredMods(game, true));
     }
 
     private void deployMod() throws Exception {

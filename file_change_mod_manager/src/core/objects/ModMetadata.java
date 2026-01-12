@@ -272,8 +272,12 @@ public abstract class ModMetadata implements MapSerializable {
         this.downloadLink = downloadLink;
     }
 
-    public Set<String> getTagSet(){
+    public Set<String> getTagSet() {
         return this.tagSet;
+    }
+
+    public void setTagSet(Set<String> tagSet) {
+        this.tagSet = tagSet;
     }
 
     /// /// /// Methods /// /// ///
