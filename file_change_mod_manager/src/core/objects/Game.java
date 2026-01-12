@@ -134,6 +134,12 @@ public class Game implements MapSerializable {
         this.name = name;
     }
 
+    /**
+     * {@code /home/game_root/mods/}
+     * <br>
+     * <br>
+     * Absolute Path where a Game's Mods are installed.
+     */
     public Path getInstallDirectory() {
         return installDirectory;
     }
@@ -151,6 +157,12 @@ public class Game implements MapSerializable {
         this.installDirectory = installDirectoryStr != null ? Paths.get(installDirectoryStr).normalize() : null;
     }
 
+    /**
+     * {@code /home/mods/game/}
+     * <br>
+     * <br>
+     * Absolute Path where a Game's Mods are stored.
+     */
     public Path getStoreDirectory() {
         return storeDirectory;
     }

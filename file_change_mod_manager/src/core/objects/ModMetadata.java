@@ -2,6 +2,7 @@ package core.objects;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,6 +64,7 @@ public abstract class ModMetadata implements MapSerializable {
         this.downloadSource = "unkown";
         this.downloadDate = LocalDateTime.now(); // Set to current date/time
         this.downloadLink = "No link provided.";
+        this.tagSet = new HashSet<>(); // TODO revise this
     }
 
     /**

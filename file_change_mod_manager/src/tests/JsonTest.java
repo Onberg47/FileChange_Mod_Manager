@@ -62,8 +62,8 @@ public class JsonTest {
         // sampleModTest();
         // moveFromTempTest();
 
-        //ModManager modManager = new ModManager(game);
-        //GameManager gm = new GameManager();
+        ModManager modManager = new ModManager(game);
+        // GameManager gm = new GameManager();
 
         /// Test something...
 
@@ -77,11 +77,20 @@ public class JsonTest {
 
         System.out.println("\nTest Read: " + fileLineage.toString() + "\nPeek: " + fileLineage.peek().toString());
         System.out.println("\nTest Read: " + gameState.toString());
-        System.out.println("InsertOrdered: " + fileLineage.insertOrderedVersion(new FileVersion("lineage_tst", null), gameState, 7));
+        System.out.println("InsertOrdered: "
+                + fileLineage.insertOrderedVersion(new FileVersion("lineage_tst", null), gameState, 7));
 
         gameState.appendModOnly(mod.getAsMod());
         System.out.println("\nTest Sorted: " + gameState.toString());
         // JsonIO.write(temp, path.getParent().resolve("tmp").toFile());
+
+        List<Mod> modLs = modManager.getAllMods();
+        for (Mod mod2 : modLs) {
+            if (mod2.isEnabled())
+                System.out.println("+ " + mod2.printLite());
+            else
+                System.out.println("- " + mod2.printLite());
+        }
 
     } // psvm()
 

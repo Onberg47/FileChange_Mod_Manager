@@ -116,7 +116,7 @@ public class EditGameView extends FormView {
             AppState.getInstance().setCurrentGame(null);
             navigator.navigateTo("library");
         } catch (Exception e) {
-            showError("Failed to update game: " + e.getMessage());
+            showError("Failed to update game: " + e.getMessage(), e);
         }
     }
 

@@ -20,7 +20,7 @@ public final class AppConfig {
     /// Core:
     // #region
 
-    private static final String AppVersion = "3.1"; // Program's version
+    private static final String AppVersion = "3.2"; // Program's version
 
     /// Program Paths:
     /**
@@ -189,6 +189,9 @@ public final class AppConfig {
     // #region
 
     /**
+     * {@code /home/game_root/}
+     * <br>
+     * <br>
      * Path within Program working directory.
      * 
      */
@@ -197,6 +200,9 @@ public final class AppConfig {
     }
 
     /**
+     * {@code ~Progam/} {@code .temp/}
+     * <br>
+     * <br>
      * Path within Program working directory.
      * 
      */
@@ -205,14 +211,19 @@ public final class AppConfig {
     }
 
     /**
+     * {@code ~Progam/} {@code .temp/trash/}
+     * <br>
+     * <br>
      * Path within Program working directory.
-     * 
      */
     public Path getTrashDir() {
         return TRASH_DIR;
     }
 
     /**
+     * {@code ~game_root/} {@code manager/}
+     * <br>
+     * <br>
      * Path from Game_root to where all Mod Manager data is contained.
      */
     public Path getManagerDir() {
@@ -220,6 +231,9 @@ public final class AppConfig {
     }
 
     /**
+     * {@code ~game_root/manager/} {@code manifests/}
+     * <br>
+     * <br>
      * Path from Game_root to mod manifests.
      */
     public Path getManifestDir() {
@@ -227,6 +241,9 @@ public final class AppConfig {
     }
 
     /**
+     * {@code ~game_root/manager/} {@code backup/}
+     * <br>
+     * <br>
      * Path from Game_root where backups are.
      */
     public Path getBackupDir() {
@@ -234,6 +251,9 @@ public final class AppConfig {
     }
 
     /**
+     * {@code ~game_root/manager/} {@code lineage/}
+     * <br>
+     * <br>
      * Path from Game_root where all file lineages are.
      */
     public Path getLineageDir() {
@@ -241,6 +261,9 @@ public final class AppConfig {
     }
 
     /**
+     * {@code ~Program/} {@code logs/}
+     * <br>
+     * <br>
      * Path within the program owrking directory for storing Logs.
      */
     public Path getLogDir() {

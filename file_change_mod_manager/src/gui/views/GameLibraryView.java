@@ -60,7 +60,7 @@ public class GameLibraryView extends BaseView {
         try {
             games = GameManager.getAllGames();
         } catch (Exception e) {
-            showError("Failed to load games: " + e.getMessage());
+            showError("Failed to load games: " + e.getMessage(), e);
             games = addSampleGames(); // Fallback
         }
         // Add game tiles from whatever populated the game list

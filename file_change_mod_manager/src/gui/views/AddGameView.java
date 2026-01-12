@@ -61,7 +61,7 @@ public class AddGameView extends FormView {
             // Navigate back
             navigator.goBack();
         } catch (Exception e) {
-            showError("Failed to add game: " + e.getMessage());
+            showError("Failed to add game: " + e.getMessage(), e);
         }
     }
 

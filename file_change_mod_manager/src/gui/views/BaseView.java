@@ -6,6 +6,9 @@ package gui.views;
 
 import gui.navigator.AppNavigator;
 import javax.swing.*;
+
+import core.utils.Logger;
+
 import java.awt.*;
 import java.util.Map;
 
@@ -84,11 +87,16 @@ public abstract class BaseView extends JPanel {
      * Show error message dialog.
      */
     protected void showError(String message) {
+        this.showError(message, null);
+    }
+
+    protected void showError(String message, Exception e) {
         JOptionPane.showMessageDialog(
                 this,
                 message,
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
+        Logger.getInstance().logError(message, e);
     }
 
     /**

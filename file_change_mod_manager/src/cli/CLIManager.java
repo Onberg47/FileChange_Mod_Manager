@@ -52,6 +52,11 @@ public class CLIManager {
             String command = args[0].toLowerCase();
 
             try {
+                if (command.equals("gui")) {
+                    System.out.println("Launching GUI...");
+                    gui.App.main(args);
+                    break;
+                }
                 if (command.equals("exit") || command.equals("quit") || command.equals("^C")) {
                     System.out.println("Exiting...");
                     break;
@@ -92,6 +97,7 @@ public class CLIManager {
     private void printHelp() {
 
         System.out.println("\nProgram Commands:");
+        System.out.printf("%-15s | %s\n", "gui", "Launch the GUI program");
         System.out.printf("%-15s | %s\n", "info", "Show general info about the program and config");
         System.out.printf("%-3s, %-10s | %s\n", "-h", "help", "Show this help");
         System.out.printf("%-15s | %s\n", "exit / quit", "Exit the program");

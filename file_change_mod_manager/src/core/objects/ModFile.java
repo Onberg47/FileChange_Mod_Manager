@@ -19,7 +19,13 @@ import core.interfaces.MapSerializable;
  */
 public class ModFile implements MapSerializable {
 
-    private Path filePath; // Path of the content file within the Mod
+    /**
+     * {@code ~mod_id/} {@code data/file.txt}
+     * <br>
+     * <br>
+     * Relative Path from the Mod home to the file with all path elements.
+     */
+    private Path filePath;
     private String hash; // SHA-256 stored as a hexadecimal string, of file contents
     private long size = 0; // For info/validation
 
@@ -92,6 +98,12 @@ public class ModFile implements MapSerializable {
 
     /// /// /// Getters and Setters /// /// ///
 
+    /**
+     * {@code ~mod_id/} {@code data/file.txt}
+     * <br>
+     * <br>
+     * Relative Path from the Mod home to the file with all path elements.
+     */
     public Path getFilePath() {
         return filePath;
     }

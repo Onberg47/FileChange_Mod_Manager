@@ -11,7 +11,10 @@ import java.io.InvalidObjectException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Stream;
 
 import core.config.AppConfig;
 import core.interfaces.MapSerializable;
@@ -403,30 +406,12 @@ public class ModManager {
     } // reorderMod()
 
     /**
-     * Deploys all mods from in the correct LoadOrder from a GameState.json
+     * Deploys all mods from in the correct LoadOrder from a GameState.json and
+     * saves the file.
      * 
-     * @param gameStatePath Path to the GameState.json
+     * @param gState GameState to deploy.
      * @throws Exception Allows fatal throws from deployMod() to propagate.
      */
-    public void deployGameState(Path gameStatePath) throws Exception {
-        log.logEntry(0, "Reading GameState from Path...");
-
-        if (!Files.exists(gameStatePath)) {
-            throw new Exception("GameState file does not exsist! " + gameStatePath);
-        }
-        GameState gState = new GameState();
-        try {
-            // gState = GameStateIO.read(gameStatePath.toFile());
-            gState = (GameState) JsonIO.read(gameStatePath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
-            gState.sortDeployedMods();
-
-            this.deployGameState(gState);
-
-        } catch (NullPointerException e) {
-            log.logWarning("Nothing to do, GameState has no Mods.", e);
-            return;
-        }
-    }
 
     public void deployGameState(GameState gState) throws Exception {
         log.logEntry("Starting to deploying GameState...");
@@ -752,6 +737,48 @@ public class ModManager {
         }
         return mod;
     } // getModManifestById()
+
+    /**
+     * 
+     * @return
+     * @throws Exception
+     */
+    public List<Mod> getAllMods() throws Exception {
+        List<Mod> allLs = new ArrayList<>();
+        try (Stream<Path> paths = Files.list(game.getStoreDirectory())) {
+            for (Path path : (Iterable<Path>) paths::iterator) {
+                // Process each directory
+                if (Files.isDirectory(path)) {
+                    try {
+                        path = path.resolve(config.getManifestDir().toString(), path.getFileName() + ".json");
+
+                        if (!Files.exists(path)) {
+                            log.logWarning("Mod folder " + path.getFileName() + " is missing a manifest!", null);
+                            throw new InvalidObjectException(
+                                    "Directory" + path.getFileName() + "is missing a Manifest.");
+                        }
+                        Mod mod = (Mod) JsonIO.read(
+                                path.toFile(),
+                                MapSerializable.ObjectTypes.MOD_MANIFEST,
+                                MapSerializable.ObjectTypes.MOD);
+
+                        if (gameState.containsMod(mod.getId())) {
+                            mod.setEnabled(true);
+                        } else {
+                            mod.setEnabled(false); // redundant but better be safe.
+                        }
+                        allLs.add(mod);
+
+                    } catch (InvalidObjectException e) {
+                        // Just skips silently. Other errors are caught outside to stop process.
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new Exception("Failed to read Storage mods: " + e.getMessage(), e);
+        }
+        return allLs;
+    }
 
     // #endregion
 } // Class

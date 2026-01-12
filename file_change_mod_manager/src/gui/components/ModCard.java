@@ -59,7 +59,7 @@ public class ModCard extends JPanel {
 
         // Set load order
         SpinnerNumberModel spinnerModel = new SpinnerNumberModel(
-                mod.getLoadOrder(), 1, 100, 1);
+                mod.getLoadOrder(), 0, 100, 1);
         loadOrderSpinner.setModel(spinnerModel);
 
         // Set toggle state
@@ -68,7 +68,7 @@ public class ModCard extends JPanel {
         deployToggleButton.setForeground(mod.isEnabled() ? new Color(0, 100, 0) : Color.GRAY);
 
         // Set border color based on status
-        Color borderColor = mod.isEnabled() ? new Color(0, 150, 0) : Color.GRAY;
+        Color borderColor = mod.isEnabled() ? new Color(0, 150, 0) : Color.RED;
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2),
                 BorderFactory.createLineBorder(borderColor, 1, true)));
@@ -155,19 +155,20 @@ public class ModCard extends JPanel {
 
         // ======== this ========
         setPreferredSize(new Dimension(1000, 120));
+        setMaximumSize(new Dimension(3000, 200));
         setBorder(new CompoundBorder(
                 new EmptyBorder(2, 2, 2, 2),
-                new LineBorder(Color.green, 1, true)));
+                new LineBorder(Color.green, 2, true)));
 
         // ---- loadOrderSpinner ----
         loadOrderSpinner.setPreferredSize(new Dimension(45, 80));
-        loadOrderSpinner.setMinimumSize(new Dimension(42, 60));
+        loadOrderSpinner.setMinimumSize(new Dimension(42, 50));
         loadOrderSpinner.setFont(new Font("Noto Sans", Font.PLAIN, 14));
         loadOrderSpinner.setToolTipText("Adjust load order");
 
         // ---- modTitleLabel ----
         modTitleLabel.setText("mod name");
-        modTitleLabel.setFont(new Font("Noto Sans", Font.BOLD, 14));
+        modTitleLabel.setFont(new Font("Noto Sans", Font.BOLD, 16));
 
         // ---- modDescriptionTextPane ----
         modDescriptionTextPane.setText(
@@ -181,7 +182,7 @@ public class ModCard extends JPanel {
         sourceFormattedTextField.setFont(new Font("Noto Sans", Font.ITALIC, 13));
         sourceFormattedTextField.setRequestFocusEnabled(false);
         sourceFormattedTextField.setPreferredSize(new Dimension(90, 76));
-        sourceFormattedTextField.setMinimumSize(new Dimension(90, 76));
+        sourceFormattedTextField.setMinimumSize(new Dimension(90, 66));
 
         // ---- editButton ----
         editButton.setText("edit");
@@ -203,7 +204,7 @@ public class ModCard extends JPanel {
         DraggingLabel.setToolTipText("Drag to reorder");
         DraggingLabel.setEnabled(false);
         DraggingLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        DraggingLabel.setPreferredSize(new Dimension(35, 106));
+        DraggingLabel.setPreferredSize(new Dimension(35, 95));
         DraggingLabel.setMinimumSize(new Dimension(20, 20));
         DraggingLabel.setMaximumSize(new Dimension(40, 150));
         DraggingLabel.addMouseListener(new MouseAdapter() {
