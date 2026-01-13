@@ -7,7 +7,9 @@ package gui.forms;
 import java.util.Arrays;
 import java.util.List;
 
+import core.config.AppConfig;
 import core.objects.Game;
+import core.objects.ModMetadata;
 
 /**
  * Pre-define the questions as FormQUestion instances. Add/modify form layouts
@@ -18,87 +20,82 @@ public class QuestionDefinitions {
         // === GAME QUESTIONS ===
         public static List<FormQuestion> getGameQuestions() {
                 return Arrays.asList(
-                                FormQuestion.builder("id", "Game ID")
+                                FormQuestion.builder(Game.Keys.id.toString(), "Game ID")
                                                 .required()
-                                                .tooltip("Unique identifier (no spaces, e.g., 'ghost-recon')")
+                                                .defaultValue("game-name")
+                                                .tooltip("Unique identifier only interacted with by the user in CLI (no spaces, e.g., 'ghost-recon')")
                                                 .build(),
 
-                                FormQuestion.builder("name", "Game Name")
+                                FormQuestion.builder(Game.Keys.name.toString(), "Game Name")
                                                 .required()
                                                 .tooltip("The display name of the game")
                                                 .build(),
 
-                                FormQuestion.builder("releaseVersion", "Release Version")
+                                FormQuestion.builder(Game.Keys.releaseVersion.toString(), "Release Version")
                                                 .required()
-                                                .tooltip("Used for version tracking and compatability")
+                                                .tooltip("Used for version tracking and compatability (use the build-ID from steam-properties)")
                                                 .build(),
 
-                                FormQuestion.builder("installDirectory", "Game Install Directory")
+                                FormQuestion.builder(Game.Keys.installDirectory.toString(), "Game Install Directory")
                                                 .required()
                                                 .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
                                                 .tooltip("Absolute Path to Root directory to install mods")
                                                 .build(),
 
-                                FormQuestion.builder("storeDirectory", "Mod Storage Directory")
+                                FormQuestion.builder(Game.Keys.storeDirectory.toString(), "Mod Storage Directory")
                                                 .required()
+                                                .defaultValue(AppConfig.getInstance().getDefaultModStorage()
+                                                                .resolve("game-name").toString())
                                                 .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
                                                 .tooltip("Absolute Path to store non-deployed Mods")
                                                 .build(),
 
                                 FormQuestion.builder("iconFile", "Icon File")
                                                 .type(FormQuestion.QuestionType.FILE_CHOOSER)
-                                                .tooltip("Pick a file to be copied to the manager files")
+                                                .tooltip("Pick a file to be copied to the manager files as the icon ('.png' / '.jpg' only)")
                                                 .build());
         } // getGameQuestions()
-
-        public static List<FormQuestion> getGameQuestionsWithDefaults(Game game) {
-                List<FormQuestion> questions = getGameQuestions();
-                // In practice, you'd create new questions with defaults set
-                // For now, we'll handle defaults in the View
-                return questions;
-        }
 
         // === MOD QUESTIONS ===
         public static List<FormQuestion> getModQuestions() {
                 return Arrays.asList(
-                                FormQuestion.builder("name", "Mod Name")
+                                FormQuestion.builder(ModMetadata.Keys.name.toString(), "Mod Name")
                                                 .required()
                                                 .tooltip("Display name for the mod")
                                                 .build(),
 
-                                FormQuestion.builder("modId", "Mod ID")
-                                                .required()
-                                                .tooltip("Unique ID (e.g., 'nexus-12345' or 'custom-weapons')")
-                                                .build(),
-
-                                FormQuestion.builder("version", "Version")
-                                                .required()
-                                                .defaultValue("1.0.0")
-                                                .tooltip("Mod version (semantic versioning recommended)")
-                                                .build(),
-
-                                FormQuestion.builder("author", "Author")
-                                                .tooltip("Mod author/creator")
-                                                .build(),
-
-                                FormQuestion.builder("description", "Description")
+                                FormQuestion.builder(ModMetadata.Keys.description.toString(), "Description")
                                                 .type(FormQuestion.QuestionType.TEXT_AREA)
                                                 .tooltip("Description of what the mod does")
                                                 .build(),
 
-                                FormQuestion.builder("source", "Source")
-                                                .type(FormQuestion.QuestionType.COMBO_BOX)
-                                                .defaultValue(new String[] { "Nexus Mods", "Steam Workshop", "Manual",
-                                                                "Custom" })
-                                                .tooltip("Where the mod is from")
+                                FormQuestion.builder(ModMetadata.Keys.version.toString(), "Version")
+                                                .required()
+                                                .defaultValue("1.0")
+                                                .tooltip("Mod version (semantic versioning recommended)")
                                                 .build(),
 
-                                FormQuestion.builder("sourceId", "Source ID")
-                                                .tooltip("ID on the source platform (e.g., Nexus mod ID)")
+                                FormQuestion.builder(ModMetadata.Keys.loadOrder.toString(), "Default load Order")
+                                                .required()
+                                                .tooltip("The default load order from 0 to apply to this mod")
                                                 .build(),
 
-                                FormQuestion.builder("tags", "Tags")
+                                FormQuestion.builder(ModMetadata.Keys.downloadSource.toString(), "Download Source")
+                                                .defaultValue("local")
+                                                .tooltip("Referance name of where the mod came from (be consistent)")
+                                                .build(),
+
+                                FormQuestion.builder(ModMetadata.Keys.downloadLink.toString(), "Download URL")
+                                                .tooltip("Any link for the mod")
+                                                .build(),
+
+                                FormQuestion.builder(ModMetadata.Keys.tags.toString(), "Tags")
                                                 .tooltip("Comma-separated tags (weapons, textures, gameplay)")
+                                                .build(),
+
+                                FormQuestion.builder("files", "Mod Files Directory")
+                                                .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
+                                                .tooltip("Path to mod directory, pre-format according to install instructions (this will override all data when updating)")
                                                 .build());
         } // getModQuestions()
 } // Class

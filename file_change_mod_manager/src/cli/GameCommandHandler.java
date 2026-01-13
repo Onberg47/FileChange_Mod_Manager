@@ -16,11 +16,9 @@ import core.utils.FileUtil;
 public class GameCommandHandler {
 
     private CLIArgs cli;
-    private GameManager gm;
 
     public void handleCommand(String command, String[] args, CLIManager cliManager) throws Exception {
         cli = new CLIArgs(args);
-        gm = new GameManager();
 
         switch (command.toLowerCase()) {
             case "list":
@@ -55,11 +53,11 @@ public class GameCommandHandler {
     }
 
     private void addGame() throws Exception {
-        gm.addGame(GameManager.collectUserMetadata());
+        GameManager.addGame(GameManager.collectUserMetadata());
     }
 
     private void removeGame() throws Exception{
-        gm.removeGame(
+        GameManager.removeGame(
                 cli.getRequired("id"));
     }
 
@@ -70,7 +68,7 @@ public class GameCommandHandler {
         System.out.println("Enter new data for the Game. (Leave empty to not update)");
         tmpMap = GameManager.collectUserMetadata();
 
-        gm.updateGame(
+        GameManager.updateGame(
                 gameid,
                 tmpMap);
     } // updateGame()

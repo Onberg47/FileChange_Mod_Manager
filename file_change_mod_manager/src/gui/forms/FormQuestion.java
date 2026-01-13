@@ -13,7 +13,7 @@ public class FormQuestion {
     private final String key;
     private final String label;
     private final String tooltip;
-    private final boolean required;
+    private boolean required; // not final for cntextual changes.
     private final QuestionType type;
     private final Object defaultValue;
 
@@ -60,6 +60,10 @@ public class FormQuestion {
 
     public Object getDefaultValue() {
         return defaultValue;
+    }
+
+    public void setRequired(Boolean required) {
+        this.required = required;
     }
 
     /// /// /// Builder /// /// ///

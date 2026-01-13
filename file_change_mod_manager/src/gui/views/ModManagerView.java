@@ -22,7 +22,6 @@ import core.utils.Logger;
 public class ModManagerView extends BaseView {
     // Globals
     private final ModManager manager;
-    private GameState gameState;
 
     // UI Components
     private JPanel utilityPanel;
@@ -166,6 +165,7 @@ public class ModManagerView extends BaseView {
 
     @Override
     protected void initializeData() {
+        scrollTo(0);
         loadMods();
         // updateModList();
     }
@@ -216,6 +216,7 @@ public class ModManagerView extends BaseView {
             if (allMods == null || allMods.isEmpty())
                 allMods = manager.getAllMods();
 
+            /// Filters
             String statusFilter = (String) filterStatusComboBox.getSelectedItem();
             String nameFilter = filterNameTextField.getText().toLowerCase();
             String tagsFilter = filterTagsTextField.getText().toLowerCase();
@@ -231,7 +232,7 @@ public class ModManagerView extends BaseView {
                             + "\n\tName: " + nameFilter
                             + "\n\tTags: " + tagFilters.toString());
 
-            // Filter enabled mods
+            /// Filter enabled mods
             List<Mod> modLs = allMods.stream()
                     .filter(mod -> matchesStatus(mod, statusFilter))
                     .filter(mod -> matchesName(mod, nameFilter))
@@ -262,6 +263,7 @@ public class ModManagerView extends BaseView {
      */
     private void displayModList() {
         modListPanel.removeAll();
+        int scroll = modCardScrollPane.getVerticalScrollBar().getValue();
 
         // Add enabled mods section
         if (!enabledMods.isEmpty()) {
@@ -298,6 +300,7 @@ public class ModManagerView extends BaseView {
 
         modListPanel.revalidate();
         modListPanel.repaint();
+        scrollTo(scroll);
     }
 
     private ModCard createModCard(Mod mod) {
@@ -307,6 +310,22 @@ public class ModManagerView extends BaseView {
                 this::toggleMod,
                 this::updateLoadOrder);
     }
+
+    /**
+     * Sets the scroll to a set potition.
+     * 
+     * @param i number from 0, where 0 is the top.
+     */
+    private void scrollTo(int i) {
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar verticalBar = modCardScrollPane.getVerticalScrollBar();
+            if (verticalBar != null) {
+                verticalBar.setValue(i);
+            }
+        });
+    }
+
+    /// /// Filters
 
     private boolean matchesStatus(Mod mod, String statusFilter) {
         if (statusFilter == null || "All".equals(statusFilter))
@@ -349,19 +368,14 @@ public class ModManagerView extends BaseView {
     /// /// /// Button Events /// /// ///
 
     private void toEditModPage(Mod mod) {
-        navigator.navigateTo("editMod", Map.of(
-                "game", manager,
-                "modId", mod.getId()));
+        AppState.getInstance().setCurrentMod(mod);
+        navigator.navigateTo("editMod", Map.of("modId", mod.getId()));
     }
 
     private void toggleMod(Mod mod) {
         try {
             mod.setEnabled(!mod.isEnabled());
-            // ModManager.getInstance().updateModState(manager, mod);
-
-            // TODO add/remove it
-            loadMods(); // Reload to re-categorize
-            // filterMods(); // Re-apply filters
+            loadMods(); // Reload to update.
         } catch (Exception e) {
             showError("Failed to toggle mod: " + e.getMessage(), e);
         }
@@ -369,11 +383,15 @@ public class ModManagerView extends BaseView {
 
     private void updateLoadOrder(Mod mod) {
         try {
-            // TODO Can just move the mod in the list here.
-            System.out.println("Update mod: " + mod.getId());
 
+            for (Mod modTemp : allMods) {
+                if (modTemp.getId().equals(mod.getId())) {
+                    allMods.add(allMods.indexOf(modTemp), mod);
+                    allMods.remove(modTemp);
+                    break;
+                }
+            }
             loadMods(); // Reload to get new order
-            // filterMods();
         } catch (Exception e) {
             showError("Failed to update load order: " + e.getMessage(), e);
         }
@@ -385,11 +403,15 @@ public class ModManagerView extends BaseView {
     private void applyChanges() {
         try {
             // Apply to currentGameState
+            GameState gameState = new GameState();
             gameState.setOrderedMods(enabledMods);
 
             // Apply to Game
-            // manager.deployGameState(gameState);
-            System.out.println("Updated gameState: " + gameState.toString());
+            Logger.getInstance().logEntry(0, "Updated gameState: " + gameState.toString());
+            manager.deployGameState(gameState);
+
+            allMods.clear(); // forces a complete re-read
+            loadMods();
 
             JOptionPane.showMessageDialog(this,
                     "Mod changes applied successfully!",

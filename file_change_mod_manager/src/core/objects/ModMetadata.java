@@ -46,7 +46,8 @@ public abstract class ModMetadata implements MapSerializable {
         description,
         downloadSource,
         downloadDate,
-        downloadLink
+        downloadLink,
+        tags
     } // JsonFields enum
 
     /**

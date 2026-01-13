@@ -18,9 +18,9 @@ import java.time.format.DateTimeFormatter;
  */
 public class DateUtil {
 
-    // For directory names: 2024-12-13_19-26-00
-    private static final DateTimeFormatter DIR_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DIR_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+    //private static final DateTimeFormatter NUMERIC_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
     // For display in GUI: Dec 13, 2024 7:26 PM
     private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a");
@@ -31,32 +31,38 @@ public class DateUtil {
     /// /// /// Getters /// /// ///
 
     /**
-     * 
-     * @return
+     * @return {@date 2026-01-13}
+     */
+    public static String getDirDatestamp() {
+        return LocalDate.now().format(DATE_FORMATTER);
+    }
+
+    /**
+     * @return {@date 2026-01-13_13-09-51}
      */
     public static String getDirTimestamp() {
         return LocalDateTime.now().format(DIR_FORMATTER);
     }
 
-    public static String getDirDatestamp() {
-        return LocalDate.now().format(DATE_FORMATTER);
-    }
-
+    /**
+     * @return {@date Jan 13, 2026 1:10 pm}
+     */
     public static String getDisplayTimestamp(LocalDateTime time) {
         return time.format(DISPLAY_FORMATTER);
     }
 
-    public static DateTimeFormatter getJsonFormat() {
-        return ISO_FORMATTER;
-    }
-
     /**
-     * Result: "20251222_192600" - Sortable, compact, no special chars
-     * 
-     * @return
+     * @return {@date 20251222_192600} - Sortable, compact, no special chars
      */
     public static String getNumericTimestamp() {
         return String.format("%tY%<tm%<td_%<tH%<tM%<tS", new Date());
+    }
+
+    /**
+     * @return {@date }
+     */
+    public static DateTimeFormatter getJsonFormat() {
+        return ISO_FORMATTER;
     }
 
     /**

@@ -25,7 +25,11 @@ public class GUIUtils {
     public static Map<String, String> toStringOnlyMap(Map<String, Object> map) {
         HashMap<String, String> hMap = new HashMap<>();
         for (String key : map.keySet()) {
-            hMap.put(key, (String) map.get(key));
+            try {
+                hMap.put(key, (String) map.get(key));
+            } catch (Exception e) {
+                hMap.put(key, map.get(key).toString()); // fallback for non-directly castable methods
+            }
         }
         return hMap;
     }

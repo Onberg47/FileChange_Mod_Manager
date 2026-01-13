@@ -7,8 +7,9 @@ package gui.views;
 import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
-import gui.util.IconLoader;
-import core.managers.GameManager;
+import gui.state.AppState;
+
+import core.managers.ModManager;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -18,19 +19,21 @@ import java.util.Map;
 /**
  * Add a new Game from scratch and write a JSON file.
  */
-public class AddGameView extends FormView {
-    public AddGameView(AppNavigator navigator, Map<String, Object> params) {
-        super(navigator, params, "Add New Game");
+public class CompileModView extends FormView {
+    public CompileModView(AppNavigator navigator, Map<String, Object> params) {
+        super(navigator, params, "Compile New Mod");
     }
 
     @Override
     protected List<FormQuestion> getQuestions() {
-        return QuestionDefinitions.getGameQuestions();
+        List<FormQuestion> question = QuestionDefinitions.getModQuestions();
+        question.getLast().setRequired(true); // sets the las (mod files) to required
+        return question;
     }
 
     @Override
     protected String getSubmitButtonText() {
-        return "Add Game";
+        return "Compile Mod";
     }
 
     @Override
@@ -44,21 +47,16 @@ public class AddGameView extends FormView {
         if (!validateAndCollect())
             return;
 
+        ModManager manager = new ModManager(AppState.getInstance().getCurrentGame());
         try {
-            // Update game from answers
-            HashMap<String, Object> answers = (HashMap<String, Object>) formPanel.getAnswers();
-            GameManager.addGame(answers);
-
-            // Try add a new icon
-            if (answers.containsKey("iconFile")) {
-                IconLoader.fetchIcon(Path.of((String) answers.get("iconFile")));
-                IconLoader.clearCache();
-            }
+            /// Compile Mod
+            Path files = Path.of(formPanel.getAnswers().get("files").toString());
+            manager.compileMod(files, (HashMap<String, Object>) formPanel.getAnswers());
 
             // Navigate back
             navigator.goBack();
         } catch (Exception e) {
-            showError("Failed to add game: " + e.getMessage(), e);
+            showError("Failed to compile Mod: " + e.getMessage(), e);
         }
     }
 

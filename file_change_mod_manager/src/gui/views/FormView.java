@@ -65,7 +65,7 @@ public abstract class FormView extends BaseView {
 
         // Enable submit when form is valid
         // You'd need to add validation listeners to each field
-        // For simplicity, we'll validate on submit
+        // For simplicity, only validates on submit
     }
 
     protected abstract List<FormQuestion> getQuestions();
@@ -88,5 +88,20 @@ public abstract class FormView extends BaseView {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Helper to update title
+     * 
+     * @param title New title.
+     */
+    protected void setTitle(String title) {
+        // Find the title label in the view
+        for (Component comp : getComponents()) {
+            if (comp instanceof JLabel && ((JLabel) comp).getHorizontalAlignment() == SwingConstants.CENTER) {
+                ((JLabel) comp).setText(title);
+                break;
+            }
+        }
     }
 } // Class

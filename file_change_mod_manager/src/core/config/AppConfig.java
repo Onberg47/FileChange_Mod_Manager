@@ -37,6 +37,7 @@ public final class AppConfig {
     private final Path TRASH_DIR;
 
     private final Path LOG_DIR;
+    private final Path DEFAULT_MOD_DIR;
 
     /// Mod Mangaer Paths:
     /**
@@ -71,7 +72,10 @@ public final class AppConfig {
         private Path gameDir;
         private Path tempDir;
         private Path trashDir;
+
         private Path logDir;
+        private Path defaultModDir;
+
         private Path managerDir;
 
         public Builder fromConfigFile(Path configIn) {
@@ -82,7 +86,11 @@ public final class AppConfig {
                 this.gameDir = Path.of(hMap.getOrDefault("GAME_DIR", defaultConfig.GAME_DIR.toString())).normalize();
                 this.tempDir = Path.of(hMap.getOrDefault("TEMP_DIR", defaultConfig.TEMP_DIR.toString())).normalize();
                 this.trashDir = Path.of(hMap.getOrDefault("TRASH_DIR", defaultConfig.TRASH_DIR.toString())).normalize();
+
                 this.logDir = Path.of(hMap.getOrDefault("LOG_DIR", defaultConfig.LOG_DIR.toString())).normalize();
+                this.defaultModDir = Path.of(hMap.getOrDefault("DEFAULT_MOD_DIR", defaultConfig.LOG_DIR.toString()))
+                        .normalize();
+
                 this.managerDir = Path.of(hMap.getOrDefault("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString()))
                         .normalize();
 
@@ -103,7 +111,10 @@ public final class AppConfig {
         this.GAME_DIR = builder.gameDir;
         this.TEMP_DIR = builder.tempDir;
         this.TRASH_DIR = builder.trashDir;
+
         this.LOG_DIR = builder.logDir;
+        this.DEFAULT_MOD_DIR = builder.defaultModDir;
+
         this.MANAGER_DIR = builder.managerDir;
 
         this.LINEAGE_DIR = MANAGER_DIR.resolve("lineages/").normalize();
@@ -275,6 +286,16 @@ public final class AppConfig {
      */
     public String getAppVersion() {
         return AppVersion;
+    }
+
+    /**
+     * {@code ~Program/mods/} {add the game_id}
+     * <br>
+     * <br>
+     * Default location to store Mods for each game.
+     */
+    public Path getDefaultModStorage() {
+        return DEFAULT_MOD_DIR;
     }
 
     // #endregion

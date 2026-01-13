@@ -50,13 +50,20 @@ public class JsonTest {
 
     public static void main(String[] args) throws Exception {
 
-        ModManifest mod = new ModManifest(game.getId(), "Local", "Test Mod");
-        mod.setVersion("2.0");
-        mod.setLoadOrder(3);
-        mod.setDownloadSource("steam workshop");
-        mod.setDescription("A mod for testing purposes.");
-        mod.addFile(new ModFile(Path.of("data/test.txt"), "abc123", 111));
-        mod.addFile(new ModFile(Path.of("data/test_img.png"), "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
+        ModManifest manifest = new ModManifest(game.getId(), "Local", "Test Mod");
+        manifest.setVersion("2.0");
+        manifest.setLoadOrder(3);
+        manifest.setDownloadSource("steam workshop");
+        manifest.setDescription("A mod for testing purposes.");
+        manifest.addFile(new ModFile(Path.of("data/test.txt"), "abc123", 111));
+        manifest.addFile(new ModFile(Path.of("data/test_img.png"), "jwjhchf3sisjsw12fde3fcsfbw2", 23214));
+
+        Mod mod = new Mod();
+        mod.setGameId(game.getId());
+        mod.setName("Test Moddie");
+        mod.setDescription("A tiny Mod instace for testing override and updates.");
+        mod.setLoadOrder(11);
+        mod.setVersion("X.0.12");
         // System.out.println(mod.toString());
 
         // sampleModTest();
@@ -67,7 +74,15 @@ public class JsonTest {
 
         /// Test something...
 
-        // Path path = Path.of("file_change_mod_manager/src/tests/files/manifest.json");
+        Path path = Path.of("file_change_mod_manager/src/tests/files/manifest.json");
+        ModManifest man = (ModManifest) JsonIO.read(path.toFile(), null);
+        System.out.println("Manifest: " + man.toString());
+
+        man.setFromMap(mod.toMap());
+        System.out.println("\nModded Manifest: " + man.toString());
+
+        /// ///
+
         Path manPath = Path.of("file_change_mod_manager/src/tests/files/manifest.json");
         Path flPath = Path.of("file_change_mod_manager/src/tests/files/fileLineage.json");
         Path gsPath = Path.of("file_change_mod_manager/src/tests/files/game_state.json");
@@ -80,7 +95,7 @@ public class JsonTest {
         System.out.println("InsertOrdered: "
                 + fileLineage.insertOrderedVersion(new FileVersion("lineage_tst", null), gameState, 7));
 
-        gameState.appendModOnly(mod.getAsMod());
+        gameState.appendModOnly(manifest.getAsMod());
         System.out.println("\nTest Sorted: " + gameState.toString());
         // JsonIO.write(temp, path.getParent().resolve("tmp").toFile());
 

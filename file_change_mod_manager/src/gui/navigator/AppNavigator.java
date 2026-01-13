@@ -4,6 +4,7 @@ package gui.navigator;
 import javax.swing.*;
 
 import core.objects.Game;
+import gui.state.AppState;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -141,7 +142,7 @@ public class AppNavigator {
             case "library":
                 return "Game Library";
             case "modManager":
-                Game game = (Game) params.get("game");
+                Game game = AppState.getInstance().getCurrentGame();
                 return game != null ? game.getName() + " Mods" : "Mod Manager";
             case "settings":
                 return "Settings";

@@ -28,16 +28,36 @@ import core.utils.ScannerUtil;
  * @author Stephanos B
  */
 public class GameManager {
-    private static AppConfig config = AppConfig.getInstance();
-    private static Logger log = Logger.getInstance();
+    private static final AppConfig config = AppConfig.getInstance();
+    private static final Logger log = Logger.getInstance();
 
-    private final Path ICON_DIR = config.getGameDir().resolve("icons");
-
-    private Game game;
+    private static final Path ICON_DIR = config.getGameDir().resolve("icons");
 
     /// /// /// Core Methods /// /// ///
 
     /**
+     * Writes a {@code Game.json}
+     * 
+     * @param game Game instance to save.
+     */
+    public static void saveGame(Game game) throws Exception {
+        Path path = config.getGameDir().resolve(game.getId() + ".json");
+        try {
+            log.logEntry(1, "Writing JSON file for Game " + game.getName());
+            if (!Files.exists(path)) {
+                log.logWarning("File not found, creating new one.", null);
+                Files.createDirectories(path.getParent());
+            }
+            JsonIO.write(game, path.toFile());
+
+            log.logEntry(0, "📦 Game written.");
+        } catch (Exception e) {
+            throw new Exception("Failed to write Game.json file.", e);
+        }
+    } // saveGame()
+
+    /**
+     * For CLI use, checks user input.
      * Creates a new Game.json file from the provided meta data. Checks if game
      * files but will not create missing directores, as these should already exsist
      * if correct.
@@ -45,13 +65,9 @@ public class GameManager {
      * 
      * @param metaMap
      */
-    public Game addGame(HashMap<String, Object> metaMap) throws Exception {
+    public static void addGame(HashMap<String, Object> metaMap) throws Exception {
         log.logEntry(0, "\n📦 Adding new game...");
-
-        if (this.game == null) {
-            log.logEntry(1, null, "init new Game.");
-            this.game = new Game(); // Only assigns a fresh instance if non-exsists.
-        }
+        Game game = new Game();
 
         /// 1. read meta data.
         try {
@@ -65,7 +81,7 @@ public class GameManager {
         log.logEntry(1, "Verifying game paths...");
         Path path;
         try {
-            path = this.game.getInstallDirectory();
+            path = game.getInstallDirectory();
             log.logEntry(1, null, "Checking path: " + path.toString()); // silent log
             if (!path.isAbsolute()) {
                 log.logWarning(1, "Game installation path is not absolute.", null);
@@ -96,18 +112,7 @@ public class GameManager {
         }
 
         /// 3. Write JSON
-        log.logEntry(1, "Writing JSON file for Game " + game.getName());
-        path = config.getGameDir().resolve(game.getId() + ".json");
-        try {
-            if (!Files.exists(path))
-                Files.createDirectories(path.getParent());
-            JsonIO.write(game, path.toFile());
-            log.logEntry(0, "📦 New game added!");
-            return game;
-
-        } catch (Exception e) {
-            throw new Exception("Failed to write Game.json file.", e);
-        }
+        saveGame(game);
     } // addGame()
 
     /**
@@ -117,7 +122,7 @@ public class GameManager {
      * 
      * @param gameId Game ID to remove.
      */
-    public void removeGame(String gameId) throws Exception {
+    public static void removeGame(String gameId) throws Exception {
         log.logEntry(0, "🗑 Removing Game: " + gameId);
 
         Path path = config.getGameDir().resolve(gameId + ".json");
@@ -156,20 +161,18 @@ public class GameManager {
      * @param metaMap An incomplete metaMap of ONLY the fields to override. Can
      *                support id-changes.
      */
-    public void updateGame(String gameId, HashMap<String, Object> metaMap) throws Exception {
-
+    public static void updateGame(String gameId, HashMap<String, Object> metaMap) throws Exception {
+        Game game = new Game();
         try {
             game = GameManager.getGameById(gameId);
-            this.addGame(metaMap); // creates a new game, using the exsisting game data.
-            log.logEntry(0, "Game updated.");
-
             if (!game.getId().equals(gameId)) {
-                // ID has been changed, must remove old file.
+                log.logWarning("GameID has changed. Trashing old file", null);
                 Files.move(
                         config.getGameDir().resolve(gameId + ".json"),
                         config.getTrashDir().resolve("games", gameId + ".json__" + DateUtil.getNumericTimestamp()));
             }
-
+            GameManager.addGame(metaMap); // creates a new game, using the exsisting game data.
+            log.logEntry(0, "Game updated.");
         } catch (Exception e) {
             throw new Exception("Failed to update Game: " + gameId, e);
         }
@@ -221,8 +224,6 @@ public class GameManager {
         return tmp;
     } // getGameById()
 
-    /// /// /// Public / GUI utils /// /// ///
-
     /**
      * Made for GUI use.
      * 
@@ -250,26 +251,5 @@ public class GameManager {
             return null;
         }
     } // getAllGames()
-
-    /**
-     * Writes a {@code Game.json}
-     * 
-     * @param game Game instance to save.
-     */
-    public static void saveGame(Game game) throws Exception {
-        Path path = config.getGameDir().resolve(game.getId() + ".json");
-        try {
-            log.logEntry("Writing JSON file for Game " + game.getName());
-            if (!Files.exists(path)) {
-                log.logWarning("File not found, creating new one.", null);
-                Files.createDirectories(path.getParent());
-            }
-            JsonIO.write(game, path.toFile());
-
-            log.logEntry("📦 Game written.");
-        } catch (Exception e) {
-            throw new Exception("Failed to write Game.json file.", e);
-        }
-    } // saveGame()
 
 } // Class

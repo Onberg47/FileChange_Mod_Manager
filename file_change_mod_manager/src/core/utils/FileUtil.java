@@ -33,8 +33,8 @@ import core.objects.ModFile;
  * @author Stephanos B
  */
 public class FileUtil {
-    private static AppConfig config = AppConfig.getInstance();
-    private static Logger log = Logger.getInstance();
+    private static final AppConfig config = AppConfig.getInstance();
+    private static final Logger log = Logger.getInstance();
 
     /**
      * Recursively scans a directory and prints all files and directories with

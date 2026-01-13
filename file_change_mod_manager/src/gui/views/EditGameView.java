@@ -13,13 +13,9 @@ import gui.util.IconLoader;
 import core.managers.GameManager;
 import core.objects.Game;
 
-import java.awt.Component;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 
 /**
  * Read an exsisting Game.json to auto-populate data and allow editting.
@@ -77,21 +73,6 @@ public class EditGameView extends FormView {
         setTitle("Edit Game: " + game.getName());
     } // loadExistingData()
 
-    /**
-     * Helper to update title
-     * 
-     * @param title New title.
-     */
-    private void setTitle(String title) {
-        // Find the title label in the view
-        for (Component comp : getComponents()) {
-            if (comp instanceof JLabel && ((JLabel) comp).getHorizontalAlignment() == SwingConstants.CENTER) {
-                ((JLabel) comp).setText(title);
-                break;
-            }
-        }
-    }
-
     @Override
     protected void onSubmit() {
         if (!validateAndCollect())
@@ -99,11 +80,8 @@ public class EditGameView extends FormView {
 
         answers = (HashMap<String, String>) GUIUtils.toStringOnlyMap(formPanel.getAnswers());
         try {
-            System.out.println("Current Version: " + game.getReleaseVersion());
-
             // Update game from answers
             game.setFromMap(formPanel.getAnswers());
-            System.out.println("Version in: " + answers.get("releaseVersion"));
             GameManager.saveGame(game);
 
             // Try add a new icon
@@ -125,9 +103,8 @@ public class EditGameView extends FormView {
         if (!confirm("Are you sure you want to delete Game: " + game.getName() + "?"))
             return;
 
-        GameManager gm = new GameManager();
         try {
-            gm.removeGame(game.getId());
+            GameManager.removeGame(game.getId());
             AppState.getInstance().setCurrentGame(null);
 
         } catch (Exception e) {

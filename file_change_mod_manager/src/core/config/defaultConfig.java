@@ -37,6 +37,8 @@ public abstract class defaultConfig {
     static final Path BACKUP_DIR = MANAGER_DIR.resolve("backups/");
     static final Path LINEAGE_DIR = MANAGER_DIR.resolve("lineages/");
 
+    static final Path DEFAULT_MOD_STORAGE_DIR = Path.of("mod_manager/mods/");
+
     /// /// /// Getters /// /// ///
 
     /**

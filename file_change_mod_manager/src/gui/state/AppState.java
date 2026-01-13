@@ -5,6 +5,8 @@
 package gui.state;
 
 import core.objects.Game;
+import core.objects.Mod;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
@@ -12,6 +14,7 @@ public class AppState {
     private static AppState instance;
 
     private Game currentGame;
+    private Mod currentMod;
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -25,6 +28,16 @@ public class AppState {
         Game old = this.currentGame;
         this.currentGame = game;
         pcs.firePropertyChange("currentGame", old, game);
+    }
+
+    public Mod getCurrentMod() {
+        return currentMod;
+    }
+
+    public void setCurrentMod(Mod mod) {
+        Mod old = this.currentMod;
+        this.currentMod = mod;
+        pcs.firePropertyChange("currentMod", old, mod);
     }
 
     // === Property Change Support ===

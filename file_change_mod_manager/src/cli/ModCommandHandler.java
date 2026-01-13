@@ -62,8 +62,7 @@ public class ModCommandHandler {
     }
 
     private void deployMod() throws Exception {
-        manager.deployMod(
-                cli.getRequired("id"));
+        manager.deployMod(manager.getModManifestById(cli.getRequired("id")));
     }
 
     private void removeMod() throws Exception {

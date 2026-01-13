@@ -163,7 +163,7 @@ public class GameState implements MapSerializable {
                 JsonIO.write(this, filePath.toFile());
 
         } catch (Exception e) {
-            throw new Exception("Failed to remove Mod from GameState.", e);
+            throw new Exception("Failed to save GameState : " + e.getMessage(), e);
         }
     } // saveToFile()
 
