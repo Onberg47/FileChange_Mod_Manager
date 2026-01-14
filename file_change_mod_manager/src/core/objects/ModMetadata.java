@@ -30,7 +30,7 @@ public abstract class ModMetadata implements MapSerializable {
 
     protected Set<String> tagSet;
 
-    private Boolean forceIdUpdate = false; // When true the ID will be regenerated on get(Id)
+    private boolean forceIdUpdate = false; // When true the ID will be regenerated on get(Id)
 
     /**
      * Used to ensure Json Keys are consistent.

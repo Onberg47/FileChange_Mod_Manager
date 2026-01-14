@@ -55,25 +55,9 @@ public class ModManifest extends ModMetadata {
      * @param source The source of the Mod, used for ID generation.
      * @param name   User-friendly name, doubles as the filename for the Mod.
      */
-    public ModManifest(String gameId, String source, String name) {
+    public ModManifest(String gameId) {
         this();
-        this.name = name;
         this.gameId = gameId;
-        this.downloadSource = source;
-        this.id = super.generateModId(source); // NB: do this last to ensure using input data!
-    }
-
-    /**
-     * Essentials parameterized constructor for Mod WITH contents.
-     * 
-     * @param gameId      The ID of the Game this Mod is for.
-     * @param source      The source of the Mod, used for ID generation.
-     * @param name        User-friendly name, doubles as the filename for the Mod.
-     * @param contentsArr The file contents array of the Mod.
-     */
-    public ModManifest(String gameId, String source, String name, ModFile[] contentsArr) {
-        this(gameId, source, name);
-        this.contentsArr = contentsArr;
     }
 
     public Mod getAsMod() {

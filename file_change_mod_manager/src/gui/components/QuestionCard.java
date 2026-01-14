@@ -43,7 +43,6 @@ public class QuestionCard extends JPanel {
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputComponent = createInputComponent();
         inputPanel.add(inputComponent, BorderLayout.CENTER);
-
         add(inputPanel, BorderLayout.CENTER);
     }
 

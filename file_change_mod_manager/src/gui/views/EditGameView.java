@@ -92,7 +92,7 @@ public class EditGameView extends FormView {
 
             // Navigate back to library
             AppState.getInstance().setCurrentGame(null);
-            navigator.navigateTo("library");
+            navigator.goBack();
         } catch (Exception e) {
             showError("Failed to update game: " + e.getMessage(), e);
         }
@@ -105,13 +105,13 @@ public class EditGameView extends FormView {
 
         try {
             GameManager.removeGame(game.getId());
-            AppState.getInstance().setCurrentGame(null);
-
+            
         } catch (Exception e) {
             System.err.println("Could not delete Game " + game.getId() + " -> " + e.getMessage());
             e.printStackTrace();
         } finally {
-            navigator.navigateTo("library");
+            AppState.getInstance().setCurrentGame(null);
+            navigator.goBack();
         }
     }
 } // Class

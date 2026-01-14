@@ -93,9 +93,36 @@ public class QuestionDefinitions {
                                                 .tooltip("Comma-separated tags (weapons, textures, gameplay)")
                                                 .build(),
 
-                                FormQuestion.builder("files", "Mod Files Directory")
+                                FormQuestion.builder("pathToFiles", "Mod Files Directory")
                                                 .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
                                                 .tooltip("Path to mod directory, pre-format according to install instructions (this will override all data when updating)")
                                                 .build());
         } // getModQuestions()
+
+        public static List<FormQuestion> getModEditQuestions() {
+                return Arrays.asList(
+                                FormQuestion.builder(ModMetadata.Keys.description.toString(), "Description")
+                                                .type(FormQuestion.QuestionType.TEXT_AREA)
+                                                .tooltip("Description of what the mod does")
+                                                .build(),
+
+                                FormQuestion.builder(ModMetadata.Keys.loadOrder.toString(), "Default load Order")
+                                                .required()
+                                                .tooltip("The default load order from 0 to apply to this mod")
+                                                .build(),
+
+                                FormQuestion.builder(ModMetadata.Keys.downloadSource.toString(), "Download Source")
+                                                .defaultValue("local")
+                                                .tooltip("Referance name of where the mod came from (be consistent)")
+                                                .build(),
+
+                                FormQuestion.builder(ModMetadata.Keys.downloadLink.toString(), "Download URL")
+                                                .tooltip("Any link for the mod")
+                                                .build(),
+
+                                FormQuestion.builder(ModMetadata.Keys.tags.toString(), "Tags")
+                                                .tooltip("Comma-separated tags (weapons, textures, gameplay)")
+                                                .build());
+
+        } // getModEditQuestions()
 } // Class

@@ -16,6 +16,7 @@ public class FormQuestion {
     private boolean required; // not final for cntextual changes.
     private final QuestionType type;
     private final Object defaultValue;
+    private boolean enabled = true;
 
     public enum QuestionType {
         TEXT_FIELD,
@@ -27,13 +28,14 @@ public class FormQuestion {
     }
 
     public FormQuestion(String key, String label, String tooltip,
-            boolean required, QuestionType type, Object defaultValue) {
+            boolean required, QuestionType type, Object defaultValue, boolean enabled) {
         this.key = key;
         this.label = label;
         this.tooltip = tooltip;
         this.required = required;
         this.type = type;
         this.defaultValue = defaultValue;
+        this.enabled = enabled;
     }
 
     /// /// /// Getters and Setters /// /// ///
@@ -54,6 +56,10 @@ public class FormQuestion {
         return required;
     }
 
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
     public QuestionType getType() {
         return type;
     }
@@ -62,8 +68,12 @@ public class FormQuestion {
         return defaultValue;
     }
 
-    public void setRequired(Boolean required) {
-        this.required = required;
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     /// /// /// Builder /// /// ///
@@ -80,6 +90,7 @@ public class FormQuestion {
         private boolean required = false;
         private QuestionType type = QuestionType.TEXT_FIELD;
         private Object defaultValue = null;
+        private boolean enabled = true;
 
         public Builder(String key, String label) {
             this.key = key;
@@ -106,8 +117,13 @@ public class FormQuestion {
             return this;
         }
 
+        public Builder disabled() {
+            this.enabled = false;
+            return this;
+        }
+
         public FormQuestion build() {
-            return new FormQuestion(key, label, tooltip, required, type, defaultValue);
+            return new FormQuestion(key, label, tooltip, required, type, defaultValue, enabled);
         }
     } // Builder
 } // Class

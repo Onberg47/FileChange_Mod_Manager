@@ -42,7 +42,7 @@ public class Mod extends ModMetadata {
             int loadOrder,
             LocalDateTime downloadDate,
             String downloadLink,
-            Boolean forceIdUpdate) {
+            boolean forceIdUpdate) {
 
         super(gameId,
                 id,

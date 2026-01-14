@@ -9,12 +9,14 @@ import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
 import gui.util.GUIUtils;
-import gui.util.IconLoader;
 import core.managers.ModManager;
 import core.objects.Mod;
 
 import java.nio.file.Path;
 import java.util.*;
+
+import javax.swing.JComponent;
+import javax.swing.JToggleButton;
 
 /**
  * Read an exsisting Mod.json to auto-populate data and allow editting.
@@ -22,9 +24,14 @@ import java.util.*;
 public class EditModView extends FormView {
     private Mod mod;
     private ModManager manager;
-    private HashMap<String, String> answers;
+    private JToggleButton modeToggleButton;
+
+    private static boolean isUpdate = false;
 
     public EditModView(AppNavigator navigator, Map<String, Object> params) {
+        if (params.containsKey("isUpdate") && params.get("isUpdate") == "true")
+            isUpdate = true;
+
         super(navigator, params, "Edit Mod");
         deleteButton.setVisible(true);
     }
@@ -32,7 +39,10 @@ public class EditModView extends FormView {
     @Override
     protected List<FormQuestion> getQuestions() {
         // Get questions
-        return QuestionDefinitions.getModQuestions();
+        if (isUpdate)
+            return QuestionDefinitions.getModQuestions();
+        else
+            return QuestionDefinitions.getModEditQuestions();
     }
 
     @Override
@@ -62,28 +72,49 @@ public class EditModView extends FormView {
         setTitle("Edit Mod: " + mod.getName());
     } // loadExistingData()
 
+    /// /// /// Buttons
+
+    @Override
+    protected JComponent customButton() {
+        modeToggleButton = new JToggleButton("Update Mode", false);
+        if (isUpdate)
+            modeToggleButton.setSelected(true);
+
+        modeToggleButton.addActionListener(e -> {
+            if (modeToggleButton.isSelected()) {
+                isUpdate = true;
+                navigator.replace("editMod", params);
+            } else {
+                isUpdate = false;
+                navigator.replace("editMod", params);
+            }
+        });
+        return modeToggleButton;
+    }
+
     @Override
     protected void onSubmit() {
         if (!validateAndCollect())
             return;
 
-        answers = (HashMap<String, String>) GUIUtils.toStringOnlyMap(formPanel.getAnswers());
         try {
-            // Update game from answers
-            mod.setFromMap(formPanel.getAnswers());
-            // manager.updateMod();
+            ModManager manager = new ModManager(AppState.getInstance().getCurrentGame());
 
-            // Try add a new icon
-            if (answers.containsKey("iconFile")) {
-                IconLoader.fetchIcon(Path.of(answers.get("iconFile")));
-                IconLoader.clearCache();
+            if (isUpdate) { // Update mode
+                showConsole();
+                Path files = Path.of(formPanel.getAnswers().get("pathToFiles").toString());
+                manager.compileMod(files, (HashMap<String, Object>) formPanel.getAnswers());
+            } else { // Edit mode
+                System.out.println("Saving mod with edits: " + formPanel.getAnswers().toString());
+                manager.editMod(mod.getId(), (HashMap<String, Object>) formPanel.getAnswers());
             }
 
-            // Navigate back to library
-            AppState.getInstance().setCurrentGame(null);
-            navigator.navigateTo("library");
+            // Navigate back
+            navigator.goBack();
         } catch (Exception e) {
-            showError("Failed to update Mod: " + e.getMessage(), e);
+            showError("Failed to compile Mod: " + e.getMessage(), e);
+        } finally {
+            super.consolePopup.setDone();
         }
     }
 
@@ -93,13 +124,13 @@ public class EditModView extends FormView {
             return;
         try {
             manager.deleteMod(mod.getId());
-            AppState.getInstance().setCurrentMod(null);
 
         } catch (Exception e) {
-            System.err.println("Could not delete Mod " + mod.getId() + " -> " + e.getMessage());
-            e.printStackTrace();
+            showError("Could not delete Mod " + mod.getId() + " -> " + e.getMessage(), e);
         } finally {
-            navigator.navigateTo("modManager");
+            AppState.getInstance().setCurrentMod(null);
+            navigator.goBack();
         }
     }
+
 } // Class

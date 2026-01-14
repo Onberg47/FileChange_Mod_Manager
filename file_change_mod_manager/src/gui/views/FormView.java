@@ -9,6 +9,7 @@ import gui.forms.FormQuestion;
 import gui.navigator.AppNavigator;
 import javax.swing.*;
 import java.awt.*;
+import java.io.NotActiveException;
 import java.util.List;
 import java.util.Map;
 
@@ -43,11 +44,17 @@ public abstract class FormView extends BaseView {
         // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         cancelButton = new JButton("Cancel");
+
         submitButton = new JButton(getSubmitButtonText());
         submitButton.setEnabled(false);
+
         deleteButton = new JButton("Delete");
         deleteButton.setVisible(false);
 
+        try {
+            buttonPanel.add(customButton());
+        } catch (NotActiveException e) {
+        }
         buttonPanel.add(deleteButton);
         buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
@@ -55,6 +62,15 @@ public abstract class FormView extends BaseView {
 
         // Load existing data if editing
         loadExistingData();
+    }
+
+    /**
+     * Override this with a custom button.
+     * 
+     * @throws NotActiveException when no Custom button is set.
+     */
+    protected JComponent customButton() throws NotActiveException {
+        throw new NotActiveException();
     }
 
     @Override

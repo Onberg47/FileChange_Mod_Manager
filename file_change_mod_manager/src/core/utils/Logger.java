@@ -66,7 +66,7 @@ public class Logger {
         public Builder build() {
             logPath = config.getLogDir().resolve("log__" + DateUtil.getDirDatestamp() + ".log");
 
-            Boolean fileFound = false;
+            boolean fileFound = false;
             if (Files.exists(logPath))
                 fileFound = true;
 

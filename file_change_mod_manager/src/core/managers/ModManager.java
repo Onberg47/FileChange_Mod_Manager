@@ -15,6 +15,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import core.config.AppConfig;
@@ -82,7 +83,7 @@ public class ModManager {
             gameState = GameState.loadFromFile(GAMESTATE_PATH);
         } catch (Exception e) {
             gameState = new GameState();
-            log.logWarning("Could not find GameState. Creating a new one.", e);
+            log.logWarning("Could not find GameState.", e);
         }
     } // Constructor
 
@@ -100,7 +101,7 @@ public class ModManager {
      * @return Complete Mod that was created. Allows quick access to the exact data
      *         written without needing to read the JSON. (Mainly for data checking)
      */
-    public ModManifest compileMod(String dirName, HashMap<String, Object> metaMap) throws Exception {
+    public ModManifest compileMod(String dirName, Map<String, Object> metaMap) throws Exception {
         /// 1. Verify Directory is valid.
         // Path tempDir = Path.of(TEMP_DIR, dirName);
         Path tempDir = TEMP_DIR.resolve(dirName);
@@ -120,7 +121,7 @@ public class ModManager {
         try {
             manifest.setFromMap(metaMap);
         } catch (Exception e) {
-            throw new Exception("Failed to pricess meta data.", e);
+            throw new Exception("Failed to prase meta data: " + e.getMessage(), e);
         }
         manifest.generateModId(); // Can only create an id once required fields are collected.
 
@@ -175,10 +176,12 @@ public class ModManager {
      * @param metaMap  Expected Map of mod Data for compiler.
      * @throws Exception
      */
-    public void compileMod(Path filesDir, HashMap<String, Object> metaMap) throws Exception {
+    public void compileMod(Path filesDir, Map<String, Object> metaMap) throws Exception {
         /// Prepare mod files.
+        System.out.println("Compiling from Files...");
+
         String modId = metaMap.containsKey("name")
-                ? String.format("%05d", metaMap.get("id").toString().hashCode() & 0xffff)
+                ? String.format("%05d", metaMap.get("name").toString().hashCode() & 0xffff)
                 : "modId";
         String dir = (modId + "__" + DateUtil.getNumericTimestamp());
 
@@ -458,6 +461,38 @@ public class ModManager {
     ///
 
     /**
+     * Re-write a ModManifest from new, partial data. Does not support re-compiling
+     * files.
+     * 
+     * @param modId
+     * @param metaMap
+     * @throws Exception
+     */
+    public void editMod(String modId, HashMap<String, Object> metaMap) throws Exception {
+        ModManifest manifest;
+        Path path = game.getStoreDirectory().resolve(modId);
+
+        log.logEntry(0, "Updating Mod: " + modId);
+
+        if (!Files.exists(path))
+            Files.createDirectories(path);
+
+        manifest = (ModManifest) JsonIO.read(path.toFile(), MapSerializable.ObjectTypes.MOD_MANIFEST);
+        manifest = this.getModManifestById(modId).setFromMap(metaMap);
+        JsonIO.write(manifest, path.toFile());
+
+        log.logEntry(0, "Mod " + modId + " has been updated to:\n" + manifest.toString());
+    }
+
+    public void updateMod(Map<String, Object> metaMap) {
+        // TODO recompile mod
+    }
+
+    public void updateMod(Path filesDir, Map<String, Object> metaMap) {
+        // TODO recompile mod and manifest
+    }
+
+    /**
      * Deletes (moves to trash with a timestamp) a Mod from storage if it is not
      * already installed.
      * 
@@ -476,27 +511,6 @@ public class ModManager {
                 game.getStoreDirectory().resolve(modId),
                 TRASH_DIR.resolve(modId + "__" + DateUtil.getNumericTimestamp()));
         log.logEntry(0, "Mod has been moved to trash.");
-    }
-
-    /**
-     * Re-write a ModManifest from new, partial data. Does not support re-compiling
-     * files.
-     * 
-     * @param modId
-     * @param metaMap
-     * @throws Exception
-     */
-    public void updateMod(String modId, HashMap<String, Object> metaMap) throws Exception {
-        ModManifest manifest = this.getModManifestById(modId).setFromMap(metaMap);
-        Path path = game.getStoreDirectory().resolve(modId);
-
-        log.logEntry(0, "Updating Mod: " + modId);
-
-        if (!Files.exists(path))
-            Files.createDirectories(path);
-        JsonIO.write(manifest, path.toFile());
-
-        log.logEntry(0, "Mod " + modId + " has been updated to:\n" + manifest.toString());
     }
 
     // #endregion
@@ -550,7 +564,7 @@ public class ModManager {
         }
 
         Path lineagePath = LINEAGE_DIR.resolve(modFilePath + ".json"); // where it should be.
-        Boolean copy = false;
+        boolean copy = false;
         if (Files.exists(GAME_ROOT_PATH.resolve(modFilePath))) { // If the file exsists (conflict)
             // create and instance of the exsisting ModFile.
             log.logEntry(1, "⚫ Found file conflict, resolving...");

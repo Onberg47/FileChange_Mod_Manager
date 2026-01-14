@@ -158,7 +158,7 @@ public class FileUtil {
      * @return String to display.
      * @throws Exception
      */
-    public static String printStoredMods(Game game, Boolean all) throws Exception {
+    public static String printStoredMods(Game game, boolean all) throws Exception {
         Path manifestPath = config.getManifestDir();
         StringBuilder sb = new StringBuilder();
 

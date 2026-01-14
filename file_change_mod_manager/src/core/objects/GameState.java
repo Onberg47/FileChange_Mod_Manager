@@ -143,7 +143,7 @@ public class GameState implements MapSerializable {
      * @throws Exception
      */
     public static GameState loadFromFile(Path filePath) throws Exception {
-        Logger.getInstance().logEntry("Loading GameState from: " + filePath);
+        Logger.getInstance().logEntry(null, "Loading GameState from: " + filePath);
         return (GameState) JsonIO.read(filePath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
     }
 
@@ -267,7 +267,7 @@ public class GameState implements MapSerializable {
      * @param modId
      * @return
      */
-    public Boolean containsMod(String modId) {
+    public boolean containsMod(String modId) {
         for (Mod mod : deployedMods) {
             if (mod.getId().equals(modId))
                 return true;

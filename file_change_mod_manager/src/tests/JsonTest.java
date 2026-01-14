@@ -50,7 +50,8 @@ public class JsonTest {
 
     public static void main(String[] args) throws Exception {
 
-        ModManifest manifest = new ModManifest(game.getId(), "Local", "Test Mod");
+        ModManifest manifest = new ModManifest(game.getId());
+        manifest.setName("Test Mod");
         manifest.setVersion("2.0");
         manifest.setLoadOrder(3);
         manifest.setDownloadSource("steam workshop");
@@ -131,7 +132,8 @@ public class JsonTest {
     private static void sampleModTest() {
 
         // Create a sample Mod with multiple files
-        ModManifest sampleMod = new ModManifest(game.getId(), "local", "Sample Mod");
+        ModManifest sampleMod = new ModManifest(game.getId());
+        sampleMod.setName("Sample Mod");
         sampleMod.setDescription("This is a sample mod for testing the Mod JSON creation.");
         sampleMod.addFile(new ModFile(Path.of("example_file_1.txt"), "checksum1", 111));
         sampleMod.addFile(new ModFile(Path.of("data/example_file_2.txt"), "checksum2", 222));
@@ -161,7 +163,8 @@ public class JsonTest {
      */
     private static void moveFromTempTest() {
 
-        ModManifest mod = new ModManifest(game.getId(), "local", "Test Mod");
+        ModManifest mod = new ModManifest(game.getId());
+        mod.setName("Test Mod");
         mod.setVersion("2.0");
         mod.setDownloadSource("steam workshop");
         mod.setDescription("A mod for testing purposes.");

@@ -50,13 +50,16 @@ public class CompileModView extends FormView {
         ModManager manager = new ModManager(AppState.getInstance().getCurrentGame());
         try {
             /// Compile Mod
-            Path files = Path.of(formPanel.getAnswers().get("files").toString());
+            Path files = Path.of(formPanel.getAnswers().get("pathToFiles").toString());
+            showConsole();
             manager.compileMod(files, (HashMap<String, Object>) formPanel.getAnswers());
 
             // Navigate back
             navigator.goBack();
         } catch (Exception e) {
             showError("Failed to compile Mod: " + e.getMessage(), e);
+        } finally {
+            super.consolePopup.setDone();
         }
     }
 
