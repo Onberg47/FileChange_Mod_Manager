@@ -85,8 +85,13 @@ public class Mod extends ModMetadata {
 
     /// /// /// Methods /// /// ///
 
+    /**
+     * A light, single-line print out of a Mod with essential information. Includes
+     * the Enabled/Disabled Flag for debugging if set.
+     */
     public String printLite() {
-        return String.format("ID: %s | Name: %-20s | Order : %-3d", getId(), getName(), getLoadOrder());
+        return String.format("ID: %18s | Name: %-40s | Order : %-3d %s", getId(), getName(), getLoadOrder(),
+                isEnabled() != null ? (" | " + this.isEnabled()) : "");
     }
 
 } // Class

@@ -4,6 +4,7 @@
  */
 package gui.views;
 
+import gui.components.ConsolePopup;
 import gui.navigator.AppNavigator;
 import javax.swing.*;
 
@@ -109,5 +110,19 @@ public abstract class BaseView extends JPanel {
                 "Confirm",
                 JOptionPane.YES_NO_OPTION);
         return result == JOptionPane.YES_OPTION;
+    }
+
+    /// /// Console
+
+    protected ConsolePopup consolePopup;
+
+    /**
+     * SHows a popup for displaying the console print out.
+     */
+    protected void showConsole() {
+        if (consolePopup == null) {
+            consolePopup = new ConsolePopup(navigator.getMainFrame()); // You'll need to implement getParentFrame()
+        }
+        consolePopup.show();
     }
 } // Class

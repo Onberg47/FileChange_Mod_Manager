@@ -407,16 +407,13 @@ public class ModManagerView extends BaseView {
             gameState.setOrderedMods(enabledMods);
 
             // Apply to Game
-            Logger.getInstance().logEntry(0, "Updated gameState: " + gameState.toString());
+            showConsole();
             manager.deployGameState(gameState);
 
-            allMods.clear(); // forces a complete re-read
+            // forces a complete re-read
+            allMods.clear();
             loadMods();
-
-            JOptionPane.showMessageDialog(this,
-                    "Mod changes applied successfully!",
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE);
+            consolePopup.setDone();
 
         } catch (Exception e) {
             showError("Failed to apply changes: " + e.getMessage(), e);

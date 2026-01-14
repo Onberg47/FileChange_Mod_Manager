@@ -1,0 +1,26 @@
+graph TD
+    
+    Start[Start]
+    -->Input(CurrentGame state.)
+    --> MakeDiff
+    --> ForEachMod
+    --> End
+
+    subgraph MakeDiff [Make Diff GameState]
+
+        subgraph ForEach [For each Mod of OLD:]
+            ifTheSame{If NEW has mod<br>loadOrders match}
+                -- Yes
+                --> RemoveFromDiff[Remove from Diff, no change]
+            ifTheSame -- Else
+                --> IfRemoved{If in old<br>not in new}
+                    --> AddToDiff[Add to Diff as Disabled]
+        end
+    end
+
+    subgraph ForEachMod [For each Mod of Diff:]
+        IfEnabled{If enabled}
+            -- Enabled --> Deploy
+        IfEnabled
+            -- Disabled --> Trash
+    end

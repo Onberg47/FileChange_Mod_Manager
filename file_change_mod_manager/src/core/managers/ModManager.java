@@ -433,16 +433,21 @@ public class ModManager {
     public void deployGameState(GameState gState) throws Exception {
         log.logEntry(0, "Starting to deploying GameState...");
 
-        for (Mod mod : mkGameStateDif(gState).getDeployedMods()) {
+        List<Mod> diff = mkGameStateDif(gState).getDeployedMods();
+        int changeMax = diff.size();
+        int i = 0;
+        for (Mod mod : diff) {
+            i++;
+            log.logEntry("Progess: applying change " + i + " / " + changeMax);
 
             if (mod.isEnabled()) {
-                log.logEntry("Installing enabled mod: " + mod.getId());
+                // log.logEntry("Installing enabled mod: " + mod.getId());
                 deployMod(
-                        this.getModManifestById(mod.getId()).setFromMap(mod.toMap())); // Passes the updated
-                                                                                       // (re-ordered) version from the
-                                                                                       // GameState.
+                        this.getModManifestById(
+                                mod.getId()).setFromMap(mod.toMap()));
+                // Passes the updated (re-ordered) version from the GameState.
             } else {
-                log.logEntry("Trashing disabled mod: " + mod.getId());
+                // log.logEntry("Trashing disabled mod: " + mod.getId());
                 trashMod(mod.getId());
             }
 
@@ -707,11 +712,27 @@ public class ModManager {
      *         GameState, where Mods with a LoadOrder of -1 are to be removed.
      */
     private GameState mkGameStateDif(GameState newGs) {
-        GameState tmp = gameState;
+        log.logEntry("Making GameState Diff.");
 
-        // TODO
+        /// 1. Go through current GameState
+        for (Mod current : gameState.getDeployedMods()) {
 
-        return tmp;
+            /// .1 Remove un-changed duplicates from newGs.
+            if (newGs.containsMod(current.getId()) && newGs.getLoadOrder(current.getId()) == current.getLoadOrder()) {
+                newGs.removeMod(current);
+                continue;
+            }
+            /// .2 Add to newGs entries that were removed as disabled.
+            else if (gameState.containsMod(current.getId()) && !newGs.containsMod(current.getId())) {
+                current.setEnabled(false);
+                newGs.addMod(current);
+            }
+        }
+
+        log.logEntry(
+                "Finished GameState Diff.",
+                "Finished GameState Diff." + newGs.toString());
+        return newGs;
     } // mkGameStateDif()
 
     // #endregion
