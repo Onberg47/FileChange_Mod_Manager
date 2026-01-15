@@ -4,12 +4,12 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq l {space :::p, par l:::p {comp deployToggleButton:::::x, comp loadOrderSpinner:::::x}, space u:::p, comp DraggingLabel:::p::p, space u:::p, par l {comp modDescriptionTextPane::::781:x, comp modTitleLabel::::781:x}, space :::p, par l:::p {comp sourceFormattedTextField:::::x, comp editButton:::::x}, space :::p}}"
-			"$verticalGroup": "par l {seq t {par t {seq l {space :p:5:p, par l {comp editButton:::::x, comp modTitleLabel:::p:25:p}, space :::p, par l {comp sourceFormattedTextField:::::x, comp modDescriptionTextPane:::::x}}, seq l {space :::p, par l {comp DraggingLabel:::::x, seq {comp deployToggleButton:::p::p, space :::p, comp loadOrderSpinner::::0:x}}}}, space :::p}}"
+			"$horizontalGroup": "par l {seq l {space :::p, par l:::p {comp loadOrderSpinner:::::x, comp deployToggleButton:::::x}, space :::p, comp DraggingLabel:::p::p, space :::p, par l {seq {comp modTitleLabel::::707:x, space :::p, comp modVersionLabel:::p::p}, comp modDescriptionTextPane::::793:x}, space :::p, par l:::p {comp sourceFormattedTextField:::::x, comp editButton:::::x}}}"
+			"$verticalGroup": "par l {seq {comp deployToggleButton:::p::p, space :p:12:p, comp loadOrderSpinner::::65:x}, seq {par b {comp editButton::b:p:34:p, comp modVersionLabel::b:p:33:p, comp modTitleLabel::b:p:33:p}, space :0:0:p, par l {comp sourceFormattedTextField::::67:x, comp modDescriptionTextPane::::67:x}}, comp DraggingLabel::l::102:x}"
 		} ) {
 			name: "this"
-			"preferredSize": new java.awt.Dimension( 1000, 120 )
-			"border": new javax.swing.border.CompoundBorder( new javax.swing.border.EmptyBorder( 2, 2, 2, 2 ), new javax.swing.border.LineBorder( sfield java.awt.Color green, 1, true ) )
+			"preferredSize": new java.awt.Dimension( 800, 100 )
+			"border": new javax.swing.border.CompoundBorder( new javax.swing.border.EmptyBorder( 2, 2, 2, 2 ), new javax.swing.border.CompoundBorder( new javax.swing.border.LineBorder( sfield java.awt.Color green, 1, true ), new javax.swing.border.EmptyBorder( 6, 6, 6, 6 ) ) )
 			add( new FormComponent( "javax.swing.JSpinner" ) {
 				name: "loadOrderSpinner"
 				"preferredSize": new java.awt.Dimension( 45, 80 )
@@ -21,10 +21,15 @@ new FormModel {
 				name: "modTitleLabel"
 				"text": "mod name"
 				"font": new java.awt.Font( "Noto Sans", 1, 14 )
+				"minimumSize": new java.awt.Dimension( 80, 20 )
+				"maximumSize": new java.awt.Dimension( 2147483647, 20 )
+				"preferredSize": new java.awt.Dimension( 30, 20 )
 			} )
 			add( new FormComponent( "javax.swing.JTextPane" ) {
 				name: "modDescriptionTextPane"
 				"text": "description of the mod goes here... This should be able to display lenthy lines that just yap on and on..."
+				"minimumSize": new java.awt.Dimension( 80, 20 )
+				"preferredSize": new java.awt.Dimension( 60, 60 )
 			} )
 			add( new FormComponent( "javax.swing.JFormattedTextField" ) {
 				name: "sourceFormattedTextField"
@@ -34,13 +39,15 @@ new FormModel {
 				"toolTipText": "Click to follow link {URL}"
 				"font": new java.awt.Font( "Noto Sans", 2, 13 )
 				"requestFocusEnabled": false
-				"preferredSize": new java.awt.Dimension( 90, 76 )
-				"minimumSize": new java.awt.Dimension( 90, 76 )
+				"preferredSize": new java.awt.Dimension( 80, 60 )
+				"minimumSize": new java.awt.Dimension( 60, 20 )
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "editButton"
 				"text": "edit"
 				"toolTipText": "Edit mod"
+				"minimumSize": new java.awt.Dimension( 76, 20 )
+				"preferredSize": new java.awt.Dimension( 80, 34 )
 			} )
 			add( new FormComponent( "javax.swing.JToggleButton" ) {
 				name: "deployToggleButton"
@@ -64,6 +71,16 @@ new FormModel {
 				"minimumSize": new java.awt.Dimension( 20, 20 )
 				"maximumSize": new java.awt.Dimension( 40, 150 )
 				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "DraggingLabelMouseClicked", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "modVersionLabel"
+				"text": "Version: 1.0"
+				"toolTipText": "Mod version"
+				"enabled": false
+				"preferredSize": new java.awt.Dimension( 80, 25 )
+				"maximumSize": new java.awt.Dimension( 100, 25 )
+				"minimumSize": new java.awt.Dimension( 80, 20 )
+				"horizontalAlignment": 11
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )

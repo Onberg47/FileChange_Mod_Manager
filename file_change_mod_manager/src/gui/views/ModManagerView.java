@@ -127,28 +127,28 @@ public class ModManagerView extends BaseView {
         // Name filter
         gbc.gridx = 2;
         gbc.gridy = 0;
-        panel.add(new JLabel("Search:"), gbc);
+        panel.add(new JLabel("Tags:"), gbc);
 
         gbc.gridx = 3;
         gbc.gridy = 0;
         gbc.weightx = 0.7;
-        filterNameTextField = new JTextField();
-        filterNameTextField.setToolTipText("Search in mod names and descriptions");
-        panel.add(filterNameTextField, gbc);
+        filterTagsTextField = new JTextField();
+        filterTagsTextField.setToolTipText("Comma-separated tags (e.g., weapons, textures)");
+        panel.add(filterTagsTextField, gbc);
 
         // Tags filter
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        panel.add(new JLabel("Tags:"), gbc);
+        panel.add(new JLabel("Name:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.gridwidth = 3;
         gbc.weightx = 1.0;
-        filterTagsTextField = new JTextField();
-        filterTagsTextField.setToolTipText("Comma-separated tags (e.g., weapons, textures)");
-        panel.add(filterTagsTextField, gbc);
+        filterNameTextField = new JTextField();
+        filterNameTextField.setToolTipText("Search in mod names and descriptions");
+        panel.add(filterNameTextField, gbc);
 
         // Clear filters button
         gbc.gridx = 4;
@@ -381,6 +381,12 @@ public class ModManagerView extends BaseView {
         }
     }
 
+    /**
+     * This just updates the mods internal loadOrder value which is used to set the
+     * spinner.
+     * 
+     * @param mod
+     */
     private void updateLoadOrder(Mod mod) {
         try {
 
@@ -396,6 +402,10 @@ public class ModManagerView extends BaseView {
             showError("Failed to update load order: " + e.getMessage(), e);
         }
     }
+
+    /// /// /// Dragging
+
+    ///
 
     /**
      * Apply all changes to the current GameState and rebuild.

@@ -29,8 +29,8 @@ public class DividerCard extends JPanel {
         titleLabel.setToolTipText(title);
         
         // Panel setup
-        setPreferredSize(new Dimension(1000, 60));
-        setMaximumSize(new Dimension(3000, 100));
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+        setPreferredSize(new Dimension(1000, 50));
         setMinimumSize(new Dimension(100, 40));
         setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1, true));
         setBackground(new Color(245, 245, 245));
