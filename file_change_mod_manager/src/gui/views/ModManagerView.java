@@ -38,6 +38,8 @@ public class ModManagerView extends BaseView {
     private List<Mod> enabledMods;
     private List<Mod> disabledMods;
     private JPanel modListPanel;
+    // Dragging
+    private Mod draggedMod = null;
 
     public ModManagerView(AppNavigator navigator, Map<String, Object> params) {
         // this.game = AppState.getInstance().getCurrentGame();
@@ -213,8 +215,10 @@ public class ModManagerView extends BaseView {
     private void loadMods() {
         try {
             // Load all mods for this game. No need to reload
-            if (allMods == null || allMods.isEmpty())
+            if (allMods == null || allMods.isEmpty()) {
                 allMods = manager.getAllMods();
+                updateEnabledModsOrder(); // re-order for consistency when dragging.
+            }
 
             /// Filters
             String statusFilter = (String) filterStatusComboBox.getSelectedItem();
@@ -308,7 +312,10 @@ public class ModManagerView extends BaseView {
                 mod,
                 this::toEditModPage,
                 this::toggleMod,
-                this::updateLoadOrder);
+                this::updateLoadOrder,
+                this::handleDragStart, // New: drag start callback
+                this::handleDragEnd // New: drag end callback
+        );
     }
 
     /**
@@ -323,6 +330,30 @@ public class ModManagerView extends BaseView {
                 verticalBar.setValue(i);
             }
         });
+    }
+
+    /**
+     * Consumer<br>
+     * <br>
+     * This updates the Mods internal loadOrder value which is used to set the
+     * spinner and reloads Mods.
+     * 
+     * @param mod
+     */
+    private void updateLoadOrder(Mod mod) {
+        try {
+
+            for (Mod modTemp : allMods) {
+                if (modTemp.getId().equals(mod.getId())) {
+                    allMods.add(allMods.indexOf(modTemp), mod);
+                    allMods.remove(modTemp);
+                    break;
+                }
+            }
+            loadMods(); // Reload to get new order
+        } catch (Exception e) {
+            showError("Failed to update load order: " + e.getMessage(), e);
+        }
     }
 
     /// /// Filters
@@ -365,6 +396,111 @@ public class ModManagerView extends BaseView {
         loadMods();
     }
 
+    /// /// /// Dragging /// /// ///
+
+    // Handle drag start
+    private void handleDragStart(Mod mod) {
+        Logger.getInstance().logEntry(null, "Started dragging: " + mod.getId());
+        draggedMod = mod;
+    }
+
+    // Handle drag end
+    private void handleDragEnd(Mod mod) {
+        Logger.getInstance().logEntry(null, "Stopped dragging: " + mod.getId());
+
+        if (draggedMod != null) {
+
+            // Get mouse position
+            Point mousePos = modListPanel.getMousePosition();
+            if (mousePos == null)
+                return;
+
+            // Find which ModCard is at this position
+            Mod targetMod = findModAtPosition(mousePos);
+            Logger.getInstance().logEntry(null, "\tDropped on: " + targetMod.getName());
+
+            if (targetMod != null && !targetMod.getId().equals(draggedMod.getId())) {
+                // Move draggedMod to position before targetMod in allMods
+                moveDraggedMod(draggedMod, targetMod);
+
+                // Refresh display
+                loadMods();
+            }
+        }
+        draggedMod = null;
+    }
+
+    /**
+     * Find which Card (ModCard or DividerCard) is at a given position of the
+     * point.<br>
+     * <br>
+     * If a DividerCard, returns a Mod with a matching Enabled Flag and a LoadOrder
+     * of 0.
+     * 
+     * @param point Point on the window to check
+     * @return Mod instance to determine where to move to.
+     */
+    private Mod findModAtPosition(Point point) {
+        for (Component comp : modListPanel.getComponents()) {
+            if (!comp.getBounds().contains(point))
+                continue;
+
+            if (comp instanceof ModCard) {
+                ModCard card = (ModCard) comp;
+                return card.getMod();
+            } else if (comp instanceof DividerCard) {
+
+                DividerCard divider = (DividerCard) comp;
+                Mod tmp = new Mod(null);
+                tmp.setLoadOrder(0);
+                tmp.setEnabled(divider.getTitle().contains("Enabled"));
+                return tmp;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Moves a Mod to replace the position of the target. If the target is from a
+     * DividerCard, the Mod enters its category at the top.
+     * 
+     * @param modToMove Mod to Move.
+     * @param targetMod Target Mod to determine where to move to.
+     */
+    private void moveDraggedMod(Mod modToMove, Mod targetMod) {
+        List<Mod> tmp;
+        if (targetMod.isEnabled()) {
+            tmp = enabledMods;
+        } else
+            tmp = disabledMods;
+
+        int index = tmp.indexOf(targetMod);
+        if (index == -1)
+            index = targetMod.getLoadOrder();
+
+        allMods.remove(modToMove);
+
+        modToMove.setEnabled(targetMod.isEnabled());
+        modToMove.setLoadOrder(targetMod.getLoadOrder());
+        allMods.add(index, modToMove);
+        Logger.getInstance().logEntry(null, "Dragger Mod " + modToMove.getId() + " to [" + modToMove.isEnabled()
+                + "] : " + modToMove.getLoadOrder());
+        updateEnabledModsOrder();
+    }
+
+    /**
+     * Update all Enabled Mod loadOrders based on their current GUI ordering.
+     */
+    private void updateEnabledModsOrder() {
+        List<Mod> enabledModsList = allMods.stream()
+                .filter(Mod::isEnabled)
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < enabledModsList.size(); i++) {
+            enabledModsList.get(i).setLoadOrder(i + 1);
+        }
+    }
+
     /// /// /// Button Events /// /// ///
 
     private void toEditModPage(Mod mod) {
@@ -380,32 +516,6 @@ public class ModManagerView extends BaseView {
             showError("Failed to toggle mod: " + e.getMessage(), e);
         }
     }
-
-    /**
-     * This just updates the mods internal loadOrder value which is used to set the
-     * spinner.
-     * 
-     * @param mod
-     */
-    private void updateLoadOrder(Mod mod) {
-        try {
-
-            for (Mod modTemp : allMods) {
-                if (modTemp.getId().equals(mod.getId())) {
-                    allMods.add(allMods.indexOf(modTemp), mod);
-                    allMods.remove(modTemp);
-                    break;
-                }
-            }
-            loadMods(); // Reload to get new order
-        } catch (Exception e) {
-            showError("Failed to update load order: " + e.getMessage(), e);
-        }
-    }
-
-    /// /// /// Dragging
-
-    ///
 
     /**
      * Apply all changes to the current GameState and rebuild.

@@ -328,7 +328,7 @@ public abstract class ModMetadata implements MapSerializable {
     @Override
     public String toString() {
         return String.format(
-                "Mod Details:\nID: %s | Game ID: %s\nVersion: %s\n Download Source: %s\nName: %s | Description: %s\nLoad Order: %d\nDownload Date: %s | Download Link: %s",
+                "Mod Details:\nID: %s | Game ID: %s\n\tVersion: %s\n\tDownload Source: %s\n\tName: %s | Description: %s\n\tLoad Order: %d\n\tDownload Date: %s | Download Link: %s",
                 getId(), gameId, version, downloadSource, name, description, loadOrder,
                 downloadDate.toString(), downloadLink);
     } // toString()

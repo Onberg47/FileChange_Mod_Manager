@@ -24,6 +24,10 @@ public class ModCard extends JPanel {
         private final Consumer<Mod> onEdit;
         private final Consumer<Mod> onToggle;
         private final Consumer<Mod> onOrderChange;
+        // dragging:
+        private boolean isDragging = false;
+        private Consumer<Mod> onDragStart;
+        private Consumer<Mod> onDragEnd;
 
         // UI Components
         private JSpinner loadOrderSpinner;
@@ -38,11 +42,15 @@ public class ModCard extends JPanel {
         public ModCard(Mod mod,
                         Consumer<Mod> onEdit,
                         Consumer<Mod> onToggle,
-                        Consumer<Mod> onOrderChange) {
+                        Consumer<Mod> onOrderChange,
+                        Consumer<Mod> onDragStart,
+                        Consumer<Mod> onDragEnd) {
                 this.mod = mod;
                 this.onEdit = onEdit;
                 this.onToggle = onToggle;
                 this.onOrderChange = onOrderChange;
+                this.onDragStart = onDragStart;
+                this.onDragEnd = onDragEnd;
 
                 initComponents();
                 setupData();
@@ -74,15 +82,7 @@ public class ModCard extends JPanel {
                                 new BevelBorder(mod.isEnabled() ? BevelBorder.RAISED : BevelBorder.LOWERED));
 
                 // Set border color based on status
-                Color borderColor = mod.isEnabled() ? new Color(0, 150, 0) : Color.RED;
-                setBorder(BorderFactory.createCompoundBorder(
-                                BorderFactory.createEmptyBorder(2, 2, 2, 2),
-                                BorderFactory.createLineBorder(borderColor, 2, true)));
-
-                // Set background based on status
-                setBackground(mod.isEnabled() ? new Color(240, 255, 240) : // Light green for enabled
-                                new Color(250, 250, 250) // Light gray for disabled
-                );
+                this.setTheme();
         }
 
         private void setupEventHandlers() {
@@ -132,12 +132,17 @@ public class ModCard extends JPanel {
                         }
                 });
 
-                // Drag handle (future implementation)
+                // Drag handle
                 DraggingLabel.setEnabled(true); // Disable for now
                 DraggingLabel.addMouseListener(new MouseAdapter() {
                         @Override
-                        public void mouseClicked(MouseEvent e) {
-                                DraggingLabelMouseClicked(e);
+                        public void mousePressed(MouseEvent e) {
+                                startDragging();
+                        }
+
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                                stopDragging();
                         }
                 });
         } // setupEventHandlers()
@@ -158,13 +163,59 @@ public class ModCard extends JPanel {
                 }
         }
 
+        private void startDragging() {
+                isDragging = true;
+
+                // Visual feedback
+                setBorder(new CompoundBorder(
+                                new EmptyBorder(0, 0, 0, 0),
+                                new CompoundBorder(
+                                                new LineBorder(Color.ORANGE, 2, true),
+                                                new EmptyBorder(3, 4, 4, 4))));
+                setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+
+                // Notify parent
+                if (onDragStart != null) {
+                        onDragStart.accept(mod);
+                }
+        }
+
+        private void stopDragging() {
+                if (!isDragging)
+                        return;
+
+                isDragging = false;
+
+                // Restore visual
+                setTheme();
+                setCursor(Cursor.getDefaultCursor());
+
+                // Notify parent
+                if (onDragEnd != null) {
+                        onDragEnd.accept(mod);
+                }
+        }
+
+        public boolean isDragging() {
+                return isDragging;
+        }
+
         /**
-         * 
-         * @param e
+         * Handles border and background themes.
          */
-        private void DraggingLabelMouseClicked(MouseEvent e) {
-                // TODO nothing for now.
-                System.out.println("Drage handle clicked!");
+        private void setTheme() {
+                Color borderColor = mod.isEnabled()
+                                ? new Color(0, 150, 0)
+                                : Color.RED;
+
+                setBorder(BorderFactory.createCompoundBorder(
+                                BorderFactory.createEmptyBorder(2, 2, 2, 2),
+                                BorderFactory.createLineBorder(borderColor, 2, true)));
+                // Set background based on status
+                setBackground(mod.isEnabled()
+                                ? new Color(240, 255, 240) // Light green for enabled
+                                : new Color(250, 250, 250) // Light gray for disabled
+                );
         }
 
         /// /// /// Getters for UI testing /// /// ///
