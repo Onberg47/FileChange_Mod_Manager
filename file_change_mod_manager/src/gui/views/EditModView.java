@@ -92,6 +92,9 @@ public class EditModView extends FormView {
         return modeToggleButton;
     }
 
+    /**
+     * Edit or Update the current mod.
+     */
     @Override
     protected void onSubmit() {
         if (!validateAndCollect())
@@ -101,20 +104,25 @@ public class EditModView extends FormView {
             ModManager manager = new ModManager(AppState.getInstance().getCurrentGame());
 
             if (isUpdate) { // Update mode
-                showConsole();
-                Path files = Path.of(formPanel.getAnswers().get("pathToFiles").toString());
-                manager.compileMod(files, (HashMap<String, Object>) formPanel.getAnswers());
+                try {
+                    showConsole();
+
+                    Path files = null;
+                    if (formPanel.getAnswers().containsKey("pathToFiles"))
+                        files = Path.of(formPanel.getAnswers().get("pathToFiles").toString());
+
+                    manager.updateMod(mod.getId(), files, (HashMap<String, Object>) formPanel.getAnswers());
+                } finally {
+                    super.consolePopup.setDone();
+                }
             } else { // Edit mode
                 System.out.println("Saving mod with edits: " + formPanel.getAnswers().toString());
                 manager.editMod(mod.getId(), (HashMap<String, Object>) formPanel.getAnswers());
             }
-
             // Navigate back
             navigator.goBack();
         } catch (Exception e) {
             showError("Failed to compile Mod: " + e.getMessage(), e);
-        } finally {
-            super.consolePopup.setDone();
         }
     }
 

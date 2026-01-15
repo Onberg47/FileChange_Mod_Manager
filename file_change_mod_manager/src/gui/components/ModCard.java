@@ -51,6 +51,7 @@ public class ModCard extends JPanel {
         private void setupData() {
                 // Set mod data
                 modTitleLabel.setText(mod.getName());
+                modTitleLabel.setToolTipText("ID: " + mod.getId());
                 modDescriptionTextPane.setText(mod.getDescription());
                 modDescriptionTextPane.setEditable(false);
 

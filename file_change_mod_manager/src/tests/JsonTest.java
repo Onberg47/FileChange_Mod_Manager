@@ -237,7 +237,7 @@ public class JsonTest {
         hMap.put("TEMP_DIR", defaultConfig.getTempDir().toString());
         hMap.put("TRASH_DIR", defaultConfig.getTrashDir().toString());
         try {
-            JsonIO.writeHasMap(path.toFile(), hMap);
+            JsonIO.writeHashMap(path.toFile(), hMap);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

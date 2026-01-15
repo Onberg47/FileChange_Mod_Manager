@@ -36,7 +36,7 @@ public class ViewFactory {
         navigator.registerView("editMod", params -> new EditModView(navigator, params));
 
         /// Other
-        //navigator.registerView("settings", params -> new SettingsView(navigator,params));
+        navigator.registerView("settings", params -> new SettingsView(navigator,params));
 
         // Add more views as needed
     }

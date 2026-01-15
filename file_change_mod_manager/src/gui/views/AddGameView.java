@@ -7,6 +7,7 @@ package gui.views;
 import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
+import gui.state.AppState;
 import gui.util.IconLoader;
 import core.managers.GameManager;
 
@@ -47,7 +48,7 @@ public class AddGameView extends FormView {
         try {
             // Update game from answers
             HashMap<String, Object> answers = (HashMap<String, Object>) formPanel.getAnswers();
-            GameManager.addGame(answers);
+            AppState.getInstance().setCurrentGame(GameManager.addGame(answers));
 
             // Try add a new icon
             if (answers.containsKey("iconFile")) {

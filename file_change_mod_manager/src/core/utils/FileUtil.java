@@ -38,8 +38,10 @@ public class FileUtil {
 
     /**
      * Recursively scans a directory and prints all files and directories with
-     * indentation based on depth.
-     * 
+     * indentation based on depth.<br>
+     * <br>
+     * This will skip ModManager Files.<br>
+     * <br>
      * MAXIMUM DEPTH: 10 by default to prevent infinite recursion!
      * 
      * @param dirPath  The root path to scan from.
@@ -54,7 +56,9 @@ public class FileUtil {
 
     /**
      * Recursively scans a directory and prints all files and directories with
-     * indentation based on depth.
+     * indentation based on depth.<br>
+     * <br>
+     * This will skip ModManager Files.
      * 
      * @param dirPath  The root path to scan from.
      * @param relative Relative root to be removed from the final paths.
@@ -97,6 +101,10 @@ public class FileUtil {
                                         prefix + path.getFileName()));
                         return Stream.of(modFile);
                     } else if (Files.isDirectory(path)) {
+                        if (path.endsWith(config.getManagerDir())) {
+                            log.logWarning("Mod Manager files found! Skipping.", null);
+                            return Stream.empty();
+                        }
                         // Create ModFile for directory (if needed) or recurse
                         String tmpPrefix = prefix + path.getFileName().toString() + "/";
                         log.logEntry(0, String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
@@ -289,8 +297,9 @@ public class FileUtil {
     /**
      * Copies all contents of a rootDirectory into another directory.
      * 
-     * @param rootDir   Directory who's contents are to be copied.
-     * @param targetDir Directory contents are copied into.
+     * @param rootDir    Directory who's contents are to be copied.
+     * @param targetDir  Directory contents are copied into.
+     * @param copyOption StandardCopyOption to use or Null.
      * @throws IOException
      * 
      * @author Qwen3 Coder 30B
@@ -320,7 +329,10 @@ public class FileUtil {
                         Files.createDirectories(targetPath);
                     } else {
                         // If it's a file, copy it
-                        Files.copy(sourcePath, targetPath, copyOption);
+                        if (copyOption == null)
+                            Files.copy(sourcePath, targetPath);
+                        else
+                            Files.copy(sourcePath, targetPath, copyOption);
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);

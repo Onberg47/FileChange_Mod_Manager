@@ -37,7 +37,7 @@ public abstract class defaultConfig {
     static final Path BACKUP_DIR = MANAGER_DIR.resolve("backups/");
     static final Path LINEAGE_DIR = MANAGER_DIR.resolve("lineages/");
 
-    static final Path DEFAULT_MOD_STORAGE_DIR = Path.of("mod_manager/mods/");
+    static final Path DEFAULT_MOD_DIR = Path.of("mod_manager/mods/");
 
     /// /// /// Getters /// /// ///
 
@@ -51,6 +51,7 @@ public abstract class defaultConfig {
         hMap.put("TEMP_DIR", TEMP_DIR.toString());
         hMap.put("TRASH_DIR", TRASH_DIR.toString());
         hMap.put("LOG_DIR", LOG_DIR.toString());
+        hMap.put("DEFAULT_MOD_DIR", DEFAULT_MOD_DIR.toString());
         hMap.put("MANAGER_DIR", MANAGER_DIR.toString());
 
         return hMap;

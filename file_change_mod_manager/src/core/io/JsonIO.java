@@ -196,7 +196,7 @@ public class JsonIO {
      * @throws Exception                If the file directories do not exsist.
      */
     @SuppressWarnings("unchecked")
-    public static void writeHasMap(File file, HashMap<String, String> hMap) throws Exception {
+    public static void writeHashMap(File file, HashMap<String, String> hMap) throws Exception {
         if (hMap.isEmpty()) {
             throw new IllegalArgumentException("HashMap cannot be null, must specify a field to change");
         }

@@ -17,7 +17,9 @@ import core.objects.ModMetadata;
  */
 public class QuestionDefinitions {
 
-        // === GAME QUESTIONS ===
+        /**
+         * Full questions for a Game.
+         */
         public static List<FormQuestion> getGameQuestions() {
                 return Arrays.asList(
                                 FormQuestion.builder(Game.Keys.id.toString(), "Game ID")
@@ -53,10 +55,14 @@ public class QuestionDefinitions {
                                 FormQuestion.builder("iconFile", "Icon File")
                                                 .type(FormQuestion.QuestionType.FILE_CHOOSER)
                                                 .tooltip("Pick a file to be copied to the manager files as the icon ('.png' / '.jpg' only)")
-                                                .build());
+                                                .build()
+
+                );
         } // getGameQuestions()
 
-        // === MOD QUESTIONS ===
+        /**
+         * Full ModManifest questions. This is for compiling mods.
+         */
         public static List<FormQuestion> getModQuestions() {
                 return Arrays.asList(
                                 FormQuestion.builder(ModMetadata.Keys.name.toString(), "Mod Name")
@@ -96,9 +102,14 @@ public class QuestionDefinitions {
                                 FormQuestion.builder("pathToFiles", "Mod Files Directory")
                                                 .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
                                                 .tooltip("Path to mod directory, pre-format according to install instructions (this will override all data when updating)")
-                                                .build());
+                                                .build()
+
+                );
         } // getModQuestions()
 
+        /**
+         * This is only non-essential fields that can be re-written without compiling.
+         */
         public static List<FormQuestion> getModEditQuestions() {
                 return Arrays.asList(
                                 FormQuestion.builder(ModMetadata.Keys.description.toString(), "Description")
@@ -122,7 +133,47 @@ public class QuestionDefinitions {
 
                                 FormQuestion.builder(ModMetadata.Keys.tags.toString(), "Tags")
                                                 .tooltip("Comma-separated tags (weapons, textures, gameplay)")
-                                                .build());
+                                                .build()
 
+                );
+        } // getModEditQuestions()
+
+        /**
+         * All settings for primary config settings.
+         */
+        public static List<FormQuestion> getSettingQuestions() {
+                return Arrays.asList(
+
+                                FormQuestion.builder("DEFAULT_MOD_DIR", "(Normal) Default Mod storage Direcotry")
+                                                .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
+                                                .tooltip("Where to set store mods per a game by default")
+                                                .build(),
+
+                                FormQuestion.builder("MANAGER_DIR", "(Advanced) Deployment Manager Direcotry")
+                                                .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
+                                                .tooltip("Where the manager stores its files within a Game")
+                                                .build(),
+
+                                FormQuestion.builder("GAME_DIR", "(Expert) Games Direcotry")
+                                                .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
+                                                .tooltip("Where games are stored in the manager.")
+                                                .build(),
+
+                                FormQuestion.builder("TEMP_DIR", "(Expert) Tempory Direcotry")
+                                                .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
+                                                .tooltip("Where tempory operations take place")
+                                                .build(),
+
+                                FormQuestion.builder("TRASH_DIR", "(Expert) Trash Direcotry")
+                                                .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
+                                                .tooltip("Where trashed files go")
+                                                .build(),
+
+                                FormQuestion.builder("LOG_DIR", "(Expert) Logs Direcotry")
+                                                .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
+                                                .tooltip("Where Log files are stored.")
+                                                .build()
+
+                );
         } // getModEditQuestions()
 } // Class

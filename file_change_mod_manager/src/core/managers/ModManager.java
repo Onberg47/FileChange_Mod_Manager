@@ -4,7 +4,6 @@
  */
 package core.managers;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InvalidObjectException;
@@ -83,7 +82,10 @@ public class ModManager {
             gameState = GameState.loadFromFile(GAMESTATE_PATH);
         } catch (Exception e) {
             gameState = new GameState();
-            log.logWarning("Could not find GameState.", e);
+
+            // If the manager directory exits, thn there should be a GameState.
+            if (Files.exists(game.getInstallDirectory().resolve(MANAGER_DIR)))
+                log.logWarning("Could not find GameState.", e);
         }
     } // Constructor
 
@@ -106,8 +108,7 @@ public class ModManager {
         // Path tempDir = Path.of(TEMP_DIR, dirName);
         Path tempDir = TEMP_DIR.resolve(dirName);
 
-        if (!Files.exists(tempDir)) {
-            // Verify the dirName given is a valid directory.
+        if (!Files.exists(tempDir) && Files.isDirectory(tempDir)) { // Verify the dirName given is a valid directory.
             throw new Exception("No such directory found: " + tempDir.toString());
         } else if (!Files.isDirectory(tempDir)) {
             // TODO If path leads to a zip, attempt to extract.
@@ -136,28 +137,26 @@ public class ModManager {
 
         try {
             Path path = tempDir.resolve(MANIFEST_DIR.toString(), manifest.getId() + ".json");
+            FileUtil.deleteDirectory(path.getParent());
             Files.createDirectories(path.getParent());
             // Write to JSON
-            JsonIO.write(manifest, new File(path.toString()));
+            JsonIO.write(manifest, path.toFile());
             log.logEntry(1, "✔ Written! to: " + path.toString());
 
         } catch (FileNotFoundException e) {
             throw new Exception("Failed to write Manifest: "
                     + storagePath.resolve(MANIFEST_DIR.toString(), manifest.getId() + ".json").toString(), e);
         } catch (Exception e) {
-            throw new Exception("Failed to write manifest.", e);
+            throw new Exception("Failed to write manifest: " + e.getMessage(), e);
         }
 
         /// 5. Final operation: Move to .mod_storage/game_id/mod_id_version /
         try {
             log.logEntry(0, "📦 Mod complete! Attempting to move Mod to: " + storagePath);
-            // If the directory exsists, then it must be deleted first to prevent unused
-            // files being present.
+            // Delete target directory to preven conflicts.
             if (Files.exists(storagePath)) {
                 FileUtil.deleteDirectory(storagePath);
             }
-            // Files.setAttribute(storagePath, "user:loadOrder",
-            // ((Integer)mod.getLoadOrder()).toString());
             Files.move(tempDir, storagePath);
             log.logEntry(0, "✔ done.", "Move complete. Finished.");
             return manifest;
@@ -165,7 +164,7 @@ public class ModManager {
             // thrown by deleteDirectory()
             throw new Exception("Failed to move or delete exsisting Mod data at path: " + storagePath.toString(), e);
         } catch (Exception e) {
-            throw new Exception("Failed to move files from temp.", e);
+            throw new Exception("Failed to move files from temp: " + e.getMessage(), e);
         }
     } // modCompileNew()
 
@@ -176,27 +175,28 @@ public class ModManager {
      * @param metaMap  Expected Map of mod Data for compiler.
      * @throws Exception
      */
-    public void compileMod(Path filesDir, Map<String, Object> metaMap) throws Exception {
+    public ModManifest compileMod(Path filesDir, Map<String, Object> metaMap) throws Exception {
         /// Prepare mod files.
-        System.out.println("Compiling from Files...");
+        System.out.println("Compiling from Files from: " + filesDir.toString());
 
         String modId = metaMap.containsKey("name")
                 ? String.format("%05d", metaMap.get("name").toString().hashCode() & 0xffff)
-                : "modId";
+                : "modId"; // should be impossible to not have a name
         String dir = (modId + "__" + DateUtil.getNumericTimestamp());
 
         Path target = TEMP_DIR.resolve(dir);
 
         /// Copy files to temp.
         try {
-            Files.copy(filesDir, target);
+            // Files.copy(filesDir, target);
+            FileUtil.copyDirectoryContents(filesDir, target, null);
             log.logEntry(1, "Mod files copied to " + target.toString());
         } catch (Exception e) {
             throw new Exception("Could not copy Mod contents.", e);
         }
 
         /// Compile like normal.
-        this.compileMod(dir, metaMap);
+        return this.compileMod(dir, metaMap);
     } // compileMod()
 
     /**
@@ -275,6 +275,7 @@ public class ModManager {
      */
     public void trashMod(String modId) throws Exception {
         /// /// 1. Find the Mod's manifest from it's ID and read it.
+        log.logEntry(0, "🗑 Trashing mod...");
         ModManifest manifest;
         Path manifestPath = MANIFEST_DIR.resolve(modId + ".json");
         try {
@@ -282,11 +283,11 @@ public class ModManager {
                     MapSerializable.ObjectTypes.MOD_MANIFEST);
             log.logEntry(1, "✔ Manifest of Mod: " + manifest.getName() + " found!");
         } catch (Exception e) {
-            throw new Exception("Mod manifest does not exsists.", e);
+            throw e;
         }
 
         /// /// 2. Use data from manifest to safley remove Mod files.
-        log.logEntry(0, "🗑 Removing mod: " + manifest.getName() + "\n\tMoving files...");
+        log.logEntry(1, "moving files of mod: " + manifest.getName());
         try {
             Path src;
             Path targetDir = TRASH_DIR.resolve(manifest.getId() + "__" + DateUtil.getNumericTimestamp());
@@ -464,32 +465,72 @@ public class ModManager {
      * Re-write a ModManifest from new, partial data. Does not support re-compiling
      * files.
      * 
-     * @param modId
-     * @param metaMap
+     * @param modId   mod Id of Mod to edit.
+     * @param metaMap Map of values to change.
      * @throws Exception
      */
     public void editMod(String modId, HashMap<String, Object> metaMap) throws Exception {
         ModManifest manifest;
-        Path path = game.getStoreDirectory().resolve(modId);
+        Path path = game.getStoreDirectory().resolve(modId, MANIFEST_DIR.toString(), modId + ".json");
+        int loadOrder = -1;
+        log.logEntry(0, "Editting Mod: " + modId);
 
-        log.logEntry(0, "Updating Mod: " + modId);
+        /// Trash old if was installed
+        if (gameState.containsMod(modId)) {
+            loadOrder = gameState.getLoadOrder(modId);
+            trashMod(modId);
+        }
 
-        if (!Files.exists(path))
-            Files.createDirectories(path);
-
+        /// Write file with changes
         manifest = (ModManifest) JsonIO.read(path.toFile(), MapSerializable.ObjectTypes.MOD_MANIFEST);
         manifest = this.getModManifestById(modId).setFromMap(metaMap);
         JsonIO.write(manifest, path.toFile());
 
-        log.logEntry(0, "Mod " + modId + " has been updated to:\n" + manifest.toString());
+        /// Restore if was installed
+        if (loadOrder > -1) {
+            manifest.setLoadOrder(loadOrder);
+            deployMod(manifest);
+        }
+
+        log.logEntry(0, "Mod " + modId + " has been editted to:\n" + manifest.toString());
     }
 
-    public void updateMod(Map<String, Object> metaMap) {
-        // TODO recompile mod
-    }
+    /**
+     * Used to Update Mods when fileds changed require the Mod to be recompiled
+     * because of new files or the ID has changed.
+     * 
+     * @param modId    Initial ID of Mod prior to updating.
+     * @param filesDir Path to new files or Null to skip and use exsisting files.
+     * @param metaMap  Map of values to change.
+     * @throws Exception
+     */
+    public void updateMod(String modId, Path filesDir, Map<String, Object> metaMap) throws Exception {
+        ModManifest manifest = new ModManifest();
+        int loadOrder = -1;
+        log.logEntry(0, "Updating Mod: " + modId);
 
-    public void updateMod(Path filesDir, Map<String, Object> metaMap) {
-        // TODO recompile mod and manifest
+        /// Trash if was installed.
+        if (gameState.containsMod(modId)) {
+            loadOrder = gameState.getLoadOrder(modId);
+            trashMod(modId);
+        }
+
+        /// Compile new Manifest.
+        if (filesDir == null) { // get old contents path.
+            filesDir = game.getStoreDirectory().resolve(modId);
+        }
+        manifest = compileMod(filesDir, metaMap); // this will also write the file
+
+        /// Delete old version if present.
+        if (!manifest.getId().equals(modId)) {
+            log.logEntry("Mod ID has changed. Deleting old version.");
+            FileUtil.deleteDirectory(game.getStoreDirectory().resolve(modId));
+        }
+
+        /// Restore if was installed.
+        if (loadOrder > -1) {
+            deployMod(manifest);
+        }
     }
 
     /**
@@ -819,7 +860,7 @@ public class ModManager {
                     path.toFile(),
                     MapSerializable.ObjectTypes.MOD_MANIFEST);
         } catch (InvalidObjectException e) {
-            throw new Exception("Mod file does not exsists! " + path.toString(), e);
+            throw new Exception("File is not a ModManifest. " + path.toString(), e);
         } catch (Exception e) {
             throw new FileNotFoundException("Mod manifest does not exsists! " + path.toString());
         }
