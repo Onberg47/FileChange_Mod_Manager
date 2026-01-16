@@ -221,6 +221,23 @@ public class Logger {
         return stack.toString();
     }
 
+    /// /// /// Public utilities /// /// ///
+
+    /**
+     * 
+     * @param i   initial value
+     * @param max max value
+     * @return A String displaying the percentage and a progress bar.
+     */
+    public static String progressBar(double i, double max) {
+        double charScale = 50.0; // total number of characters
+        i = (i / max) * charScale;
+        return String.format("Progress: %.0f%% [%s%s]\n",
+                ((i / charScale) * 100),
+                "#".repeat((int) i),
+                "_".repeat((int) (charScale - i)));
+    }
+
 } // Class
 
 // ⚠ ⛔ 🪟 ⚙ 🛡 💣 🔒 🔓 🗄 🗃 🗂 🗒 📦 📥 📤 🖥 🎵 🔔 ❗ ⚪ ⚫ ❌ ✔

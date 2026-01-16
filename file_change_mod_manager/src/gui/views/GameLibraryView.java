@@ -6,14 +6,23 @@ package gui.views;
 
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
+import gui.util.IconLoader;
 import gui.components.GameTile;
 import core.managers.GameManager;
 import core.objects.Game;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+/**
+ * A simple View that displays GameTiles, where the first tile is for adding a
+ * new game.
+ * 
+ * @author Stephanos B
+ * @since v2
+ */
 public class GameLibraryView extends BaseView {
     // UI Components (from your JForm design)
     private JScrollPane scrollPane;
@@ -79,6 +88,11 @@ public class GameLibraryView extends BaseView {
         // Click on tile -> set current game and navigate
         tile.addTileClickListener(e -> {
             AppState.getInstance().setCurrentGame(game);
+            AppState.getInstance().setThemeColor(
+                    IconLoader.extractThemeColor(
+                            tile.getIcon(),
+                            0.45f));
+
             navigator.navigateTo("modManager",
                     Map.of("gameId", game.getId()));
         });

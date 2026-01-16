@@ -13,6 +13,9 @@ import javax.swing.*;
 
 /**
  * Creates a popup window that listens to the console.
+ * 
+ * @author Stephanos B
+ * @since v3
  */
 public class ConsolePopup {
     private JTextArea consoleArea;

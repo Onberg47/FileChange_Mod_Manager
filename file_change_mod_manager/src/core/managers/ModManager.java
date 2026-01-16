@@ -152,7 +152,7 @@ public class ModManager {
 
         /// 5. Final operation: Move to .mod_storage/game_id/mod_id_version /
         try {
-            log.logEntry(0, "📦 Mod complete! Attempting to move Mod to: " + storagePath);
+            log.logEntry(0, "📦 New Mod " + manifest.getId() + " complete! Attempting to move Mod to: " + storagePath);
             // Delete target directory to preven conflicts.
             if (Files.exists(storagePath)) {
                 FileUtil.deleteDirectory(storagePath);
@@ -210,7 +210,7 @@ public class ModManager {
         Path tempDir = TEMP_DIR.resolve(modId + "__" + DateUtil.getNumericTimestamp());
         Path storedDir = game.getStoreDirectory().resolve(modId);
 
-        log.logEntry(0, "📦 Attempting to deploy Mod...");
+        log.logEntry(0, "📦 Attempting to deploy Mod " + modId + "...");
         try {
             /// 1. Find and copy the ModManifest's json file.
             try {
@@ -251,7 +251,7 @@ public class ModManager {
                 log.logEntry(1, "Cleaning temp...");
                 FileUtil.deleteDirectory(tempDir);
 
-                log.logEntry(0, "📦 Mod successfully deployed!");
+                log.logEntry(0, "📦 Mod " + modId + " successfully deployed!");
             } catch (IOException e) {
                 throw new Exception("Failed to copy Mod files to temp!", e);
             }
@@ -275,7 +275,7 @@ public class ModManager {
      */
     public void trashMod(String modId) throws Exception {
         /// /// 1. Find the Mod's manifest from it's ID and read it.
-        log.logEntry(0, "🗑 Trashing mod...");
+        log.logEntry(0, "🗑 Trashing mod: " + modId + "...");
         ModManifest manifest;
         Path manifestPath = MANIFEST_DIR.resolve(modId + ".json");
         try {
@@ -414,7 +414,7 @@ public class ModManager {
             FileUtil.cleanDirectories(GAME_ROOT_PATH, MANIFEST_DIR);
             log.logEntry(1, "✔", "Cleaned.");
 
-            log.logEntry(0, "🗑 Mod successfully trashed!");
+            log.logEntry(0, "🗑 Mod " + modId + " successfully trashed!");
         } catch (NullPointerException e) {
             // If the ModFiles array is empty, this will catch the null exception.
             throw new Exception("The Mod has no contents.", e);
@@ -441,8 +441,6 @@ public class ModManager {
         int changeMax = diff.size();
         int i = 0;
         for (Mod mod : diff) {
-            i++;
-            log.logEntry("Progess: applying change " + i + " / " + changeMax);
 
             if (mod.isEnabled()) {
                 // log.logEntry("Installing enabled mod: " + mod.getId());
@@ -454,6 +452,8 @@ public class ModManager {
                 // log.logEntry("Trashing disabled mod: " + mod.getId());
                 trashMod(mod.getId());
             }
+            i++;
+            log.logEntry(0, "\n" + Logger.progressBar(i, changeMax));
 
         } // for each Mod
         log.logEntry(0, "Done deploying GameState.");
@@ -767,7 +767,7 @@ public class ModManager {
      *         GameState, where Mods with a LoadOrder of -1 are to be removed.
      */
     private GameState mkGameStateDif(GameState newGs) {
-        log.logEntry("Making GameState Diff.");
+        log.logEntry(1, "Making GameState Diff.");
 
         /// 1. Go through current GameState
         for (Mod current : gameState.getDeployedMods()) {
@@ -784,7 +784,7 @@ public class ModManager {
             }
         }
 
-        log.logEntry(
+        log.logEntry(1,
                 "Finished GameState Diff.",
                 "Finished GameState Diff." + newGs.toString());
         return newGs;

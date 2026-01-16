@@ -7,7 +7,7 @@ import javax.swing.GroupLayout;
 
 
 /**
- * @author onberg
+ * @author Stephanos B
  */
 public class AddGamePanel extends JPanel {
 	public AddGamePanel() {
@@ -16,7 +16,7 @@ public class AddGamePanel extends JPanel {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
-		// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+		// Generated using JFormDesigner Stephanos
 
 		//======== this ========
 
@@ -34,6 +34,6 @@ public class AddGamePanel extends JPanel {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-	// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+	// Generated using JFormDesigner Stephanos
 	// JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

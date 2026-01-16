@@ -18,7 +18,10 @@ import java.nio.file.Paths;
 import java.util.*;
 
 /**
- * Read an exsisting Game.json to auto-populate data and allow editting.
+ * Displays a FormView. Read an exsisting Game.json to auto-populate data and allow editting.
+ * 
+ * @author Stephanos B
+ * @since v2
  */
 public class EditGameView extends FormView {
     private Game game;
@@ -105,7 +108,7 @@ public class EditGameView extends FormView {
 
         try {
             GameManager.removeGame(game.getId());
-            
+
         } catch (Exception e) {
             System.err.println("Could not delete Game " + game.getId() + " -> " + e.getMessage());
             e.printStackTrace();

@@ -1,4 +1,7 @@
-// src/gui/navigator/AppNavigator.java
+/*
+ * Author Stephanos B
+ * Date: 8/01/2026
+ */
 package gui.navigator;
 
 import javax.swing.*;
@@ -14,6 +17,8 @@ import java.util.Stack;
 /**
  * Handles navigation between views with back stack support.
  * Similar to Android's FragmentManager.
+ * 
+ * @since v2.0
  */
 public class AppNavigator {
     private final JFrame mainFrame;
@@ -157,5 +162,9 @@ public class AppNavigator {
 
     public JFrame getMainFrame() {
         return mainFrame;
+    }
+
+    public String getViewId() {
+        return this.history.peek().viewId;
     }
 } // Class

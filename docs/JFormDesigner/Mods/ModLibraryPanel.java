@@ -7,7 +7,7 @@ import javax.swing.*;
 
 
 /**
- * @author onberg
+ * @author Stephanos B
  */
 public class ModLibraryPanel extends JPanel {
 	public ModLibraryPanel() {
@@ -16,7 +16,7 @@ public class ModLibraryPanel extends JPanel {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
-		// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+		// Generated using JFormDesigner Stephanos
 
 		//======== this ========
 		setLayout(new BorderLayout());
@@ -24,6 +24,6 @@ public class ModLibraryPanel extends JPanel {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-	// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+	// Generated using JFormDesigner Stephanos
 	// JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

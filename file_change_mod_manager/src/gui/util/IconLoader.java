@@ -4,60 +4,65 @@
  */
 package gui.util;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import core.config.AppConfig;
 import gui.state.AppState;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Managers GUI icons.
+ * 
+ * @since v2
+ */
 public class IconLoader {
     private static final Map<String, ImageIcon> iconCache = new HashMap<>();
     private static final ImageIcon DEFAULT_GAME_ICON = createDefaultGameIcon();
-    private static final ImageIcon DEFAULT_MOD_ICON = createDefaultModIcon();
+    private static final ImageIcon DEFAULT_ICON = createDefaultModIcon();
+
+    /**
+     * Register all icons here.
+     */
+    public enum ICONS {
+        BACK("ic_back.png"),
+        HELP("ic_help.png"),
+        EXIT("ic_exit.png");
+
+        private String filename;
+
+        ICONS(String filename) {
+            this.filename = filename;
+        }
+
+        public String getFilename() {
+            return this.filename;
+        }
+    }
+
+    /// /// /// Custom Icons
 
     /**
      * Load game icon from path with caching.
      */
-    public static ImageIcon loadGameIcon(String gameId) {
+    public static ImageIcon loadGameIcon(String gameId, Dimension size) {
         String cacheKey = "game_" + gameId;
         // Check cache first
         if (iconCache.containsKey(cacheKey)) {
             return iconCache.get(cacheKey);
         }
-
         /// check for different image types.
-        Path iconPath = core.config.AppConfig.getInstance().getGameDir().resolve("icons");
-        if (Files.exists(iconPath.resolve(gameId + ".png"))) {
-            iconPath = iconPath.resolve(gameId + ".png");
-        } else if (Files.exists(iconPath.resolve(gameId + ".jpg"))) {
-            iconPath = iconPath.resolve(gameId + ".jpg");
-        } else {
-            iconPath = iconPath.resolve("placeholder.png");
-        }
-
-        // Try to load from file
-        if (iconPath != null && iconPath.toFile().exists()) {
-            try {
-                ImageIcon icon = new ImageIcon(iconPath.toString());
-                Image scaled = scaleImage(icon.getImage(), 64, 64);
-                icon = new ImageIcon(scaled);
-                iconCache.put(cacheKey, icon);
-                return icon;
-            } catch (Exception e) {
-                System.err.println("Failed to load icon: " + iconPath + " - " + e.getMessage());
-            }
-        }
-
-        // Use default icon and cache it
-        iconCache.put(cacheKey, DEFAULT_GAME_ICON);
-        return DEFAULT_GAME_ICON;
+        Path iconPath = AppConfig.getInstance().getGameDir().resolve("icons");
+        return load(iconPath, gameId, cacheKey, size, DEFAULT_GAME_ICON);
     } // loadGameIcon()
 
     /**
@@ -65,8 +70,78 @@ public class IconLoader {
      */
     public static ImageIcon loadModIcon(String modId, Path iconPath) {
         // TODO Similar implementation...
-        return DEFAULT_MOD_ICON;
+        return DEFAULT_ICON;
     }
+
+    /**
+     * Bulk loader for the icon.
+     * 
+     * @param iconPath Path to directory of expected icon.
+     * @param iconId   ID/filename of icon with no file extenstion.
+     * @param cacheKey cached key of icon.
+     * @return Icon or DEFAULT_ICON.
+     */
+    private static ImageIcon load(Path iconPath, String iconId, String cacheKey, Dimension size,
+            ImageIcon fallbackIcon) {
+        // Check for available files.
+        if (Files.exists(iconPath.resolve(iconId + ".png")))
+            iconPath = iconPath.resolve(iconId + ".png");
+
+        else if (Files.exists(iconPath.resolve(iconId + ".jpg")))
+            iconPath = iconPath.resolve(iconId + ".jpg");
+
+        else
+            iconPath = iconPath.resolve("placeholder.png");
+
+        // Try to load from file
+        if (iconPath != null && iconPath.toFile().exists()) {
+            try {
+                ImageIcon icon = new ImageIcon(iconPath.toString());
+                Image scaled = scaleImage(icon.getImage(), size.width, size.height);
+                icon = new ImageIcon(scaled);
+                iconCache.put(cacheKey, icon);
+                return icon;
+            } catch (Exception e) {
+                System.err.println("Failed to load icon: " + iconPath + " - " + e.getMessage());
+            }
+        }
+        // If all else fails, fallbalck to a drawn icon.
+        iconCache.put(cacheKey, fallbackIcon);
+        return fallbackIcon;
+    }
+
+    /// Resources
+
+    /**
+     * Loads an Icon from {@code resources/icons/}
+     * 
+     * @param ICONS Icon from the registered enum of all ICONS.
+     * @param size
+     * @return
+     */
+    public static ImageIcon loadResourceIcon(ICONS icon, Dimension size) {
+        String cacheKey = "resource_" + icon.getFilename();
+        // Check cache first
+        if (iconCache.containsKey(cacheKey)) {
+            return iconCache.get(cacheKey);
+        }
+
+        ImageIcon iconImg;
+        try {
+            InputStream iconStream = ResourceLoader.getResourceAsStream("resources/icons/" + icon.getFilename());
+            iconImg = new ImageIcon(ImageIO.read(iconStream));
+            Image scaled = scaleImage(iconImg.getImage(), size.width, size.height);
+            iconImg = new ImageIcon(scaled);
+
+        } catch (Exception e) {
+            System.err.println("Failed to load icon: " + icon.getFilename() + " - " + e.getMessage());
+            iconImg = DEFAULT_ICON;
+        }
+        iconCache.put(cacheKey, iconImg);
+        return iconImg;
+    }
+
+    /// /// /// Icon Processes
 
     /**
      * Scale image maintaining aspect ratio.
@@ -119,6 +194,13 @@ public class IconLoader {
         return new ImageIcon(image);
     }
 
+    /**
+     * Returns a pre-defiend icon that is drawn with no image assets as a final
+     * fallback.
+     * Size is fixed at 64x64.
+     * 
+     * @return
+     */
     private static ImageIcon createDefaultModIcon() {
         // Similar to above but different design
         int size = 64;
@@ -155,6 +237,22 @@ public class IconLoader {
     public static void clearCache(String id) {
         iconCache.remove("game_" + id);
         iconCache.remove("mod_" + id);
+    }
+
+    /// /// /// Icon post-processes
+
+    /**
+     * Extracts a theme color from a game/mod icon for UI theming.
+     * 
+     * @param gameIcon  The game/mod icon image
+     * @param intensity Target brightness (0.3-0.7 recommended)
+     * @return A theme color derived from the icon
+     */
+    public static Color extractThemeColor(ImageIcon gameIcon, float intensity) {
+        if (gameIcon == null) {
+            return ColorExtractor.extractThemeColor(null, intensity);
+        }
+        return ColorExtractor.extractThemeColor(gameIcon.getImage(), intensity);
     }
 
     /// /// /// View Helpers /// /// ///

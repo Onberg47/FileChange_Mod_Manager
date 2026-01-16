@@ -1,5 +1,5 @@
 /**
- * Author Stephanos B
+ * Author Stephanos B (Fragment-like structure) + DeepSeekV3 (implementation)
  * Date 7/01/2026
  */
 package gui.views;
@@ -15,6 +15,9 @@ import java.util.Map;
 
 /**
  * Base class for all views. Provides navigation and common functionality.
+ * 
+ * @author Stephanos B
+ * @since v2.0
  */
 public abstract class BaseView extends JPanel {
     protected final AppNavigator navigator;

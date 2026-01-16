@@ -1,8 +1,19 @@
+/**
+ * Author Stephanos B
+ * Date 11/01/2026
+ */
 package gui.components;
 
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * A Divider Card for the ModList ScrollPane. These act as headings and interact
+ * with the drag-to-order ModCards.
+ * 
+ * @author Stephanos B
+ * @since v3
+ */
 public class DividerCard extends JPanel {
     private final String title;
     private final Color highlightColor;

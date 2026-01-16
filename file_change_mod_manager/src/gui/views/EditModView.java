@@ -19,7 +19,12 @@ import javax.swing.JComponent;
 import javax.swing.JToggleButton;
 
 /**
- * Read an exsisting Mod.json to auto-populate data and allow editting.
+ * Displays a FormView. Read an exsisting Mod.json to auto-populate data and
+ * allow editting.
+ * Has an Edit and an Update mode.
+ * 
+ * @author Stephanos B
+ * @since v3
  */
 public class EditModView extends FormView {
     private Mod mod;

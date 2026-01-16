@@ -17,7 +17,7 @@ import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 
 /**
- * @author onberg
+ * @author Stephanos B
  */
 public class ModCard extends JPanel {
         private final Mod mod;

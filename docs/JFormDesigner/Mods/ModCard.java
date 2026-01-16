@@ -11,7 +11,7 @@ import javax.swing.border.*;
 
 
 /**
- * @author onberg
+ * @author Stephanos B
  */
 public class ModCard extends JPanel {
 	public ModCard() {
@@ -24,7 +24,7 @@ public class ModCard extends JPanel {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
-		// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+		// Generated using JFormDesigner Stephanos
 		loadOrderSpinner = new JSpinner();
 		modTitleLabel = new JLabel();
 		modDescriptionTextPane = new JTextPane();
@@ -155,7 +155,7 @@ public class ModCard extends JPanel {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-	// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+	// Generated using JFormDesigner Stephanos
 	private JSpinner loadOrderSpinner;
 	private JLabel modTitleLabel;
 	private JTextPane modDescriptionTextPane;

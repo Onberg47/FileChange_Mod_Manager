@@ -115,7 +115,7 @@ public class GameTile extends JPanel {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
-		// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+		// Generated using JFormDesigner Stephanos
 		gameIconLabel = new JLabel();
 		editButton = new JButton();
 
@@ -149,7 +149,7 @@ public class GameTile extends JPanel {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-	// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+	// Generated using JFormDesigner Stephanos
 	private JLabel gameIconLabel;
 	private JButton editButton;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on

@@ -15,6 +15,9 @@ import java.util.Map;
 
 /**
  * Reusable element for viewing a FormPanel.
+ * 
+ * @author Stephanos B
+ * @since v2
  */
 public abstract class FormView extends BaseView {
     protected FormPanel formPanel;

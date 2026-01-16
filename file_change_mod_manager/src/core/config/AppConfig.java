@@ -61,11 +61,6 @@ public final class AppConfig {
 
     // #endregion
 
-    /// GUI values:
-    // #region
-    // private int fontSize; // example field.
-    // #endregion
-
     /**
      * Builds an always complete instance with every final value from AppConfig.
      */
@@ -121,9 +116,10 @@ public final class AppConfig {
 
         this.MANAGER_DIR = builder.managerDir;
 
-        this.LINEAGE_DIR = MANAGER_DIR.resolve("lineages/").normalize();
-        this.BACKUP_DIR = MANAGER_DIR.resolve("backups/").normalize();
-        this.MANIFEST_DIR = MANAGER_DIR.resolve("manifests/").normalize();
+        // constants
+        this.LINEAGE_DIR = MANAGER_DIR.resolve("lineages").normalize();
+        this.BACKUP_DIR = MANAGER_DIR.resolve("backups").normalize();
+        this.MANIFEST_DIR = MANAGER_DIR.resolve("manifests").normalize();
 
         // Config file version is not the same, re-write
         if (!builder.appVersion.equalsIgnoreCase(this.AppVersion)) {

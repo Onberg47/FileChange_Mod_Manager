@@ -13,12 +13,16 @@ import javax.swing.border.*;
 import gui.util.IconLoader;
 
 /**
- * @author Stephanos + JFormDesigner, refined by DeepSeekV3
+ * A Tile that represents a Game instance. This displays the icon and name.
+ * 
+ * @author Stephanos B
+ * @since v2
  */
 public class GameTile extends JPanel {
 	private final String gameId;
 	private final String gameName;
 	private final boolean isAddButton;
+	private ImageIcon imageIcon;
 
 	// === Constructor for normal game ===
 	public GameTile(String gameId, String gameName) {
@@ -40,8 +44,10 @@ public class GameTile extends JPanel {
 
 	private void setupGameTile() {
 		// Load icon
-		ImageIcon icon = IconLoader.loadGameIcon(gameId);
-		gameIconLabel.setIcon(icon);
+		int width = Math.min(1200, (int) (gameIconLabel.getPreferredSize().width * 0.7));
+		int height = Math.min(800, (int) (gameIconLabel.getPreferredSize().height * 0.7));
+		imageIcon = IconLoader.loadGameIcon(gameId, new Dimension(width, height));
+		gameIconLabel.setIcon(imageIcon);
 
 		// Remove text since we have icon
 		gameIconLabel.setText("");
@@ -105,6 +111,10 @@ public class GameTile extends JPanel {
 		return isAddButton;
 	}
 
+	public ImageIcon getIcon() {
+		return imageIcon;
+	}
+
 	// === Event Listeners ===
 	public void addTileClickListener(ActionListener listener) {
 		gameIconLabel.addMouseListener(new MouseAdapter() {
@@ -124,7 +134,7 @@ public class GameTile extends JPanel {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
-		// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+		// Generated using JFormDesigner Stephanos
 		gameIconLabel = new JLabel();
 		editButton = new JButton();
 
@@ -157,9 +167,6 @@ public class GameTile extends JPanel {
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
 	}
 
-	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-	// Generated using JFormDesigner Educational license - Balden (eduv4822854)
 	private JLabel gameIconLabel;
 	private JButton editButton;
-	// JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

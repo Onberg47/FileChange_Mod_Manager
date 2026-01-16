@@ -14,6 +14,8 @@ import core.objects.ModMetadata;
 /**
  * Pre-define the questions as FormQUestion instances. Add/modify form layouts
  * for FormPanel.java here.
+ * 
+ * @since v2
  */
 public class QuestionDefinitions {
 

@@ -1,4 +1,7 @@
-// src/gui/navigator/ViewFactory.java
+/*
+ * Author Stephanos B
+ * Date: 8/01/2026
+ */
 package gui.navigator;
 
 import gui.views.*;
@@ -7,6 +10,8 @@ import java.util.Map;
 
 /**
  * Factory for creating views. Decouples navigator from view implementations.
+ * 
+ * @since v2.0
  */
 public class ViewFactory {
 
@@ -36,7 +41,7 @@ public class ViewFactory {
         navigator.registerView("editMod", params -> new EditModView(navigator, params));
 
         /// Other
-        navigator.registerView("settings", params -> new SettingsView(navigator,params));
+        navigator.registerView("settings", params -> new SettingsView(navigator, params));
 
         // Add more views as needed
     }

@@ -14,6 +14,9 @@ import java.util.*;
 
 /**
  * Read an exsisting Game.json to auto-populate data and allow editting.
+ * 
+ * @author Stephanos B
+ * @since v2
  */
 public class SettingsView extends FormView {
     private AppConfig config;

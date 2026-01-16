@@ -17,7 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Add a new Game from scratch and write a JSON file.
+ * Displays the FormView. Gathers Mod information for compiling and compiles on
+ * submit.
+ * 
+ * @author Stephanos B
+ * @since v3
  */
 public class CompileModView extends FormView {
     public CompileModView(AppNavigator navigator, Map<String, Object> params) {

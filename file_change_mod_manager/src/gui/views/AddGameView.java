@@ -17,7 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Add a new Game from scratch and write a JSON file.
+ * Displays a FormView. Add a new Game from scratch and write a JSON file.
+ * 
+ * @author Stephanos B
+ * @since v2
  */
 public class AddGameView extends FormView {
     public AddGameView(AppNavigator navigator, Map<String, Object> params) {

@@ -4,12 +4,16 @@
  */
 package gui;
 
+import gui.components.HelpPopup;
 import gui.navigator.AppNavigator;
 import gui.navigator.ViewFactory;
 import gui.state.AppState;
 import gui.util.GUIUtils;
+import gui.util.IconLoader;
+import gui.util.IconLoader.ICONS;
 
 import javax.swing.*;
+
 import java.awt.*;
 
 /**
@@ -55,12 +59,14 @@ public class App {
         JMenu fileMenu = new JMenu("File");
         JMenuItem exitItem = new JMenuItem("Exit");
         exitItem.addActionListener(e -> System.exit(0));
+        exitItem.setIcon(IconLoader.loadResourceIcon(ICONS.EXIT, new Dimension(20,20)));
         fileMenu.add(exitItem);
 
         // Navigation menu
         JMenu navMenu = new JMenu("Navigation");
         JMenuItem backItem = new JMenuItem("Back");
         backItem.addActionListener(e -> navigator.goBack());
+        backItem.setIcon(IconLoader.loadResourceIcon(ICONS.BACK, new Dimension(20,20)));
         navMenu.add(backItem);
 
         // Settings menu
@@ -69,9 +75,25 @@ public class App {
         settingsItem.addActionListener(e -> navigator.navigateTo("settings"));
         settingsMenu.add(settingsItem);
 
+        JMenu helpMenu = new JMenu("Help");
+
+        JMenuItem helpItem = new JMenuItem("Get help");
+        helpItem.addActionListener(e -> new HelpPopup(mainFrame, navigator.getViewId()).show());
+
+        JMenuItem helpBrowserItem = new JMenuItem("Help in Browser");
+        helpItem.setIcon(IconLoader.loadResourceIcon(ICONS.HELP, new Dimension(24,24)));
+        helpBrowserItem.addActionListener(e -> {
+            HelpPopup.openHelpInBrowser();
+        });
+        helpMenu.add(helpItem);
+        helpMenu.addSeparator();
+        helpMenu.add(helpBrowserItem);
+        menuBar.add(helpMenu);
+
         menuBar.add(fileMenu);
         menuBar.add(navMenu);
         menuBar.add(settingsMenu);
+        menuBar.add(helpMenu);
 
         return menuBar;
     }

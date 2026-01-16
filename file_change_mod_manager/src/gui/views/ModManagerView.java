@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
+// import gui.util.ColorExtractor;
 import gui.components.ModCard;
 import gui.components.DividerCard;
 import core.managers.ModManager;
@@ -19,6 +20,13 @@ import core.objects.GameState;
 import core.objects.Mod;
 import core.utils.Logger;
 
+/**
+ * This is the primary view responsible for displaying and managing Mods.
+ * This includes all ModManager operations found in the CLI.
+ * 
+ * @author Stephanos B
+ * @since v3
+ */
 public class ModManagerView extends BaseView {
     // Globals
     private final ModManager manager;
@@ -41,6 +49,9 @@ public class ModManagerView extends BaseView {
     // Dragging
     private Mod draggedMod = null;
 
+    // private Color themeColor;
+    // private Map<String, Color> colorPalette;
+
     public ModManagerView(AppNavigator navigator, Map<String, Object> params) {
         // this.game = AppState.getInstance().getCurrentGame();
         this.manager = new ModManager(AppState.getInstance().getCurrentGame());
@@ -51,17 +62,28 @@ public class ModManagerView extends BaseView {
     protected void initializeUI() {
         setLayout(new BorderLayout(10, 10));
 
+        // themeColor = AppState.getInstance().getThemeColor();
+        // colorPalette = ColorExtractor.createColorPalette(themeColor);
+
         // Create main panel
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // mainPanel.setBackground(colorPalette.get("muted"));
 
         // Create a vertical panel for top components
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0)); // Add some spacing
+        // topPanel.setBackground(colorPalette.get("dark"));
 
         // Utility panel (top)
         utilityPanel = createUtilityPanel();
+        // utilityPanel.setBackground(themeColor);
+
         topPanel.add(utilityPanel, BorderLayout.NORTH);
+
+        // applyButton.setBackground(colorPalette.get("muted"));
+        // compileNewButton.setBackground(colorPalette.get("muted"));
+        // goBackButton.setBackground(colorPalette.get("muted"));
 
         // Filter panel
         JPanel filterPanel = createFilterPanel();
@@ -400,13 +422,13 @@ public class ModManagerView extends BaseView {
 
     // Handle drag start
     private void handleDragStart(Mod mod) {
-        Logger.getInstance().logEntry(null, "Started dragging: " + mod.getId());
+        // Logger.getInstance().logEntry(null, "Started dragging: " + mod.getId());
         draggedMod = mod;
     }
 
     // Handle drag end
     private void handleDragEnd(Mod mod) {
-        Logger.getInstance().logEntry(null, "Stopped dragging: " + mod.getId());
+        // Logger.getInstance().logEntry(null, "Stopped dragging: " + mod.getId());
 
         if (draggedMod != null) {
 
@@ -417,6 +439,8 @@ public class ModManagerView extends BaseView {
 
             // Find which ModCard is at this position
             Mod targetMod = findModAtPosition(mousePos);
+            if (targetMod == null)
+                return;
             Logger.getInstance().logEntry(null, "\tDropped on: " + targetMod.getName());
 
             if (targetMod != null && !targetMod.getId().equals(draggedMod.getId())) {
@@ -452,7 +476,7 @@ public class ModManagerView extends BaseView {
 
                 DividerCard divider = (DividerCard) comp;
                 Mod tmp = new Mod(null);
-                tmp.setLoadOrder(0);
+                tmp.setLoadOrder(1);
                 tmp.setEnabled(divider.getTitle().contains("Enabled"));
                 return tmp;
             }
@@ -468,20 +492,15 @@ public class ModManagerView extends BaseView {
      * @param targetMod Target Mod to determine where to move to.
      */
     private void moveDraggedMod(Mod modToMove, Mod targetMod) {
-        List<Mod> tmp;
-        if (targetMod.isEnabled()) {
-            tmp = enabledMods;
-        } else
-            tmp = disabledMods;
 
-        int index = tmp.indexOf(targetMod);
-        if (index == -1)
-            index = targetMod.getLoadOrder();
+        int index = targetMod.getLoadOrder() - 1;
 
         allMods.remove(modToMove);
 
         modToMove.setEnabled(targetMod.isEnabled());
-        modToMove.setLoadOrder(targetMod.getLoadOrder());
+        if (targetMod.isEnabled())
+            modToMove.setLoadOrder(targetMod.getLoadOrder());
+
         allMods.add(index, modToMove);
         Logger.getInstance().logEntry(null, "Dragger Mod " + modToMove.getId() + " to [" + modToMove.isEnabled()
                 + "] : " + modToMove.getLoadOrder());

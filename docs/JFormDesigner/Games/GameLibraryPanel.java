@@ -7,7 +7,7 @@ import javax.swing.*;
 
 
 /**
- * @author onberg
+ * @author Stephanos B
  */
 public class GameLibraryPanel extends JPanel {
 	public GameLibraryPanel() {
@@ -16,7 +16,7 @@ public class GameLibraryPanel extends JPanel {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
-		// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+		// Generated using JFormDesigner Stephanos
 		menuBar_main = new JMenuBar();
 		label1 = new JLabel();
 		separator1 = new JSeparator();
@@ -56,7 +56,7 @@ public class GameLibraryPanel extends JPanel {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-	// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+	// Generated using JFormDesigner Stephanos
 	private JMenuBar menuBar_main;
 	private JLabel label1;
 	private JSeparator separator1;

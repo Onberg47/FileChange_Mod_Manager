@@ -7,18 +7,25 @@ package gui.state;
 import core.objects.Game;
 import core.objects.Mod;
 
+import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
+/**
+ * GUI state instance.
+ * 
+ * @since v2.0
+ */
 public class AppState {
     private static AppState instance;
 
     private Game currentGame;
     private Mod currentMod;
+    private Color themeColor;
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-    // === Current Game Management ===
+    /// /// /// Getters and Setters /// /// ///
 
     public Game getCurrentGame() {
         return currentGame;
@@ -40,7 +47,17 @@ public class AppState {
         pcs.firePropertyChange("currentMod", old, mod);
     }
 
-    // === Property Change Support ===
+    public Color getThemeColor() {
+        return themeColor;
+    }
+
+    public void setThemeColor(Color colorPalette) {
+        Color old = this.themeColor;
+        this.themeColor = colorPalette;
+        pcs.firePropertyChange("colorPalette", old, colorPalette);
+    }
+
+    /// /// /// Property Change Support /// /// ///
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
@@ -54,7 +71,7 @@ public class AppState {
         pcs.removePropertyChangeListener(listener);
     }
 
-    // Singleton pattern
+    /// /// /// Singleton pattern /// /// ///
     private AppState() {
     }
 

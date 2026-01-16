@@ -1,3 +1,7 @@
+/**
+ * Author Stephanos B
+ * Date 08/01/2026
+ */
 package gui.util;
 
 import java.util.Arrays;
@@ -10,6 +14,12 @@ import java.util.stream.Collectors;
 
 import core.objects.Mod;
 
+/**
+ * Contains general helper utilites for the GUI.
+ * 
+ * @author Stephanos B
+ * @since v2
+ */
 public class GUIUtils {
 
     public static void setLookAndFeel() {

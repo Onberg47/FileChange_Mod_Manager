@@ -6,7 +6,7 @@ import javax.swing.LayoutStyle;
 import javax.swing.border.*;
 
 /**
- * @author onberg
+ * @author Stephanos B
  */
 public class DividerCard extends JPanel {
 	public DividerCard() {
@@ -56,7 +56,7 @@ public class DividerCard extends JPanel {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
-		// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+		// Generated using JFormDesigner Stephanos
 		modTitleLabel = new JLabel();
 
 		//======== this ========
@@ -100,7 +100,7 @@ public class DividerCard extends JPanel {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-	// Generated using JFormDesigner Educational license - Balden (eduv4822854)
+	// Generated using JFormDesigner Stephanos
 	private JLabel modTitleLabel;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

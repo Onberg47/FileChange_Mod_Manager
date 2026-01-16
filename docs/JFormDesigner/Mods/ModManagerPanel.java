@@ -5,7 +5,7 @@ import javax.swing.LayoutStyle;
 import javax.swing.border.*;
 
 /**
- * @author onberg
+ * @author Stephanos B
  */
 public class ModManagerPanel  {
 

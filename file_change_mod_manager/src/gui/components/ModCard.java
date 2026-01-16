@@ -17,7 +17,11 @@ import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 
 /**
- * @author onberg
+ * A Card that represents all details of a single Mod and facilitates button
+ * events and Drag-to-order events.
+ * 
+ * @author Stephanos B
+ * @since v3
  */
 public class ModCard extends JPanel {
         private final Mod mod;
@@ -133,7 +137,7 @@ public class ModCard extends JPanel {
                 });
 
                 // Drag handle
-                DraggingLabel.setEnabled(true); // Disable for now
+                DraggingLabel.setEnabled(true);
                 DraggingLabel.addMouseListener(new MouseAdapter() {
                         @Override
                         public void mousePressed(MouseEvent e) {
@@ -172,7 +176,7 @@ public class ModCard extends JPanel {
                                 new CompoundBorder(
                                                 new LineBorder(Color.ORANGE, 2, true),
                                                 new EmptyBorder(3, 4, 4, 4))));
-                setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+                DraggingLabel.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 
                 // Notify parent
                 if (onDragStart != null) {
@@ -188,7 +192,7 @@ public class ModCard extends JPanel {
 
                 // Restore visual
                 setTheme();
-                setCursor(Cursor.getDefaultCursor());
+                DraggingLabel.setCursor(Cursor.getDefaultCursor());
 
                 // Notify parent
                 if (onDragEnd != null) {
@@ -270,6 +274,7 @@ public class ModCard extends JPanel {
 
                 // ---- modDescriptionTextPane ----
                 modDescriptionTextPane.setText("Description of the mod goes here... ");
+                modDescriptionTextPane.setFocusable(false);
                 modDescriptionTextPane.setBorder(new EmptyBorder(0, 0, 0, 0)); // Remove internal borders
                 modDescriptionTextPane.setPreferredSize(new Dimension(60, 60));
                 modDescriptionTextPane.setMinimumSize(new Dimension(80, 20));

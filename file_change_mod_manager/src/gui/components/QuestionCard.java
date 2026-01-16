@@ -7,9 +7,15 @@ package gui.components;
 import gui.forms.FormQuestion;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Displays a FormQuestion instance graphically.
+ * 
+ * @author Stephanos B
+ * @since v2
  */
 public class QuestionCard extends JPanel {
     private final FormQuestion question;
@@ -97,6 +103,11 @@ public class QuestionCard extends JPanel {
         if (question.getDefaultValue() != null) {
             pathField.setText(question.getDefaultValue().toString());
         }
+
+        // Add drag-and-drop support
+        pathField.setTransferHandler(new FileTransferHandler(pathField));
+        pathField.setDragEnabled(true);
+        pathField.setToolTipText("Drop something here!");
 
         browseButton.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
@@ -259,4 +270,73 @@ public class QuestionCard extends JPanel {
             combo.setSelectedIndex(0);
         }
     }
+
+    /// /// /// File Transfer /// /// ///
+
+    /**
+     * Custom TransferHandler for file/directory dropping.
+     */
+    private class FileTransferHandler extends TransferHandler {
+        private final JTextField textField;
+
+        public FileTransferHandler(JTextField textField) {
+            this.textField = textField;
+        }
+
+        @Override
+        public boolean canImport(TransferSupport support) {
+            // Check if it's a file transfer
+            if (!support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                return false;
+            }
+
+            // Check if we're dropping into the correct component
+            return support.getComponent() == textField;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public boolean importData(TransferSupport support) {
+            if (!canImport(support)) {
+                return false;
+            }
+
+            try {
+                // Get the dropped files
+                ArrayList<File> files = new ArrayList<File>();
+                files = (ArrayList<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+
+                if (files.isEmpty()) {
+                    return false;
+                }
+
+                File file = files.get(0); // Take the first file/directory
+
+                // Handle based on question type
+                if (question.getType() == FormQuestion.QuestionType.DIRECTORY_CHOOSER) {
+                    // For directory chooser, only accept directories
+                    if (file.isDirectory()) {
+                        textField.setText(file.getAbsolutePath());
+                    } else {
+                        // If it's a file, use its parent directory
+                        textField.setText(file.getParentFile().getAbsolutePath());
+                    }
+                } else {
+                    // For file chooser, accept files
+                    textField.setText(file.getAbsolutePath());
+                }
+
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        public int getSourceActions(JComponent c) {
+            return COPY;
+        }
+    } // FileTransferHandler
+
 } // Class
