@@ -66,7 +66,7 @@ public class CompileModView extends FormView {
         } catch (Exception e) {
             showError("Failed to compile Mod: " + e.getMessage(), e);
         } finally {
-            super.consolePopup.setDone();
+            finishConsole();
         }
     }
 

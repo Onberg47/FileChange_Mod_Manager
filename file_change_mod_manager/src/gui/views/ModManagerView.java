@@ -565,10 +565,11 @@ public class ModManagerView extends BaseView {
             // forces a complete re-read
             allMods.clear();
             loadMods();
-            consolePopup.setDone();
 
         } catch (Exception e) {
             showError("Failed to apply changes: " + e.getMessage(), e);
+        } finally {
+            finishConsole();
         }
     }
 } // Class

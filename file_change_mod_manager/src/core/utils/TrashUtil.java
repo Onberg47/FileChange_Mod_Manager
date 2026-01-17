@@ -103,7 +103,7 @@ public class TrashUtil {
         return bytes / (1000000.0f);
     }
 
-    private static long getDiskSize(Path dir) {
+    public static long getDiskSize(Path dir) {
         Long size = 0L;
         try {
             size = Files.walk(dir)

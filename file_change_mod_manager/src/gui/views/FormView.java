@@ -43,9 +43,20 @@ public abstract class FormView extends BaseView {
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         add(titleLabel, BorderLayout.NORTH);
 
-        // Form panel (subclass provides questions)
+        // Main content panel
+        JPanel contentPanel = new JPanel(new BorderLayout());
+
+        // Form panel
         formPanel = new FormPanel(getQuestions());
-        add(new JScrollPane(formPanel), BorderLayout.CENTER);
+        contentPanel.add(formPanel, BorderLayout.NORTH);
+
+        // Custom content (if any)
+        JComponent customContent = createCustomContent();
+        if (customContent != null) {
+            contentPanel.add(customContent, BorderLayout.CENTER);
+        }
+
+        add(new JScrollPane(contentPanel), BorderLayout.CENTER);
 
         // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
@@ -79,6 +90,15 @@ public abstract class FormView extends BaseView {
      */
     protected JComponent customButton() throws NotActiveException {
         throw new NotActiveException();
+    }
+
+    /**
+     * Accepts a self-contained custom section to fill beneath the FormQuestions
+     * 
+     * @return
+     */
+    protected JComponent createCustomContent() {
+        return null; // Subclasses can override to add custom panels
     }
 
     @Override

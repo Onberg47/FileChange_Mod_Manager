@@ -122,7 +122,7 @@ public class EditModView extends FormView {
 
                     manager.updateMod(mod.getId(), files, (HashMap<String, Object>) formPanel.getAnswers());
                 } finally {
-                    super.consolePopup.setDone();
+                    finishConsole();
                 }
             } else { // Edit mode
                 System.out.println("Saving mod with edits: " + formPanel.getAnswers().toString());

@@ -24,11 +24,29 @@ public class ConsolePopup {
     private JFrame parentFrame; // Store parent reference
     private JButton closeButton;
 
+    /// /// /// Singleton pattern /// /// ///
+
+    private static ConsolePopup instance;
+
+    public static synchronized ConsolePopup getInstance(JFrame parentFrame) {
+        if (instance == null) {
+            instance = new ConsolePopup(parentFrame);
+        }
+
+        if (!instance.isVisible())
+            instance = new ConsolePopup(parentFrame);
+
+        return instance;
+    }
+
     public ConsolePopup(JFrame parentFrame) {
         this.parentFrame = parentFrame;
         setupGUI();
         redirectSystemOut();
+        instance = this;
     }
+
+    /// /// ///
 
     private void setupGUI() {
         frame = new JFrame("Installation Progress");
@@ -118,8 +136,14 @@ public class ConsolePopup {
         System.setErr(consoleStream);
     }
 
+    /// /// ///
+
     public void show() {
         frame.setVisible(true);
+    }
+
+    public boolean isVisible() {
+        return frame.isVisible();
     }
 
     public void hide() {
@@ -147,4 +171,5 @@ public class ConsolePopup {
             closeButton.setEnabled(false);
         });
     }
+
 } // Class

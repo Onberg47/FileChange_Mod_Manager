@@ -123,9 +123,12 @@ public abstract class BaseView extends JPanel {
      * SHows a popup for displaying the console print out.
      */
     protected void showConsole() {
-        if (consolePopup == null) {
-            consolePopup = new ConsolePopup(navigator.getMainFrame()); // You'll need to implement getParentFrame()
-        }
+        consolePopup = ConsolePopup.getInstance(navigator.getMainFrame());
+        consolePopup.setBusy();
         consolePopup.show();
+    }
+
+    protected void finishConsole() {
+        consolePopup.setDone();
     }
 } // Class
