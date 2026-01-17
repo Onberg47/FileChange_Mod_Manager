@@ -20,7 +20,7 @@ public abstract class defaultConfig {
     // classes but ensures all outside usage matches the AppConfig usage pattern for
     // ease of transitioning to it.
 
-    static final Path CONFIG_FILE = Path.of("mod_manager/config.json");
+    static final Path CONFIG_FILE_PATH = Path.of("mod_manager/config.json");
 
     // Program:
     // static final Path WORKING_DIR = Path.of("mod_manager/");
@@ -72,8 +72,8 @@ public abstract class defaultConfig {
      * @deprecated
      *             Marked to ensure any calls are replaced later.
      */
-    public static Path getConfigFile() {
-        return CONFIG_FILE;
+    public static Path getConfigFilePath() {
+        return CONFIG_FILE_PATH;
     }
 
     /**

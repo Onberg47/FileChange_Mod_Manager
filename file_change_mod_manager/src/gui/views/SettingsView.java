@@ -8,6 +8,7 @@ import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
+import gui.util.GUIUtils;
 import core.config.AppConfig;
 import core.utils.Logger;
 import core.utils.TrashUtil;
@@ -74,15 +75,15 @@ public class SettingsView extends FormView {
             return;
 
         try {
-            // Update game from answers
-            // config.setFromMap(formPanel.getAnswers());
-            // TODO write file...
+            HashMap<String, String> map = (HashMap<String, String>) GUIUtils.toStringOnlyMap(formPanel.getAnswers());
+            System.out.println(formPanel.getAnswers());
+            config.updateAndSaveConfig(map);
 
             // Navigate back to library
             AppState.getInstance().setCurrentGame(null);
-            navigator.goBack();
+            loadExistingData();
         } catch (Exception e) {
-            showError("Failed to update game: " + e.getMessage(), e);
+            showError("Failed to update config: " + e.getMessage(), e);
         }
     }
 

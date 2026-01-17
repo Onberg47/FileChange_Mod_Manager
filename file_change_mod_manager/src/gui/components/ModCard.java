@@ -250,7 +250,7 @@ public class ModCard extends JPanel {
 
                 // ======== this ========
                 setPreferredSize(new Dimension(800, 85));
-                setMinimumSize(new Dimension(600, 80));
+                setMinimumSize(new Dimension(400, 80));
                 setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
 
                 // Set the border with proper inner padding
@@ -273,7 +273,7 @@ public class ModCard extends JPanel {
                 modTitleLabel.setMinimumSize(new Dimension(80, 20));
 
                 // ---- modDescriptionTextPane ----
-                modDescriptionTextPane.setText("Description of the mod goes here... ");
+                modDescriptionTextPane.setText("Description of the mod goes here...");
                 modDescriptionTextPane.setFocusable(false);
                 modDescriptionTextPane.setBorder(new EmptyBorder(0, 0, 0, 0)); // Remove internal borders
                 modDescriptionTextPane.setPreferredSize(new Dimension(60, 60));

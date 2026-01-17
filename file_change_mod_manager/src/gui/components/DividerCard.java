@@ -55,7 +55,7 @@ public class DividerCard extends JPanel {
     }
 
     public static DividerCard createDisabledDivider() {
-        return new DividerCard("Disabled Mods", Color.GRAY);
+        return new DividerCard("Disabled Mods", Color.RED);
     }
 
     public static DividerCard createStoredDivider() {

@@ -251,8 +251,27 @@ public class ModManagerView extends BaseView {
         try {
             // Load all mods for this game. No need to reload
             if (allMods == null || allMods.isEmpty()) {
-                allMods = manager.getAllMods();
-                updateEnabledModsOrder(); // re-order for consistency when dragging.
+                // Async / background loading of all Mods when needed.
+                SwingWorker<Void, List<Mod>> worker = new SwingWorker<>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        Logger.getInstance().logEntry(0, null, "fetching all mods...");
+                        allMods = manager.getAllMods();
+                        publish(allMods);
+                        return null;
+                    }
+
+                    @Override
+                    protected void process(List<List<Mod>> chunks) {
+                        Logger.getInstance().logEntry(0, null, "mods retrieved");
+                        updateEnabledModsOrder(); // re-order for consistency when dragging.
+                        loadMods();
+                    }
+                };
+                worker.execute();
+                // allMods = null;
+                modListPanel.add(new DividerCard("Loading...", Color.GRAY)); // show while loading.
+                return;
             }
 
             /// Filters
@@ -306,7 +325,7 @@ public class ModManagerView extends BaseView {
 
         // Add enabled mods section
         if (!enabledMods.isEmpty()) {
-            modListPanel.add(new DividerCard("Enabled Mods", new Color(0, 150, 0)));
+            modListPanel.add(DividerCard.createEnabledDivider());
             modListPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
             for (Mod mod : enabledMods) {
@@ -319,7 +338,7 @@ public class ModManagerView extends BaseView {
         // Add disabled mods section
         if (!disabledMods.isEmpty()) {
             modListPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-            modListPanel.add(new DividerCard("Disabled Mods", Color.RED));
+            modListPanel.add(DividerCard.createDisabledDivider());
             modListPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 
             for (Mod mod : disabledMods) {
@@ -337,9 +356,9 @@ public class ModManagerView extends BaseView {
             modListPanel.add(noModsLabel);
         }
 
+        scrollTo(scroll);
         modListPanel.revalidate();
         modListPanel.repaint();
-        scrollTo(scroll);
     }
 
     private ModCard createModCard(Mod mod) {

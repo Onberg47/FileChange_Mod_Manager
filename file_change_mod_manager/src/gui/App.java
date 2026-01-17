@@ -54,8 +54,6 @@ public class App {
         mainFrame.setLocationRelativeTo(null); // Center on screen
         mainFrame.setVisible(true);
 
-        console = new ConsolePopup(mainFrame);
-
         // Load initial state
         AppState.getInstance(); // Initialize
 

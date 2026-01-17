@@ -20,8 +20,8 @@ public final class AppConfig {
     /// Core:
     // #region
 
-    private final String AppVersion = "3.3.5"; // Program's version
-    private Path configPath;
+    private final String AppVersion = "3.4.0"; // Program's version
+    private static final Path configPath = defaultConfig.CONFIG_FILE_PATH;
 
     /// Program Paths:
     /**
@@ -75,30 +75,35 @@ public final class AppConfig {
 
         private Path managerDir;
 
+        public Builder fromMap(HashMap<String, String> hMap) {
+            this.appVersion = hMap.getOrDefault("APP_VERSION", "0.0");
+            this.gameDir = Path.of(hMap.getOrDefault("GAME_DIR", defaultConfig.GAME_DIR.toString())).normalize();
+            this.tempDir = Path.of(hMap.getOrDefault("TEMP_DIR", defaultConfig.TEMP_DIR.toString())).normalize();
+            this.trashDir = Path.of(hMap.getOrDefault("TRASH_DIR", defaultConfig.TRASH_DIR.toString())).normalize();
+
+            this.logDir = Path.of(hMap.getOrDefault("LOG_DIR", defaultConfig.LOG_DIR.toString())).normalize();
+            this.defaultModDir = Path
+                    .of(hMap.getOrDefault("DEFAULT_MOD_DIR", defaultConfig.DEFAULT_MOD_DIR.toString()))
+                    .normalize();
+
+            this.managerDir = Path.of(hMap.getOrDefault("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString()))
+                    .normalize();
+            return this;
+        }
+
         public Builder fromConfigFile(Path configIn) {
+            HashMap<String, String> hMap;
             try {
-                HashMap<String, String> hMap = JsonIO.readHashMap(configIn.toFile());
-                // If the file is missing, this will be null and default values will be used.
-
-                this.appVersion = hMap.getOrDefault("APP_VERSION", "0.0");
-                this.gameDir = Path.of(hMap.getOrDefault("GAME_DIR", defaultConfig.GAME_DIR.toString())).normalize();
-                this.tempDir = Path.of(hMap.getOrDefault("TEMP_DIR", defaultConfig.TEMP_DIR.toString())).normalize();
-                this.trashDir = Path.of(hMap.getOrDefault("TRASH_DIR", defaultConfig.TRASH_DIR.toString())).normalize();
-
-                this.logDir = Path.of(hMap.getOrDefault("LOG_DIR", defaultConfig.LOG_DIR.toString())).normalize();
-                this.defaultModDir = Path
-                        .of(hMap.getOrDefault("DEFAULT_MOD_DIR", defaultConfig.DEFAULT_MOD_DIR.toString()))
-                        .normalize();
-
-                this.managerDir = Path.of(hMap.getOrDefault("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString()))
-                        .normalize();
-
+                hMap = JsonIO.readHashMap(configIn.toFile());
             } catch (Exception e) {
                 System.err.println("❌ Failed to initialize config! " + e.getMessage());
+                hMap = defaultConfig.getDefaultMap(); // Use hard-coded fallback HashMap of the default config file.
                 e.printStackTrace();
             }
+            this.fromMap(hMap);
             return this;
         } // fromConfigFile()
+
     } // Class Builder
 
     /**
@@ -107,6 +112,8 @@ public final class AppConfig {
      * @param builder
      */
     private AppConfig(Builder builder) {
+        // Cannot have initializeFromBuilder(), compiler won't allow because values are
+        // final, only constructor must set!
         this.GAME_DIR = builder.gameDir;
         this.TEMP_DIR = builder.tempDir;
         this.TRASH_DIR = builder.trashDir;
@@ -125,7 +132,9 @@ public final class AppConfig {
         if (!builder.appVersion.equalsIgnoreCase(this.AppVersion)) {
             try {
                 System.out.println("Version mismatch.");
-                this.writeConfigFile(configPath, this.toMap());
+                if (instance == null)
+                    instance = this;
+                this.saveConfig();
             } catch (Exception e) {
                 System.err.println("Could not repair Config file: " + e.getMessage());
                 e.printStackTrace();
@@ -136,31 +145,8 @@ public final class AppConfig {
     /**
      * Initialise using the default config file Path.
      */
-    public AppConfig() {
-        this(defaultConfig.CONFIG_FILE);
-    }
-
-    /**
-     * Initialise using a specified config file Path. Will use default values as a
-     * fallback.
-     * 
-     * @param configIn Path to desired config file.
-     */
-    private AppConfig(Path configIn) {
-        configPath = configIn;
-
-        if (!Files.exists(configIn)) {
-            System.err.println("❗ Could not find config file. Creating a new one...");
-            try {
-                JsonIO.writeHashMap(configIn.toFile(), defaultConfig.getDefaultMap());
-            } catch (Exception e) {
-                System.err.println("❌ Failed! : " + e.getMessage() + "\n\nAborting...");
-                e.printStackTrace();
-                System.exit(3);
-            }
-
-        }
-        this(new Builder().fromConfigFile(configIn));
+    private AppConfig() {
+        this(new Builder().fromConfigFile(configPath));
 
         /// Create program directories.
         try {
@@ -185,7 +171,11 @@ public final class AppConfig {
         }
     } // AppConfig(Path)
 
-    /// /// /// Singleton /// /// ///
+    public AppConfig(HashMap<String, String> hMap) {
+        this(new Builder().fromMap(hMap));
+    }
+
+    /// /// /// Singleton Pattern /// /// ///
 
     // Singleton instance
     private static volatile AppConfig instance;
@@ -204,7 +194,49 @@ public final class AppConfig {
         return instance;
     }
 
+    /**
+     * Overrides the instance with a fresh constructor call, respects final.
+     * 
+     * @param hMap new values
+     * @return New instance
+     */
+    private AppConfig getInstance(HashMap<String, String> hMap) {
+        synchronized (AppConfig.class) {
+            instance = new AppConfig(hMap);
+        }
+        return instance;
+    }
+
     /// /// /// Mappings /// /// ///
+
+    /**
+     * Saves the current Config to the default config location
+     */
+    public void saveConfig() throws Exception {
+        // Ensure parent directories exist
+        Path parent = configPath.getParent();
+        if (parent != null && !Files.exists(parent)) {
+            Files.createDirectories(parent);
+        }
+
+        JsonIO.writeHashMap(configPath.toFile(), instance.toMap());
+    }
+
+    /**
+     * Reload configuration from file.
+     */
+    public void reloadConfig() throws Exception {
+        HashMap<String, String> loadedMap = JsonIO.readHashMap(configPath.toFile());
+        this.getInstance(loadedMap);
+    }
+
+    /**
+     * Update config with new values and save immediately.
+     */
+    public void updateAndSaveConfig(HashMap<String, String> newValues) throws Exception {
+        this.getInstance(newValues);
+        saveConfig();
+    }
 
     /**
      * @return A hashMap of all set-able config values.
@@ -221,16 +253,6 @@ public final class AppConfig {
         hMap.put("MANAGER_DIR", MANAGER_DIR.toString());
 
         return hMap;
-    }
-
-    public void writeConfigFile(Path configIn, HashMap<String, String> map) throws Exception {
-        if (configIn == null)
-            configIn = configPath;
-
-        if (configIn.getParent() != null && !Files.exists(configIn.getParent()))
-            Files.createDirectories(configIn.getParent());
-
-        JsonIO.writeHashMap(configIn.toFile(), map);
     }
 
     /// /// /// Getters /// /// ///

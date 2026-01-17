@@ -47,7 +47,7 @@ public class Logger {
 
     } // ErrorCodes
 
-    private static AppConfig config = new AppConfig();
+    private static AppConfig config = AppConfig.getInstance();
     private final Path logPath;
     private final FileWriter writer;
 
