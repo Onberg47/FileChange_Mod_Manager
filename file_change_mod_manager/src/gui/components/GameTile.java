@@ -44,12 +44,10 @@ public class GameTile extends JPanel {
 
 	private void setupGameTile() {
 		// Load icon
-		int width = Math.min(1200, (int) (gameIconLabel.getPreferredSize().width * 0.7));
-		int height = Math.min(800, (int) (gameIconLabel.getPreferredSize().height * 0.7));
+		int width = Math.min(400, (int) (gameIconLabel.getPreferredSize().width * 0.7));
+		int height = Math.min(400, (int) (gameIconLabel.getPreferredSize().height * 0.7));
 		imageIcon = IconLoader.loadGameIcon(gameId, new Dimension(width, height));
 		gameIconLabel.setIcon(imageIcon);
-
-		// Remove text since we have icon
 		gameIconLabel.setText("");
 
 		gameIconLabel.setBorder(BorderFactory.createTitledBorder(
@@ -100,19 +98,19 @@ public class GameTile extends JPanel {
 
 	// === Getters ===
 	public String getGameId() {
-		return gameId;
+		return this.gameId;
 	}
 
 	public String getGameName() {
-		return gameName;
+		return this.gameName;
 	}
 
 	public boolean isAddButton() {
-		return isAddButton;
+		return this.isAddButton;
 	}
 
 	public ImageIcon getIcon() {
-		return imageIcon;
+		return this.imageIcon;
 	}
 
 	// === Event Listeners ===
@@ -140,7 +138,7 @@ public class GameTile extends JPanel {
 
 		//======== this ========
 		setMinimumSize(new Dimension(100, 105));
-		setPreferredSize(new Dimension(200, 205));
+		setPreferredSize(new Dimension(200, 200));
 		setBorder(new BevelBorder(BevelBorder.RAISED));
 		setLayout(new BorderLayout());
 
@@ -151,7 +149,7 @@ public class GameTile extends JPanel {
 		gameIconLabel.setToolTipText("Click to mod");
 		gameIconLabel.setBorder(new TitledBorder(null, "{game name}", TitledBorder.CENTER, TitledBorder.ABOVE_BOTTOM,
 			new Font("Noto Sans", Font.BOLD, 14)));
-		gameIconLabel.setMinimumSize(new Dimension(100, 100));
+		gameIconLabel.setMinimumSize(new Dimension(150, 150));
 		gameIconLabel.setMaximumSize(new Dimension(400, 400));
 		gameIconLabel.setPreferredSize(new Dimension(200, 200));
 		add(gameIconLabel, BorderLayout.CENTER);

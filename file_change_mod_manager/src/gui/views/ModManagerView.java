@@ -184,7 +184,7 @@ public class ModManagerView extends BaseView {
         gbc.gridwidth = 3;
         gbc.weightx = 1.0;
         filterNameTextField = new JTextField();
-        filterNameTextField.setToolTipText("Search in mod names and descriptions");
+        filterNameTextField.setToolTipText("🔍 Search in mod names and descriptions");
         panel.add(filterNameTextField, gbc);
 
         // Clear filters button

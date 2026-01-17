@@ -7,17 +7,16 @@ package gui.views;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
 import gui.util.IconLoader;
-import gui.util.ResponsiveGridLayout;
 import gui.components.GameTile;
 import core.managers.GameManager;
 import core.objects.Game;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.util.*;
 import java.util.List;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 /**
  * A simple View that displays GameTiles, where the first tile is for adding a
@@ -27,10 +26,11 @@ import java.util.List;
  * @since v2
  */
 public class GameLibraryView extends BaseView {
-    // UI Components
-    private JPanel contentPanel;
+    // UI Components (from your JForm design)
     private JScrollPane scrollPane;
-    private JPanel gameTilesPanel;
+
+    // Custom components
+    private JPanel gameTilesPanel; // Will be inside scrollPane
 
     public GameLibraryView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params);
@@ -38,88 +38,69 @@ public class GameLibraryView extends BaseView {
 
     @Override
     protected void initializeUI() {
-        setLayout(new BorderLayout(0, 0));
+        // Initialize JForm components
+        initComponents();
 
-        // Create main content panel with some padding
-        contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
-        contentPanel.setBackground(Color.WHITE);
+        // Use the designed layout from JForm
+        setLayout(new BorderLayout());
+        add(scrollPane, BorderLayout.CENTER);
 
-        // Create title
-        JLabel titleLabel = new JLabel("Games", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
-        contentPanel.add(titleLabel, BorderLayout.NORTH);
-
-        // Create the responsive grid panel
-        gameTilesPanel = new JPanel();
-        ResponsiveGridLayout layout = new ResponsiveGridLayout(200, 200, 25, 25) {
-            @Override
-            public void layoutContainer(Container parent) {
-                super.layoutContainer(parent);
-
-                // Optional: Add subtle drop shadows to tiles
-                for (Component comp : parent.getComponents()) {
-                    if (comp instanceof GameTile) {
-                        ((JComponent) comp).setBorder(
-                                BorderFactory.createLineBorder(new Color(220, 220, 220), 2));
-                    }
-                } // for comp
-            }
-        };
-
-        gameTilesPanel.setLayout(layout);
+        // Create panel for game tiles (inside scroll pane)
+        gameTilesPanel = new JPanel(new GridBagLayout());
         gameTilesPanel.setBackground(Color.WHITE);
 
-        // Wrap in scroll pane with no horizontal scroll
-        scrollPane = new JScrollPane(gameTilesPanel);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        scrollPane.getViewport().setBackground(Color.WHITE);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Smoother scrolling
-
-        // Add resize listener for responsive updates
+        // Use GridBagLayout with dynamic column calculation
         scrollPane.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                gameTilesPanel.revalidate();
+                refreshLayout();
             }
         });
 
-        // addSearchBar();
-        contentPanel.add(scrollPane, BorderLayout.CENTER);
-        add(contentPanel, BorderLayout.CENTER);
+        scrollPane.setViewportView(gameTilesPanel);
     }
 
-    // Optional: Add search/filter bar
-    @SuppressWarnings("unused")
-    private void addSearchBar() {
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        searchPanel.setBackground(Color.WHITE);
-        searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+    private void refreshLayout() {
+        gameTilesPanel.removeAll();
 
-        JTextField searchField = new JTextField(25);
-        searchField.setToolTipText("Search games...");
+        int tileSize = 200;
+        int gap = 20;
+        int panelWidth = scrollPane.getViewport().getWidth();
+        int columns = Math.max(1, (panelWidth + gap) / (tileSize + gap));
 
-        JButton searchButton = new JButton("Search");
-        searchButton.addActionListener(e -> filterGames(searchField.getText()));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(gap, gap, gap, gap);
+        gbc.fill = GridBagConstraints.NONE;
 
-        searchPanel.add(new JLabel("🔍"));
-        searchPanel.add(searchField);
-        searchPanel.add(searchButton);
+        int row = 0;
+        int col = 0;
 
-        contentPanel.add(searchPanel, BorderLayout.SOUTH);
-    }
+        // Add "Add Game" tile first
+        gbc.gridx = col;
+        gbc.gridy = row;
+        gameTilesPanel.add(createAddTile(), gbc);
+        col++;
 
-    private void filterGames(String query) {
-        for (Component comp : gameTilesPanel.getComponents()) {
-            if (comp instanceof GameTile) {
-                GameTile tile = (GameTile) comp;
-                boolean matches = query.isEmpty() ||
-                        tile.getGameName().toLowerCase().contains(query.toLowerCase());
-                tile.setVisible(matches);
+        // Add game tiles
+        for (Game game : GameManager.getAllGames()) {
+            if (col >= columns) {
+                col = 0;
+                row++;
             }
+
+            gbc.gridx = col;
+            gbc.gridy = row;
+            gameTilesPanel.add(createGameTile(game), gbc);
+            col++;
         }
+
+        // Add filler to push tiles to the left
+        gbc.gridx = columns;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gameTilesPanel.add(Box.createHorizontalGlue(), gbc);
+
         gameTilesPanel.revalidate();
         gameTilesPanel.repaint();
     }
@@ -210,4 +191,22 @@ public class GameLibraryView extends BaseView {
         return game;
     }
 
+    /**
+     * JForm-generated initialization.
+     * COPY FROM YOUR GameLibraryPanel.java
+     */
+    private void initComponents() {
+        // ======== Generated by JFormDesigner ========
+        scrollPane = new JScrollPane();
+
+        // ======== this ========
+        setMinimumSize(new Dimension(200, 250));
+        setPreferredSize(new Dimension(400, 400));
+
+        // ======== scrollPane ========
+        {
+            scrollPane.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+            scrollPane.setMinimumSize(new Dimension(80, 80));
+        }
+    }
 } // Class
