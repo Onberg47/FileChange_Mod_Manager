@@ -22,6 +22,7 @@ public class GameCommandHandler {
 
         switch (command.toLowerCase()) {
             case "list":
+            case "-l":
                 listGames();
                 break;
             case "add":
@@ -56,7 +57,7 @@ public class GameCommandHandler {
         GameManager.addGame(GameManager.collectUserMetadata());
     }
 
-    private void removeGame() throws Exception{
+    private void removeGame() throws Exception {
         GameManager.removeGame(
                 cli.getRequired("id"));
     }

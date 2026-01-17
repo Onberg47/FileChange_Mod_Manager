@@ -9,8 +9,10 @@ import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
 import gui.util.IconLoader;
+import gui.util.IconLoader.ICONS;
 import core.managers.GameManager;
 
+import java.awt.Dimension;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Map;
 public class AddGameView extends FormView {
     public AddGameView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Add New Game");
+        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.ADD, new Dimension(20, 20)));
     }
 
     @Override

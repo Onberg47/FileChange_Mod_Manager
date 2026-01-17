@@ -9,9 +9,12 @@ import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
 import gui.util.GUIUtils;
+import gui.util.IconLoader;
+import gui.util.IconLoader.ICONS;
 import core.managers.ModManager;
 import core.objects.Mod;
 
+import java.awt.Dimension;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -38,6 +41,7 @@ public class EditModView extends FormView {
             isUpdate = true;
 
         super(navigator, params, "Edit Mod");
+        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.EDIT, new Dimension(20, 20)));
         deleteButton.setVisible(true);
     }
 

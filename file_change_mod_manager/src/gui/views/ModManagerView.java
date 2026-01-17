@@ -12,7 +12,9 @@ import java.util.stream.Collectors;
 
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
-// import gui.util.ColorExtractor;
+import gui.util.IconLoader;
+import gui.util.IconLoader.ICONS;
+//import gui.util.ColorExtractor;
 import gui.components.ModCard;
 import gui.components.DividerCard;
 import core.managers.ModManager;
@@ -68,22 +70,15 @@ public class ModManagerView extends BaseView {
         // Create main panel
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        // mainPanel.setBackground(colorPalette.get("muted"));
 
         // Create a vertical panel for top components
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0)); // Add some spacing
-        // topPanel.setBackground(colorPalette.get("dark"));
 
         // Utility panel (top)
         utilityPanel = createUtilityPanel();
-        // utilityPanel.setBackground(themeColor);
 
         topPanel.add(utilityPanel, BorderLayout.NORTH);
-
-        // applyButton.setBackground(colorPalette.get("muted"));
-        // compileNewButton.setBackground(colorPalette.get("muted"));
-        // goBackButton.setBackground(colorPalette.get("muted"));
 
         // Filter panel
         JPanel filterPanel = createFilterPanel();
@@ -102,6 +97,21 @@ public class ModManagerView extends BaseView {
 
         mainPanel.add(modCardScrollPane, BorderLayout.CENTER);
 
+        /// styling
+
+        /*
+         * mainPanel.setBackground(colorPalette.get("muted"));
+         * utilityPanel.setBackground(themeColor);
+         * filterPanel.setBackground(colorPalette.get("muted"));
+         * topPanel.setBackground(colorPalette.get("muted"));
+         * 
+         * modCardScrollPane.setBackground(themeColor);
+         * 
+         * applyButton.setBackground(colorPalette.get("muted"));
+         * compileNewButton.setBackground(colorPalette.get("muted"));
+         * goBackButton.setBackground(colorPalette.get("muted"));
+         */
+
         add(mainPanel, BorderLayout.CENTER);
     }
 
@@ -111,12 +121,15 @@ public class ModManagerView extends BaseView {
 
         applyButton = new JButton("Apply Changes");
         applyButton.setToolTipText("Apply the current mod layout to the game");
+        applyButton.setIcon(IconLoader.loadResourceIcon(ICONS.SYNC, new Dimension(20, 20)));
 
         compileNewButton = new JButton("Compile New Mod");
         compileNewButton.setToolTipText("Create a new mod from files");
+        compileNewButton.setIcon(IconLoader.loadResourceIcon(ICONS.CREATE, new Dimension(20, 20)));
 
         goBackButton = new JButton("← Back to Library");
         goBackButton.setToolTipText("Return to game library");
+        goBackButton.setIcon(IconLoader.loadResourceIcon(ICONS.LIBRARY, new Dimension(20, 20)));
 
         panel.add(applyButton);
         panel.add(Box.createHorizontalStrut(20));

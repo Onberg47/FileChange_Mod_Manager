@@ -4,6 +4,7 @@
  */
 package core.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.nio.file.DirectoryStream;
@@ -129,6 +130,74 @@ public class FileUtil {
             return new ArrayList<>();
         }
     } // getDirectoryModFilesStream()
+
+    ///
+
+    /**
+     * Recursively scans a directory and prints all files and directories with
+     * indentation based on depth.<br>
+     * <br>
+     * This will skip ModManager Files.
+     * 
+     * @param dirPath  The root path to scan from.
+     * @param relative Relative root to be removed from the final paths.
+     *                 (relativize)
+     * @param maxDepth The maximum depth to recurse into directories. (default 10)
+     * 
+     * @return A list of ModFile objects representing the files found.
+     */
+    public static List<File> getAllFiles(Path dirPath, int maxDepth) {
+        return getAllFiles(dirPath, "", 0, maxDepth);
+    } // getAllFiles()
+
+    /**
+     * Internal recursive method to scan directories.
+     * A more advanced version that uses lambda and Steams.
+     * 
+     * @param dirPath  The path of the directory to scan.
+     *                 (relativize)
+     * @param prefix   The prefix path for indentation.
+     * @param depth    The current depth of recursion counting and depth-based
+     *                 indentation.
+     * @param maxDepth The maximum depth to recurse into directories.
+     * 
+     * @return A list of ModFile objects representing the files found.
+     */
+    private static List<File> getAllFiles(Path dirPath, String prefix, int depth, int maxDepth) {
+        try (Stream<Path> paths = Files.list(dirPath)) {
+            return paths.flatMap(path -> {
+                try {
+                    if (Files.isRegularFile(path)) {
+                        // Create ModFile for regular file
+
+                        log.logEntry(0, null,
+                                String.format("%s🗒  Found File: %s", " ".repeat(depth * 3),
+                                        prefix + path.getFileName()));
+                        return Stream.of(path.toFile());
+                    } else if (Files.isDirectory(path)) {
+                        // Create ModFile for directory (if needed) or recurse
+                        String tmpPrefix = prefix + path.getFileName().toString() + "/";
+                        log.logEntry(0, null, String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
+
+                        if (depth >= maxDepth) {
+                            log.logWarning(0, "Maximum depth reached, stopping recursion.", null);
+                            return Stream.empty();
+                        }
+
+                        // Recursively process subdirectory
+                        return getAllFiles(path, tmpPrefix, depth + 1, maxDepth).stream();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return Stream.empty();
+                }
+                return Stream.empty();
+            }).collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    } // getAllFiles()
 
     /// /// /// File Print Utils /// /// ///
 

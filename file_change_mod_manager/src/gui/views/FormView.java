@@ -7,6 +7,9 @@ package gui.views;
 import gui.forms.FormPanel;
 import gui.forms.FormQuestion;
 import gui.navigator.AppNavigator;
+import gui.util.IconLoader;
+import gui.util.IconLoader.ICONS;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.NotActiveException;
@@ -53,6 +56,7 @@ public abstract class FormView extends BaseView {
 
         deleteButton = new JButton("Delete");
         deleteButton.setVisible(false);
+        this.deleteButton.setIcon(IconLoader.loadResourceIcon(ICONS.TRASH, new Dimension(18, 18)));
 
         try {
             buttonPanel.add(customButton());

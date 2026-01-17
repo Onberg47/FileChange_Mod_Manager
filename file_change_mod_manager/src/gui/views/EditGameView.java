@@ -10,9 +10,11 @@ import gui.navigator.AppNavigator;
 import gui.state.AppState;
 import gui.util.GUIUtils;
 import gui.util.IconLoader;
+import gui.util.IconLoader.ICONS;
 import core.managers.GameManager;
 import core.objects.Game;
 
+import java.awt.Dimension;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -29,6 +31,7 @@ public class EditGameView extends FormView {
 
     public EditGameView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Edit Game");
+        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.EDIT, new Dimension(20, 20)));
         deleteButton.setVisible(true);
     }
 

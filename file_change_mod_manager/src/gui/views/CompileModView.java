@@ -8,9 +8,11 @@ import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
-
+import gui.util.IconLoader;
+import gui.util.IconLoader.ICONS;
 import core.managers.ModManager;
 
+import java.awt.Dimension;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.Map;
 public class CompileModView extends FormView {
     public CompileModView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Compile New Mod");
+        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.CREATE, new Dimension(20,20)));
     }
 
     @Override

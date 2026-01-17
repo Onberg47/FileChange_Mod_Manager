@@ -19,11 +19,13 @@ public class CLIManager {
     private Game currentGame;
     private GameCommandHandler gameHandler;
     private ModCommandHandler modHandler;
+    private TrashCommandHandler trashHandler;
     private Scanner scanner;
 
     public CLIManager() {
         this.gameHandler = new GameCommandHandler();
         this.modHandler = new ModCommandHandler();
+        this.trashHandler = new TrashCommandHandler();
         this.scanner = new Scanner(System.in);
     }
 
@@ -41,42 +43,52 @@ public class CLIManager {
         System.out.println("Mod Manager CLI - Type 'help' for commands");
         System.out.println("Type 'exit' or 'quit' to exit\n");
 
-        do {
-            printPrompt();
-            String input = scanner.nextLine().trim();
-
-            if (input.isEmpty())
-                continue;
-
-            String[] args = input.split("\\s+");
-            String command = args[0].toLowerCase();
+        running: do {
 
             try {
-                if (command.equals("gui")) {
-                    System.out.println("Launching GUI...");
-                    gui.App.main(args);
-                    break;
-                }
-                if (command.equals("exit") || command.equals("quit") || command.equals("^C")) {
-                    System.out.println("Exiting...");
-                    break;
-                }
-                if (command.equals("help")) {
-                    printHelp();
-                    continue;
-                }
+                printPrompt();
+                String input = scanner.nextLine().trim();
 
-                if (command.equals("info")) {
-                    System.out.println(AppConfig.getInstance().toString());
+                if (input.isEmpty())
                     continue;
-                }
 
-                // continue
-                if (currentGame == null) {
-                    gameHandler.handleCommand(command, args, this);
-                } else {
-                    modHandler.handleCommand(command, args, this);
-                }
+                String[] args = input.split("\\s+");
+                String command = args[0].toLowerCase();
+
+                switch (command.toLowerCase()) {
+                    case "gui":
+                        System.out.println("Launching GUI...");
+                        gui.App.main(args);
+                        break running;
+
+                    case "exit":
+                    case "quit":
+                    case "^C":
+                        System.out.println("Exiting...");
+                        break running;
+
+                    case "help":
+                    case "-h":
+                        printHelp();
+                        break;
+
+                    case "info":
+                        System.out.println(AppConfig.getInstance().toString());
+                        break;
+
+                    case "trash":
+                    case "-t":
+                        trashHandler.handleCommand(command, args, this);
+                        break;
+
+                    default:
+                        if (currentGame == null) {
+                            gameHandler.handleCommand(command, args, this);
+                        } else {
+                            modHandler.handleCommand(command, args, this);
+                        }
+                        break;
+                } // switch
             } catch (Exception e) {
                 Logger.getInstance().logError("CLI Error.", e);
             }
@@ -100,17 +112,12 @@ public class CLIManager {
         System.out.printf("%-15s | %s\n", "gui", "Launch the GUI program");
         System.out.printf("%-15s | %s\n", "info", "Show general info about the program and config");
         System.out.printf("%-3s, %-10s | %s\n", "-h", "help", "Show this help");
+        System.out.printf("%-3s, %-10s | %s\n", "-t", "trash", "trash cleaning tool");
+        System.out.printf("%15s | %s\n", "--h", "Specific help");
         System.out.printf("%-15s | %s\n", "exit / quit", "Exit the program");
 
         if (currentGame == null) {
             System.out.println("\nGame Manager Commands:");
-            // System.out.println(" list - List all managed games");
-            // System.out.println(" add - Add a new game profile");
-            // System.out.println(" remove --id - Remove a game profile");
-            // System.out.println(" update --id - Update a game profile");
-            // System.out.println(" mod --id - Enter mod manager for a game");
-            // System.out.println(" help - Show this help");
-            // System.out.println(" exit/quit - Exit the program");
 
             System.out.printf("%-3s, %-10s | %s\n", "-L", "list", "List all game profiles");
 
@@ -128,14 +135,6 @@ public class CLIManager {
 
         } else {
             System.out.println("\nMod Manager Commands:");
-            // System.out.println(" list [--s] - List deployed mods (or stored mods with
-            // --s)");
-            // System.out.println(" deploy --id - Deploy a mod");
-            // System.out.println(" remove --id - Remove a mod");
-            /// System.out.println(" compile --dir - Compile a new mod");
-            // System.out.println(" game - Return to game manager");
-            // System.out.println(" help - Show this help");
-            // System.out.println(" exit/quit - Exit the program");
 
             System.out.printf("%-3s, %-10s | %s\n", "-L", "list", "List all available Mods");
             System.out.printf("%15s | %s\n", "[--i]", "Only installed Mods");

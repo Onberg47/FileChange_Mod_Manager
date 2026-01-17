@@ -34,9 +34,20 @@ public class IconLoader {
      * Register all icons here.
      */
     public enum ICONS {
+        ADD("ic_add.png"),
         BACK("ic_back.png"),
+        CREATE("ic_create.png"),
+        DRAG("ic_drag.png"),
+        EDIT("ic_edit.png"),
+        EXIT("ic_exit.png"),
+        FILTER_ON("ic_filter_on.png"),
+        FILTER_OFF("ic_filter_off.png"),
         HELP("ic_help.png"),
-        EXIT("ic_exit.png");
+        LIBRARY("ic_library.png"),
+        REDIRECT("ic_redirect.png"),
+        SETTINGS("ic_settings.png"),
+        SYNC("ic_sync.png"),
+        TRASH("ic_trash.png");
 
         private String filename;
 

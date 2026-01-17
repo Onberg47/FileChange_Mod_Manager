@@ -73,15 +73,17 @@ public class App {
         JMenu settingsMenu = new JMenu("Settings");
         JMenuItem settingsItem = new JMenuItem("Open Settings");
         settingsItem.addActionListener(e -> navigator.navigateTo("settings"));
+        settingsItem.setIcon(IconLoader.loadResourceIcon(ICONS.SETTINGS, new Dimension(20,20)));
         settingsMenu.add(settingsItem);
 
         JMenu helpMenu = new JMenu("Help");
 
         JMenuItem helpItem = new JMenuItem("Get help");
         helpItem.addActionListener(e -> new HelpPopup(mainFrame, navigator.getViewId()).show());
-
+        helpItem.setIcon(IconLoader.loadResourceIcon(ICONS.HELP, new Dimension(22,22)));
+        
         JMenuItem helpBrowserItem = new JMenuItem("Help in Browser");
-        helpItem.setIcon(IconLoader.loadResourceIcon(ICONS.HELP, new Dimension(24,24)));
+        helpBrowserItem.setIcon(IconLoader.loadResourceIcon(ICONS.REDIRECT, new Dimension(20,20)));
         helpBrowserItem.addActionListener(e -> {
             HelpPopup.openHelpInBrowser();
         });
