@@ -48,12 +48,12 @@ public abstract class FormView extends BaseView {
 
         // Form panel
         formPanel = new FormPanel(getQuestions());
-        contentPanel.add(formPanel, BorderLayout.NORTH);
+        contentPanel.add(formPanel, BorderLayout.CENTER);
 
         // Custom content (if any)
         JComponent customContent = createCustomContent();
         if (customContent != null) {
-            contentPanel.add(customContent, BorderLayout.CENTER);
+            contentPanel.add(customContent, BorderLayout.SOUTH);
         }
 
         add(new JScrollPane(contentPanel), BorderLayout.CENTER);
