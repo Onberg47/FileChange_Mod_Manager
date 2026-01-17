@@ -5,6 +5,8 @@
 package gui.forms;
 
 import gui.components.QuestionCard;
+import gui.layouts.FormCardLayout;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
@@ -22,14 +24,47 @@ public class FormPanel extends JPanel {
     private final Map<String, Object> answers = new HashMap<>();
 
     public FormPanel(List<FormQuestion> questions) {
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
+        // Use our custom layout instead of BoxLayout
+        setLayout(new FormCardLayout(15, 250)); // 15px gap, max 250px for text areas
+        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        
         for (FormQuestion question : questions) {
             QuestionCard card = new QuestionCard(question);
             questionCards.add(card);
             add(card);
-            add(Box.createRigidArea(new Dimension(0, 10))); // Spacing
+        }
+        
+        // Listen for content changes in text areas to update layout
+        addTextAreaListeners();
+    }
+    
+    private void addTextAreaListeners() {
+        for (QuestionCard card : questionCards) {
+            JComponent input = card.getInputComponent();
+            if (input instanceof JScrollPane) {
+                Component view = ((JScrollPane) input).getViewport().getView();
+                if (view instanceof JTextArea) {
+                    JTextArea textArea = (JTextArea) view;
+                    textArea.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                        @Override
+                        public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                            updateLayout();
+                        }
+                        @Override
+                        public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                            updateLayout();
+                        }
+                        @Override
+                        public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                            updateLayout();
+                        }
+                        private void updateLayout() {
+                            revalidate();
+                            repaint();
+                        }
+                    });
+                }
+            }
         }
     }
 

@@ -7,8 +7,8 @@ package gui.views;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
 import gui.util.IconLoader;
-import gui.util.ResponsiveGridLayout;
 import gui.components.GameTile;
+import gui.layouts.ResponsiveGridLayout;
 import core.managers.GameManager;
 import core.objects.Game;
 

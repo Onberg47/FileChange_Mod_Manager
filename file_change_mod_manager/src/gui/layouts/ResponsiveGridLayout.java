@@ -1,7 +1,7 @@
 /**
  * Date 17/01/2026
  */
-package gui.util;
+package gui.layouts;
 
 // Add this custom layout manager class
 import java.awt.*;

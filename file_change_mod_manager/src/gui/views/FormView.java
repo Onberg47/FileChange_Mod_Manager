@@ -53,6 +53,7 @@ public abstract class FormView extends BaseView {
 
         submitButton = new JButton(getSubmitButtonText());
         submitButton.setEnabled(false);
+        // icon is set by implmenting View.
 
         deleteButton = new JButton("Delete");
         deleteButton.setVisible(false);

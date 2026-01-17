@@ -26,30 +26,68 @@ public class QuestionCard extends JPanel {
         initComponents();
     }
 
-    private void initComponents() {
-        setLayout(new BorderLayout(10, 0));
-        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
+        private void initComponents() {
+        // Use BorderLayout
+        setLayout(new BorderLayout(15, 0));
+        
         // Left: Label with required indicator
         JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         JLabel label = new JLabel(question.getLabel());
+        
         if (question.isRequired()) {
             label.setText(label.getText() + " *");
-            label.setForeground(new Color(200, 0, 0)); // Red for required
+            label.setForeground(new Color(200, 0, 0));
         }
-
+        
         if (!question.getTooltip().isEmpty()) {
             label.setToolTipText(question.getTooltip());
         }
-
+        
         labelPanel.add(label);
         add(labelPanel, BorderLayout.WEST);
-
-        // Right: Input component
+        
+        // Right: Input component with proper sizing
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputComponent = createInputComponent();
+        configureInputSizing(inputComponent);
         inputPanel.add(inputComponent, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.CENTER);
+        
+        // Set preferred size based on input type
+        setPreferredSize(getPreferredCardSize());
+    }
+    
+    private Dimension getPreferredCardSize() {
+        int height;
+        switch (question.getType()) {
+            case TEXT_AREA:
+                height = 100; // Initial height for text areas
+                break;
+            case FILE_CHOOSER:
+            case DIRECTORY_CHOOSER:
+                height = 40;
+                break;
+            default:
+                height = 35; // Standard height for other inputs
+        }
+        return new Dimension(600, height); // Width will be stretched
+    }
+    
+    private void configureInputSizing(JComponent input) {
+        // Let the input component decide its own preferred size
+        input.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        
+        if (input instanceof JScrollPane && 
+            ((JScrollPane) input).getViewport().getView() instanceof JTextArea) {
+            JTextArea textArea = (JTextArea) ((JScrollPane) input).getViewport().getView();
+            textArea.setRows(3);
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+            
+            JScrollPane scrollPane = (JScrollPane) input;
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        }
     }
 
     private JComponent createInputComponent() {
@@ -148,6 +186,10 @@ public class QuestionCard extends JPanel {
         return isValid;
     }
 
+    /// /// /// Layout /// /// ///
+
+
+    
     /// /// /// Getters /// /// ///
 
     public String getValue() {
