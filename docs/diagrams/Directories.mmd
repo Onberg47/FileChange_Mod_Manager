@@ -34,7 +34,7 @@ graph TD
 
     subgraph GameDir
         GR[./GameRoot/] --> GameFiles[Vanilla game files]
-        GR --> ModManagerDir[.modmanager/]
+        GR --> ModManagerDir[.mod_manager/]
         
         ModManagerDir --> ManifestDir[manifests/] --> MMD_Man(mod_id.json)
         ModManagerDir --> LineageDir[lineages/] --> MMD_lineage(file.txt.json)

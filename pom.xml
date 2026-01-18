@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>onberg</groupId>
+    <artifactId>fcmm</artifactId>
+    <version>4.0.0</version>
+
+    <build>
+        <sourceDirectory>fcmm/src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>fcmm/resources</directory>
+            </resource>
+        </resources>
+        <testSourceDirectory>fcmm/test</testSourceDirectory>
+    </build>
+
+    <properties>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+    </properties>
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.github.cliftonlabs</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
+    </dependencies>
+</project>

@@ -1,2 +1,2 @@
 cd E:\Programming\java\JarProjects\FileChange_Mod_Manager\releases
-java -jar FileChange_Mod_Manager-3.4.0.jar
+java -jar fcmm-4.0.0.jar
