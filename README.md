@@ -1,4 +1,4 @@
-# FileChange_Mod_Manager
+# FileChange_Mod_Manager (No build-tools branch is a legacy branch!)
 A Java program for managing Mods that require manual integration with the game files instead of in a dedicated Mod directory but works for both cases.
 
 #### A personal side note:
