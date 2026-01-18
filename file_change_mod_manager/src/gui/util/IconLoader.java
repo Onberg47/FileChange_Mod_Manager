@@ -35,6 +35,7 @@ public class IconLoader {
      */
     public enum ICONS {
         ADD("ic_add.png"),
+        ARCHIVE("ic_archive.png"),
         BACK("ic_back.png"),
         CREATE("ic_create.png"),
         DRAG("ic_drag.png"),
@@ -45,6 +46,7 @@ public class IconLoader {
         HELP("ic_help.png"),
         LIBRARY("ic_library.png"),
         REDIRECT("ic_redirect.png"),
+        SAVE("ic_save.png"),
         SETTINGS("ic_settings.png"),
         SYNC("ic_sync.png"),
         TRASH("ic_trash.png");

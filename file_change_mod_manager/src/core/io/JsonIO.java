@@ -1,3 +1,7 @@
+/**
+ * Author Stephanos B
+ * Date 16/12/2025
+ */
 package core.io;
 
 import java.io.File;
@@ -17,6 +21,13 @@ import core.objects.GameState;
 import core.objects.Mod;
 import core.objects.ModManifest;
 
+/**
+ * Responsible for all JSON IO operations. It's primarily for use with my
+ * MapSerializable interface.
+ * Also has Helpers for using generic HashMaps.
+ * 
+ * @since v1
+ */
 public class JsonIO {
 
     /**

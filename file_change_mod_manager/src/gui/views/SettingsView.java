@@ -9,12 +9,15 @@ import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
 import gui.util.GUIUtils;
+import gui.util.IconLoader;
+import gui.util.IconLoader.ICONS;
 import core.config.AppConfig;
 import core.utils.Logger;
 import core.utils.TrashUtil;
 
 import java.awt.Color;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,6 +47,7 @@ public class SettingsView extends FormView {
 
     public SettingsView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Edit Settings");
+        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.SAVE, new Dimension(20,20)));
         updateTrashSize();
     }
 

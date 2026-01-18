@@ -156,7 +156,7 @@ public class ModManagerView extends BaseView {
         gbc.gridy = 0;
         gbc.weightx = 0.3;
         filterStatusComboBox = new JComboBox<>(new String[] {
-                "All", "Enabled", "Disabled", "Has Conflicts", "Needs Update"
+                "All", "Enabled", "Disabled"
         });
         filterStatusComboBox.setToolTipText("Filter by mod status");
         panel.add(filterStatusComboBox, gbc);
