@@ -5,11 +5,18 @@
 package gui.components;
 
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 
 import javax.swing.*;
+
+import core.utils.Logger;
+import gui.util.ConsoleRedirector;
 
 /**
  * Creates a popup window that listens to the console.
@@ -65,9 +72,17 @@ public class ConsolePopup {
         closeButton.setEnabled(false);
         closeButton.addActionListener(e -> frame.dispose());
 
+        JButton clearButton = new JButton("Clear");
+        clearButton.addActionListener(e -> clearConsole());
+
+        JButton copyButton = new JButton("Copy");
+        copyButton.addActionListener(e -> copyToClipboard());
+
         // Create a panel for the button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(closeButton);
+        buttonPanel.add(copyButton);
+        buttonPanel.add(clearButton);
 
         // Create main layout
         BorderLayout layout = new BorderLayout();
@@ -91,52 +106,96 @@ public class ConsolePopup {
     // Courtesy of Qwen3.
     private void redirectSystemOut() {
         // Create a custom PrintStream that writes to both System.out and your GUI
-        PrintStream consoleStream = new PrintStream(new OutputStream() {
-            private StringBuilder buffer = new StringBuilder();
+        PrintStream consoleStream;
+        try {
+            consoleStream = new PrintStream(new OutputStream() {
+                private final StringBuilder buffer = new StringBuilder();
+                private volatile boolean scheduled = false;
 
-            @Override
-            public void write(int b) throws IOException {
-                // Handle single byte
-                buffer.append((char) b);
-                flushIfNeeded();
-            }
-
-            @Override
-            public void write(byte[] b, int off, int len) throws IOException {
-                // Handle byte array
-                buffer.append(new String(b, off, len, "UTF-8"));
-                flushIfNeeded();
-            }
-
-            private void flushIfNeeded() {
-                // Only update UI when we have enough content or encounter newline
-                if (buffer.length() > 0) {
-                    SwingUtilities.invokeLater(() -> {
-                        consoleArea.append(buffer.toString());
-                        consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
-                        buffer.setLength(0); // Clear buffer
-                    });
+                @Override
+                public void write(int b) throws IOException {
+                    buffer.append((char) b);
+                    scheduleFlush();
                 }
-            }
 
-            @Override
-            public void flush() throws IOException {
-                if (buffer.length() > 0) {
-                    SwingUtilities.invokeLater(() -> {
-                        consoleArea.append(buffer.toString());
-                        consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    buffer.append(new String(b, off, len, StandardCharsets.UTF_8));
+                    scheduleFlush();
+                }
+
+                private synchronized void scheduleFlush() {
+                    // Only schedule once if not already scheduled
+                    if (!scheduled && buffer.length() > 0) {
+                        scheduled = true;
+                        SwingUtilities.invokeLater(this::flushToGUI);
+                    }
+                }
+
+                private void flushToGUI() {
+                    synchronized (this) {
+                        if (buffer.length() == 0) {
+                            scheduled = false;
+                            return;
+                        }
+
+                        String textToAppend = buffer.toString();
                         buffer.setLength(0);
-                    });
-                }
-            }
-        });
+                        scheduled = false;
 
-        // Redirect System.out and System.err
-        System.setOut(consoleStream);
-        System.setErr(consoleStream);
+                        // Now update the GUI
+                        consoleArea.append(textToAppend);
+
+                        // Scroll to bottom (but not on every update for performance)
+                        if (textToAppend.contains("\n")) {
+                            consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
+                        }
+                    }
+                }
+
+                @Override
+                public void flush() throws IOException {
+                    // Force immediate flush
+                    try {
+                        SwingUtilities.invokeAndWait(() -> {
+                            synchronized (this) {
+                                if (buffer.length() > 0) {
+                                    consoleArea.append(buffer.toString());
+                                    consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
+                                    buffer.setLength(0);
+                                    scheduled = false;
+                                }
+                            }
+                        });
+                    } catch (InvocationTargetException | InterruptedException e) {
+                        Logger.getInstance().error("Failed to flush stream", e);
+                    }
+                }
+            }, true, StandardCharsets.UTF_8.name());
+
+            // Redirect System.out and System.err
+            System.setOut(consoleStream);
+            System.setErr(consoleStream);
+
+        } catch (UnsupportedEncodingException e) {
+            Logger.getInstance().error("Failed to create console stream", e);
+        }
     }
 
     /// /// ///
+
+    private void clearConsole() {
+        ConsoleRedirector.getInstance().clear();
+    }
+    
+    private void copyToClipboard() {
+        String text = ConsoleRedirector.getInstance().getText();
+        Toolkit.getDefaultToolkit().getSystemClipboard()
+            .setContents(new StringSelection(text), null);
+        JOptionPane.showMessageDialog(parentFrame, "Console content copied to clipboard");
+    }
+
+    ///
 
     public void show() {
         frame.setVisible(true);
