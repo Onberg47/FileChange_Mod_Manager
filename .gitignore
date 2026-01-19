@@ -1,5 +1,6 @@
 *.log
 .gradle
-/tst_fs
+/target
+/TEST_FILE_SYSTEM
 /releases/mod_manager
 /mod_manager/.temp

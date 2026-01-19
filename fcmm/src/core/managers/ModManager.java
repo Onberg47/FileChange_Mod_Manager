@@ -601,7 +601,7 @@ public class ModManager {
                     HashUtil.computeFileHash(sourceDir.resolve(modFilePath)),
                     Files.size(sourceDir.resolve(modFilePath)));
         } catch (Exception e) {
-            throw new Exception("Failed to construct ModFile: " + e.getMessage());
+            throw new Exception("Failed to construct ModFile: " + e.getMessage(), e);
         }
 
         Path lineagePath = LINEAGE_DIR.resolve(modFilePath + ".json"); // where it should be.
