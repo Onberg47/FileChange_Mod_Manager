@@ -174,7 +174,7 @@ public class FileLineage implements MapSerializable {
         // Cannot just use stack.contains() because Hashes or timestamps could differ.
         for (FileVersion existing : stack) {
             if (existing.getModId().equals(fVersion.getModId())) {
-                Logger.getInstance().logWarning("Mod already present in Lineage. Removing first...", null);
+                Logger.getInstance().warning("Mod already present in Lineage. Removing first...", null);
                 this.removeAllOf(fVersion.getModId());
                 break;
             }
@@ -211,7 +211,7 @@ public class FileLineage implements MapSerializable {
         // Cannot just use stack.contains() because Hashes or timestamps could differ.
         for (FileVersion existing : stack) {
             if (existing.getModId().equals(fVersion.getModId())) {
-                Logger.getInstance().logWarning("Mod already present in Lineage. Removing first...", null);
+                Logger.getInstance().warning("Mod already present in Lineage. Removing first...", null);
                 this.removeAllOf(fVersion.getModId());
                 break;
             }

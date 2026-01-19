@@ -157,7 +157,7 @@ public class GameState implements MapSerializable {
      * @throws Exception
      */
     public static GameState loadFromFile(Path filePath) throws Exception {
-        Logger.getInstance().logEntry(null, "Loading GameState from: " + filePath);
+        Logger.getInstance().info(null, "Loading GameState from: " + filePath);
         return (GameState) JsonIO.read(filePath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
     }
 
@@ -168,7 +168,7 @@ public class GameState implements MapSerializable {
      * @throws Exception
      */
     public void saveToFile(Path filePath) throws Exception {
-        Logger.getInstance().logEntry("Saving GameState to: " + filePath);
+        Logger.getInstance().info("Saving GameState to: " + filePath);
         try {
             // If removed Mod was last, delete file.
             if (this.deployedMods.isEmpty())
@@ -245,7 +245,7 @@ public class GameState implements MapSerializable {
             this.deployedMods.remove(index);
             updateModified();
         } catch (IndexOutOfBoundsException e) {
-            Logger.getInstance().logWarning("Index: " + index + " is out of bounds.", e);
+            Logger.getInstance().warning("Index: " + index + " is out of bounds.", e);
         }
     }
 

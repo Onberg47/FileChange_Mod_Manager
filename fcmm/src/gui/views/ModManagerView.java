@@ -255,7 +255,7 @@ public class ModManagerView extends BaseView {
                 SwingWorker<Void, List<Mod>> worker = new SwingWorker<>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        Logger.getInstance().logEntry(0, null, "fetching all mods...");
+                        Logger.getInstance().info(0, null, "fetching all mods...");
                         allMods = manager.getAllMods();
                         publish(allMods);
                         return null;
@@ -263,7 +263,7 @@ public class ModManagerView extends BaseView {
 
                     @Override
                     protected void process(List<List<Mod>> chunks) {
-                        Logger.getInstance().logEntry(0, null, "mods retrieved");
+                        Logger.getInstance().info(0, null, "mods retrieved");
                         allMods.sort(Comparator.comparingInt(Mod::getLoadOrder));
                         updateEnabledModsOrder(); // re-order for consistency when dragging.
                         loadMods();
@@ -286,7 +286,7 @@ public class ModManagerView extends BaseView {
                     .collect(Collectors.toSet());
 
             // Logging for future testing.
-            Logger.getInstance().logEntry(0, null,
+            Logger.getInstance().info(0, null,
                     "Filteres aplied: \n\tStatus: " + statusFilter
                             + "\n\tName: " + nameFilter
                             + "\n\tTags: " + tagFilters.toString());
@@ -474,7 +474,7 @@ public class ModManagerView extends BaseView {
             Mod targetMod = findModAtPosition(mousePos);
             if (targetMod == null)
                 return;
-            Logger.getInstance().logEntry(null, "\tDropped on: " + targetMod.getName());
+            Logger.getInstance().info(null, "\tDropped on: " + targetMod.getName());
 
             if (targetMod != null && !targetMod.getId().equals(draggedMod.getId())) {
                 // Move draggedMod to position before targetMod in allMods
@@ -538,7 +538,7 @@ public class ModManagerView extends BaseView {
         else
             allMods.add(index, modToMove);
 
-        Logger.getInstance().logEntry(null, "Dragger Mod " + modToMove.getId() + " to [" + modToMove.isEnabled()
+        Logger.getInstance().info(null, "Dragger Mod " + modToMove.getId() + " to [" + modToMove.isEnabled()
                 + "] : " + modToMove.getLoadOrder());
         updateEnabledModsOrder(); // must change load orders to take affect.
     }
@@ -583,17 +583,26 @@ public class ModManagerView extends BaseView {
 
             // Apply to Game
             showConsole();
-            manager.deployGameState(gameState);
+            SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+                @Override
+                protected Void doInBackground() throws Exception { // long-running task
+                    manager.deployGameState(gameState);
+                    return null;
+                }
 
-            // forces a complete re-read
-            allMods = null; // do not use .clear().
-            // Need the distinction between empty and null!
-            loadMods();
+                @Override
+                protected void done() { // Task completed - update GUI state
+                    // forces a complete re-read
+                    allMods = null; // do not use .clear().
+                    // Need the distinction between empty and null!
+                    loadMods();
+                    finishConsole();
+                }
+            };
+            worker.execute();
 
         } catch (Exception e) {
             showError("Failed to apply changes: " + e.getMessage(), e);
-        } finally {
-            finishConsole();
         }
     }
 } // Class

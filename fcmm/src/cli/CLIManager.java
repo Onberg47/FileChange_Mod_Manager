@@ -90,7 +90,7 @@ public class CLIManager {
                         break;
                 } // switch
             } catch (Exception e) {
-                Logger.getInstance().logError("CLI Error.", e);
+                Logger.getInstance().error("CLI Error.", e);
             }
 
         } while (true);

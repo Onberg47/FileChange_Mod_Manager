@@ -46,39 +46,39 @@ public class GameManager {
      * @param metaMap
      */
     public static Game addGame(HashMap<String, Object> metaMap) throws Exception {
-        log.logEntry(0, "\n📦 Adding new game...");
+        log.info(0, "\n📦 Adding new game...");
         Game game = new Game();
 
         /// 1. read meta data.
         try {
-            log.logEntry(1, "Reading meta data...");
+            log.info(1, "Reading meta data...");
             game.setFromMap(metaMap);
         } catch (Exception e) {
             throw new Exception("Failed to process Meta data.", e);
         }
 
         /// 2. Verify game paths.
-        log.logEntry(1, "Verifying game paths...");
+        log.info(1, "Verifying game paths...");
         Path path;
         try {
             path = game.getInstallDirectory();
-            log.logEntry(1, null, "Checking path: " + path.toString()); // silent log
+            log.info(1, null, "Checking path: " + path.toString()); // silent log
             if (!path.isAbsolute()) {
-                log.logWarning(1, "Game installation path is not absolute.", null);
+                log.warning(1, "Game installation path is not absolute.", null);
             }
             if (!Files.exists(path)) {
-                log.logWarning(1, "Could not find Game intall path at: " + path.toString()
+                log.warning(1, "Could not find Game intall path at: " + path.toString()
                         + "\n\tThis should exsist, will NOT create. Update if path is invalid.", null);
             }
-            log.logEntry(2, "✔ Game path is good.");
+            log.info(2, "✔ Game path is good.");
 
             path = game.getStoreDirectory();
-            log.logEntry(1, null, "Checking path: " + path.toString());
+            log.info(1, null, "Checking path: " + path.toString());
             if (!path.isAbsolute()) {
-                log.logWarning(1, "Mod storage path is not absolute.", null);
+                log.warning(1, "Mod storage path is not absolute.", null);
             }
             if (!Files.exists(path)) {
-                log.logWarning(1, "Could not find Mod storage path at: " + path.toString() + "\n\tCreating it...",
+                log.warning(1, "Could not find Mod storage path at: " + path.toString() + "\n\tCreating it...",
                         null);
                 try {
                     Files.createDirectories(path);
@@ -86,7 +86,7 @@ public class GameManager {
                     throw new Exception("Failed to create directories for mod storage! " + path.toString(), e);
                 }
             }
-            log.logEntry(2, "✔ Mod storage path is good.");
+            log.info(2, "✔ Mod storage path is good.");
         } catch (InvalidPathException e) {
             throw new Exception("Could not convert paths.", e);
         } catch (Exception e) {
@@ -111,13 +111,13 @@ public class GameManager {
         try {
             game = GameManager.getGameById(gameId);
             if (!game.getId().equals(gameId)) {
-                log.logWarning("GameID has changed. Trashing old file", null);
+                log.warning("GameID has changed. Trashing old file", null);
                 Files.move(
                         config.getGameDir().resolve(gameId + ".json"),
                         config.getTrashDir().resolve("games", gameId + ".json__" + DateUtil.getNumericTimestamp()));
             }
             GameManager.addGame(metaMap); // creates a new game, using the exsisting game data.
-            log.logEntry(0, "Game updated.");
+            log.info(0, "Game updated.");
         } catch (Exception e) {
             throw new Exception("Failed to update Game: " + gameId, e);
         }
@@ -131,7 +131,7 @@ public class GameManager {
      * @param gameId Game ID to remove.
      */
     public static void removeGame(String gameId) throws Exception {
-        log.logEntry(0, "🗑 Removing Game: " + gameId);
+        log.info(0, "🗑 Removing Game: " + gameId);
         Path targetDir = config.getTrashDir().resolve(gameId);
         Path gameFilePath = config.getGameDir().resolve(gameId + ".json");
 
@@ -144,15 +144,15 @@ public class GameManager {
             Game game = getGameById(gameId);
             ModManager manager = new ModManager(game);
 
-            log.logEntry(1, "Trashing Enabled Mods if present...");
+            log.info(1, "Trashing Enabled Mods if present...");
             manager.trashAll();
 
-            log.logEntry(1, "Trashing Disabled Mods if present...");
+            log.info(1, "Trashing Disabled Mods if present...");
             if (game.getStoreDirectory().toFile().list().length > 0) {
-                log.logEntry(2, "Copying Mods to trash: " + targetDir);
+                log.info(2, "Copying Mods to trash: " + targetDir);
                 FileUtil.copyDirectoryContents(game.getStoreDirectory(), targetDir, null);
 
-                log.logEntry(2, "Deleting original Mod storage");
+                log.info(2, "Deleting original Mod storage");
                 FileUtil.deleteDirectory(game.getStoreDirectory());
             }
         } catch (Exception e) {
@@ -161,7 +161,7 @@ public class GameManager {
 
         /// Remove the game itself
         try {
-            log.logEntry(1, "Trying to move game file to trash...");
+            log.info(1, "Trying to move game file to trash...");
             targetDir = config.getTrashDir().resolve(gameId, gameId + ".json__" + DateUtil.getNumericTimestamp());
 
             if (!Files.exists(targetDir.getParent()))
@@ -172,14 +172,14 @@ public class GameManager {
             targetDir = config.getTrashDir().resolve("games", "icons", gameId);
 
             if (Files.exists(gameFilePath) && Files.isRegularFile(gameFilePath)) {
-                log.logEntry(1, "Icon file found moving to trash at: " + targetDir.toString());
+                log.info(1, "Icon file found moving to trash at: " + targetDir.toString());
 
                 if (!Files.exists(targetDir.getParent()))
                     Files.createDirectories(targetDir.getParent());
                 Files.move(gameFilePath, targetDir);
             }
 
-            log.logEntry(0, "🗑 Game " + gameId + "sucessfully trashed.");
+            log.info(0, "🗑 Game " + gameId + "sucessfully trashed.");
         } catch (Exception e) {
             throw new Exception("Faild to delete game.", e);
         }
@@ -220,14 +220,14 @@ public class GameManager {
     public static void saveGame(Game game) throws Exception {
         Path path = config.getGameDir().resolve(game.getId() + ".json");
         try {
-            log.logEntry(1, "Writing JSON file for Game " + game.getName());
+            log.info(1, "Writing JSON file for Game " + game.getName());
             if (!Files.exists(path)) {
-                log.logWarning("File not found, creating new one.", null);
+                log.warning("File not found, creating new one.", null);
                 Files.createDirectories(path.getParent());
             }
             JsonIO.write(game, path.toFile());
 
-            log.logEntry(0, "📦 Game " + game.getId() + " written.");
+            log.info(0, "📦 Game " + game.getId() + " written.");
         } catch (Exception e) {
             throw new Exception("Failed to write Game.json file.", e);
         }
@@ -267,15 +267,15 @@ public class GameManager {
                     return (Game) JsonIO.read(path.toFile(), MapSerializable.ObjectTypes.GAME);
                 } catch (InvalidObjectException e) {
                     // differentiate between files that are not game types and other errors.
-                    log.logError(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                     return null;
                 } catch (Exception e) {
-                    log.logError("Error reading file: " + path.toString() + " -> ", e);
+                    log.error("Error reading file: " + path.toString() + " -> ", e);
                     return null;
                 }
             }).filter(Objects::nonNull).toList();
         } catch (Exception e) {
-            log.logError("Error reading manifest directory.", e);
+            log.error("Error reading manifest directory.", e);
             return null;
         }
     } // getAllGames()

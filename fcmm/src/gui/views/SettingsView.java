@@ -176,7 +176,7 @@ public class SettingsView extends FormView {
         SwingWorker<Void, String> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() throws Exception {
-                Logger.getInstance().logEntry(0, null, "trash size requested");
+                Logger.getInstance().info(0, null, "trash size requested");
                 long sizeBytes = TrashUtil.getDiskSize(config.getTrashDir());
                 float sizeMB = sizeBytes / (1024f * 1024f);
 
@@ -186,7 +186,7 @@ public class SettingsView extends FormView {
 
             @Override
             protected void process(List<String> chunks) {
-                Logger.getInstance().logEntry(0, null, "trash size returned");
+                Logger.getInstance().info(0, null, "trash size returned");
                 trashSizeLabel.setText(chunks.get(chunks.size() - 1));
             }
         };

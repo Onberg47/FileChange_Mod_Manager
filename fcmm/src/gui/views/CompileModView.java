@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.SwingWorker;
+
 /**
  * Displays the FormView. Gathers Mod information for compiling and compiles on
  * submit.
@@ -28,7 +30,7 @@ import java.util.Map;
 public class CompileModView extends FormView {
     public CompileModView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Compile New Mod");
-        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.CREATE, new Dimension(20,20)));
+        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.CREATE, new Dimension(20, 20)));
     }
 
     @Override
@@ -58,15 +60,25 @@ public class CompileModView extends FormView {
         try {
             /// Compile Mod
             Path files = Path.of(formPanel.getAnswers().get("pathToFiles").toString());
-            showConsole();
-            manager.compileMod(files, (HashMap<String, Object>) formPanel.getAnswers());
 
-            // Navigate back
-            navigator.goBack();
+            showConsole();
+            SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+                @Override
+                protected Void doInBackground() throws Exception { // long-running task
+                    manager.compileMod(files, (HashMap<String, Object>) formPanel.getAnswers());
+                    return null;
+                }
+
+                @Override
+                protected void done() { // Task completed - update GUI state
+                    finishConsole();
+                    navigator.goBack();
+                }
+            };
+            worker.execute();
+
         } catch (Exception e) {
             showError("Failed to compile Mod: " + e.getMessage(), e);
-        } finally {
-            finishConsole();
         }
     }
 

@@ -134,7 +134,7 @@ public class App {
                 console.setDone();
 
             } catch (Exception f) {
-                Logger.getInstance().logError("Failed to clean", f);
+                Logger.getInstance().error("Failed to clean", f);
             }
         }
     }

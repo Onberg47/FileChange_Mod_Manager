@@ -100,7 +100,7 @@ public abstract class BaseView extends JPanel {
                 message,
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
-        Logger.getInstance().logError(message, e);
+        Logger.getInstance().error(message, e);
     }
 
     /**

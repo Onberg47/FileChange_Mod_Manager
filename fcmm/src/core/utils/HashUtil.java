@@ -96,7 +96,7 @@ public class HashUtil {
         } catch (IOException e) {
             return false;
         } catch (Exception e) {
-            Logger.getInstance().logError("Error Hashing the file.", e);
+            Logger.getInstance().error("Error Hashing the file.", e);
             return false;
         }
     }
@@ -124,7 +124,7 @@ public class HashUtil {
         } catch (IOException e) {
             return false;
         } catch (Exception e) {
-            Logger.getInstance().logError("Error Hashing the file.", e);
+            Logger.getInstance().error("Error Hashing the file.", e);
             return false;
         }
     } // verifyFileIntegrity()

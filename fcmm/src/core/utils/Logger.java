@@ -106,7 +106,7 @@ public class Logger {
 
     public void close() {
         synchronized (this) {
-            logEntry("Closing logger.");
+            info("Closing logger.");
             if (writer != null) {
                 try {
                     writer.close();
@@ -124,18 +124,18 @@ public class Logger {
      * 
      * @param msg
      */
-    public void logEntry(String msg) {
-        logEntry(msg, msg);
+    public void info(String msg) {
+        info(msg, msg);
     }
 
-    public void logEntry(int indent, String msg) {
+    public void info(int indent, String msg) {
         this.indent = indent;
-        logEntry(msg, msg);
+        info(msg, msg);
     }
 
-    public void logEntry(int indent, String msg, String verboseMsg) {
+    public void info(int indent, String msg, String verboseMsg) {
         this.indent = indent;
-        logEntry(msg, verboseMsg);
+        info(msg, verboseMsg);
     }
 
     /**
@@ -143,7 +143,7 @@ public class Logger {
      * @param msg        Console/user facing message.
      * @param verboseMsg LogFile printed message.
      */
-    public void logEntry(String msg, String verboseMsg) {
+    public void info(String msg, String verboseMsg) {
         if (msg != null)
             System.out.println("\t".repeat(indent) + msg);
 
@@ -153,13 +153,13 @@ public class Logger {
 
     /// Warning
 
-    public void logWarning(int indent, String msg, Exception f) {
+    public void warning(int indent, String msg, Exception f) {
         this.indent = indent;
-        logWarning(msg, f);
+        warning(msg, f);
     }
 
     //
-    public void logWarning(String msg, Exception f) {
+    public void warning(String msg, Exception f) {
         printToLog(msg, f, ErrorCodes.WARNING);
         if (f == null) {
             f = new Exception("No exception passed.");
@@ -169,7 +169,7 @@ public class Logger {
 
     /// Error
 
-    public void logError(String msg, Exception f) {
+    public void error(String msg, Exception f) {
         printToLog(msg, f, ErrorCodes.NORMAL_ERROR);
         if (f == null) {
             f = new Exception("No exception passed.");

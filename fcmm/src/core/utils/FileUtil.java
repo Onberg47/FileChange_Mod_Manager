@@ -97,21 +97,21 @@ public class FileUtil {
                                 relative.relativize(path),
                                 HashUtil.computeFileHash(path),
                                 Files.size(path));
-                        log.logEntry(0,
+                        log.info(0,
                                 String.format("%s🗒  Found File: %s", " ".repeat(depth * 3),
                                         prefix + path.getFileName()));
                         return Stream.of(modFile);
                     } else if (Files.isDirectory(path)) {
                         if (path.endsWith(config.getManagerDir())) {
-                            log.logWarning("Mod Manager files found! Skipping.", null);
+                            log.warning("Mod Manager files found! Skipping.", null);
                             return Stream.empty();
                         }
                         // Create ModFile for directory (if needed) or recurse
                         String tmpPrefix = prefix + path.getFileName().toString() + "/";
-                        log.logEntry(0, String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
+                        log.info(0, String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
 
                         if (depth >= maxDepth) {
-                            log.logWarning(0, "Maximum depth reached, stopping recursion.", null);
+                            log.warning(0, "Maximum depth reached, stopping recursion.", null);
                             return Stream.empty();
                         }
 
@@ -170,17 +170,17 @@ public class FileUtil {
                     if (Files.isRegularFile(path)) {
                         // Create ModFile for regular file
 
-                        log.logEntry(0, null,
+                        log.info(0, null,
                                 String.format("%s🗒  Found File: %s", " ".repeat(depth * 3),
                                         prefix + path.getFileName()));
                         return Stream.of(path.toFile());
                     } else if (Files.isDirectory(path)) {
                         // Create ModFile for directory (if needed) or recurse
                         String tmpPrefix = prefix + path.getFileName().toString() + "/";
-                        log.logEntry(0, null, String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
+                        log.info(0, null, String.format("%s🗂  Found directory: %s", " ".repeat(depth * 3), tmpPrefix));
 
                         if (depth >= maxDepth) {
-                            log.logWarning(0, "Maximum depth reached, stopping recursion.", null);
+                            log.warning(0, "Maximum depth reached, stopping recursion.", null);
                             return Stream.empty();
                         }
 
@@ -242,7 +242,7 @@ public class FileUtil {
         Path GsPath = game.getInstallDirectory().resolve(config.getManagerDir().toString(), GameState.FILE_NAME);
         GameState gState;
         if (!Files.exists(GsPath))
-            log.logWarning("No mods installed, could not find " + GameState.FILE_NAME, null);
+            log.warning("No mods installed, could not find " + GameState.FILE_NAME, null);
         try {
             gState = (GameState) JsonIO.read(GsPath.toFile(), MapSerializable.ObjectTypes.GAME_STATE);
 
@@ -258,7 +258,7 @@ public class FileUtil {
         Path storeDir = game.getStoreDirectory();
 
         if (!Files.exists(storeDir)) {
-            log.logWarning("Could not find: " + storeDir.toString(), null);
+            log.warning("Could not find: " + storeDir.toString(), null);
         }
 
         try (Stream<Path> paths = Files.list(storeDir)) {
@@ -308,7 +308,7 @@ public class FileUtil {
 
         Path gameDir = config.getGameDir();
         try (Stream<Path> paths = Files.list(gameDir)) {
-            log.logEntry(null, ("Files detected: " + Files.list(gameDir)));
+            log.info(null, ("Files detected: " + Files.list(gameDir)));
 
             for (Path path : (Iterable<Path>) paths::iterator) {
                 // Process each file
@@ -319,7 +319,7 @@ public class FileUtil {
                                 MapSerializable.ObjectTypes.GAME);
                         sb.append("\n\t\t⚪ " + game.getName() + " [id: " + game.getId() + "]");
                     } catch (InvalidObjectException e) {
-                        log.logEntry(null, "File was not a Game.");
+                        log.info(null, "File was not a Game.");
                         // Just skips silently. Other errors are caught outside to stop process.
                     }
                 }
@@ -432,7 +432,7 @@ public class FileUtil {
 
         // Validate that we're working with a valid path
         if (!Files.exists(resolvedPath)) {
-            log.logError("Invalid path! [relative] -> [working] : " + relative + " -> " + working, null);
+            log.error("Invalid path! [relative] -> [working] : " + relative + " -> " + working, null);
             return -1;
         }
 
@@ -458,7 +458,7 @@ public class FileUtil {
                     }
                 }
             } catch (IOException e) {
-                log.logError("Error processing directory " + currentPath + ": " + e.getMessage(), e);
+                log.error("Error processing directory " + currentPath + ": " + e.getMessage(), e);
                 return -1;
             }
 
@@ -466,7 +466,7 @@ public class FileUtil {
             working = working.getParent();
         } // while()
 
-        log.logEntry("✔ Cleaned [" + count + "] empty directories in: [relative] -> [working] : " + relative + " -> "
+        log.info("✔ Cleaned [" + count + "] empty directories in: [relative] -> [working] : " + relative + " -> "
                 + workingSrt);
         return count;
     } // cleanDirectories()

@@ -20,6 +20,7 @@ import java.util.*;
 
 import javax.swing.JComponent;
 import javax.swing.JToggleButton;
+import javax.swing.SwingWorker;
 
 /**
  * Displays a FormView. Read an exsisting Mod.json to auto-populate data and
@@ -113,23 +114,31 @@ public class EditModView extends FormView {
             ModManager manager = new ModManager(AppState.getInstance().getCurrentGame());
 
             if (isUpdate) { // Update mode
-                try {
-                    showConsole();
+                showConsole();
+                SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+                    @Override
+                    protected Void doInBackground() throws Exception { // long-running task
+                        Path files = null;
+                        if (formPanel.getAnswers().containsKey("pathToFiles"))
+                            files = Path.of(formPanel.getAnswers().get("pathToFiles").toString());
 
-                    Path files = null;
-                    if (formPanel.getAnswers().containsKey("pathToFiles"))
-                        files = Path.of(formPanel.getAnswers().get("pathToFiles").toString());
+                        manager.updateMod(mod.getId(), files, (HashMap<String, Object>) formPanel.getAnswers());
+                        return null;
+                    }
 
-                    manager.updateMod(mod.getId(), files, (HashMap<String, Object>) formPanel.getAnswers());
-                } finally {
-                    finishConsole();
-                }
+                    @Override
+                    protected void done() { // Task completed - update GUI state
+                        finishConsole();
+                        navigator.goBack();
+                    }
+                };
+                worker.execute();
+
             } else { // Edit mode
                 System.out.println("Saving mod with edits: " + formPanel.getAnswers().toString());
                 manager.editMod(mod.getId(), (HashMap<String, Object>) formPanel.getAnswers());
+                navigator.goBack();
             }
-            // Navigate back
-            navigator.goBack();
         } catch (Exception e) {
             showError("Failed to compile Mod: " + e.getMessage(), e);
         }

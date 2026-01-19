@@ -29,7 +29,7 @@ public class TrashUtil {
      * Just deletes the entire trash directory then re-makes it.
      */
     public static void emptyTrash() throws Exception {
-        log.logEntry(0, "Emptying trash direcotry...");
+        log.info(0, "Emptying trash direcotry...");
         FileUtil.deleteDirectory(config.getTrashDir());
         Files.createDirectories(config.getTrashDir());
     }
@@ -56,44 +56,44 @@ public class TrashUtil {
         int i = 0, deleteCnt = 0;
         for (File file : fileLs) {
             i++;
-            log.logEntry(0, Logger.progressBar(i, total));
+            log.info(0, Logger.progressBar(i, total));
 
             if (file.lastModified() < milliseconds) {
-                log.logEntry(1, null, "Deleting old trash: " + file.getPath());
+                log.info(1, null, "Deleting old trash: " + file.getPath());
                 try {
                     Files.deleteIfExists(fileLs.getFirst().toPath());
                     deleteCnt++;
                     continue;
                 } catch (IOException e) {
-                    log.logError("Could not delete file", e);
+                    log.error("Could not delete file", e);
                     continue;
                 }
             }
-            log.logEntry(0, "File is within cut-off date");
+            log.info(0, "File is within cut-off date");
             break; // list is order, no need to check after 1 fails.
         }
 
         /// 4. If the total trash direcoty size is too big:
         float size = megabyte(getDiskSize(config.getTrashDir()));
         if (size > maxMegabytes)
-            log.logEntry(1,
+            log.info(1,
                     String.format("Current size of Trash on disk: %.3fMB / %dMB", size, maxMegabytes));
 
         while (size > maxMegabytes) {
-            log.logEntry(1,
+            log.info(1,
                     String.format("size %.3fMB / %dMB", size, maxMegabytes));
             try {
-                log.logEntry(1, "Deleting overflow trash: " + fileLs.getFirst());
+                log.info(1, "Deleting overflow trash: " + fileLs.getFirst());
                 Files.deleteIfExists(fileLs.getFirst().toPath());
                 deleteCnt++;
             } catch (IOException e) {
-                log.logError("Could not delete file", e);
+                log.error("Could not delete file", e);
                 continue;
             }
             size = megabyte(getDiskSize(config.getTrashDir()));
         }
 
-        log.logEntry(0, "Files deleted: " + deleteCnt);
+        log.info(0, "Files deleted: " + deleteCnt);
         // TODO clean empty directories
     }
 
@@ -117,7 +117,7 @@ public class TrashUtil {
                     })
                     .sum();
         } catch (IOException e) {
-            log.logError("Failed to determine trash size", e);
+            log.error("Failed to determine trash size", e);
         }
         return size;
     }
