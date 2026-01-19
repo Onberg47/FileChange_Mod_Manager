@@ -5,7 +5,6 @@
 package core.objects;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -164,7 +163,7 @@ public class Game implements MapSerializable {
     }
 
     public void setInstallDirectory(String installDirectoryStr) {
-        this.installDirectory = installDirectoryStr != null ? Paths.get(installDirectoryStr).normalize() : null;
+        this.installDirectory = installDirectoryStr != null ? Path.of(installDirectoryStr).normalize() : null;
     }
 
     /**
@@ -182,7 +181,7 @@ public class Game implements MapSerializable {
     }
 
     public void setStoreDirectory(String storeDirectoryStr) {
-        this.storeDirectory = storeDirectoryStr != null ? Paths.get(storeDirectoryStr).normalize() : null;
+        this.storeDirectory = storeDirectoryStr != null ? Path.of(storeDirectoryStr).normalize() : null;
     }
 
     // #endregion

@@ -241,7 +241,7 @@ public class ModManager {
             } catch (IOException e) {
                 throw new IOException("Failed IO operation on ModFiles: " + e.getMessage(), e);
             } catch (Exception e) {
-                throw new Exception("Failed safe copy operation: " + e.getMessage() + e);
+                throw new Exception("Failed safe copy operation: " + e.getMessage(), e);
             }
 
             /// 3. Copy from temp/{mod_id} to game_root and clean temp.
@@ -868,9 +868,9 @@ public class ModManager {
     } // getModManifestById()
 
     /**
-     * Reads all Mods for a Game. Includes both deployed and Stored Mods.<br>
+     * Reads all Mods for a Game in no specific order. Includes both deployed and Stored Mods.<br>
      * <br>
-     * Will set Enabled flags for Mods.
+     * Will set Enabled flags and use GameState LoadOrder values.
      * 
      * @return
      * @throws Exception
@@ -895,6 +895,7 @@ public class ModManager {
                                 MapSerializable.ObjectTypes.MOD);
 
                         if (gameState.containsMod(mod.getId())) {
+                            mod.setLoadOrder(gameState.getLoadOrder(mod.getId()));
                             mod.setEnabled(true);
                         } else {
                             mod.setEnabled(false); // redundant but better be safe.

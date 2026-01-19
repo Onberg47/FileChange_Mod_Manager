@@ -16,7 +16,6 @@ import core.objects.Game;
 
 import java.awt.Dimension;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -65,7 +64,7 @@ public class EditGameView extends FormView {
 
         // Special handling for paths - convert to absolute if relative
         if (gameData.containsKey("installDirectory") && !gameData.get("installDirectory").isEmpty()) {
-            Path dir = Paths.get(gameData.get("installDirectory"));
+            Path dir = Path.of(gameData.get("installDirectory"));
             if (!dir.isAbsolute()) {
                 System.err.println("Making absolute...");
                 // Convert to absolute path for display

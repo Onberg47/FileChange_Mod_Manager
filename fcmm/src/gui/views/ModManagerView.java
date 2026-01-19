@@ -249,8 +249,8 @@ public class ModManagerView extends BaseView {
      */
     private void loadMods() {
         try {
-            // Load all mods for this game. No need to reload
-            if (allMods == null || allMods.isEmpty()) {
+            // Load all mods for this game. No need to reload.
+            if (allMods == null) {
                 // Async / background loading of all Mods when needed.
                 SwingWorker<Void, List<Mod>> worker = new SwingWorker<>() {
                     @Override
@@ -264,6 +264,7 @@ public class ModManagerView extends BaseView {
                     @Override
                     protected void process(List<List<Mod>> chunks) {
                         Logger.getInstance().logEntry(0, null, "mods retrieved");
+                        allMods.sort(Comparator.comparingInt(Mod::getLoadOrder));
                         updateEnabledModsOrder(); // re-order for consistency when dragging.
                         loadMods();
                     }
@@ -508,7 +509,7 @@ public class ModManagerView extends BaseView {
 
                 DividerCard divider = (DividerCard) comp;
                 Mod tmp = new Mod(null);
-                tmp.setLoadOrder(1);
+                tmp.setLoadOrder(0);
                 tmp.setEnabled(divider.getTitle().contains("Enabled"));
                 return tmp;
             }
@@ -524,19 +525,22 @@ public class ModManagerView extends BaseView {
      * @param targetMod Target Mod to determine where to move to.
      */
     private void moveDraggedMod(Mod modToMove, Mod targetMod) {
-
-        int index = targetMod.getLoadOrder() - 1;
-
         allMods.remove(modToMove);
+        int index = targetMod.getLoadOrder();
 
         modToMove.setEnabled(targetMod.isEnabled());
         if (targetMod.isEnabled())
-            modToMove.setLoadOrder(targetMod.getLoadOrder());
+            modToMove.setLoadOrder(index);
 
-        allMods.add(index, modToMove);
+        // ensure mod is added to the end is index is too large
+        if (index > allMods.size())
+            allMods.add(modToMove);
+        else
+            allMods.add(index, modToMove);
+
         Logger.getInstance().logEntry(null, "Dragger Mod " + modToMove.getId() + " to [" + modToMove.isEnabled()
                 + "] : " + modToMove.getLoadOrder());
-        updateEnabledModsOrder();
+        updateEnabledModsOrder(); // must change load orders to take affect.
     }
 
     /**
@@ -582,7 +586,8 @@ public class ModManagerView extends BaseView {
             manager.deployGameState(gameState);
 
             // forces a complete re-read
-            allMods.clear();
+            allMods = null; // do not use .clear().
+            // Need the distinction between empty and null!
             loadMods();
 
         } catch (Exception e) {

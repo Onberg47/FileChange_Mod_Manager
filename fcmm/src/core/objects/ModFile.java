@@ -5,8 +5,8 @@
 
 package core.objects;
 
+import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,14 +36,14 @@ public class ModFile implements MapSerializable {
         FILE_PATH("filePath"),
         HASH("hash"),
         SIZE("size");
-        
+
         private final String key;
 
         private Keys(String key) {
             this.key = key;
         }
 
-        public String key(){
+        public String key() {
             return this.key;
         }
     }
@@ -118,12 +118,31 @@ public class ModFile implements MapSerializable {
         return filePath;
     }
 
+    /**
+     * Normalises and sets the Path.<br>
+     * <br>
+     * ONLY use this when the path has no risk of being cross-OS.
+     * 
+     * @param filePathStr The relative path to the ModFile.
+     */
     public void setFilePath(Path filePath) {
         this.filePath = filePath != null ? filePath.normalize() : null;
     }
 
+    /**
+     * Creates a normalised and sanitised Path from a String.<br>
+     * <br>
+     * ALWAYS use this when there is risk of cross-OS paths.
+     * 
+     * @param filePathStr The relative path to the ModFile.
+     */
     public void setFilePath(String filePathStr) {
-        this.filePath = filePathStr != null ? Paths.get(filePathStr).normalize() : null;
+        for (String sep : new String[] { "/", "\\" }) {
+            if (!File.pathSeparator.equals(sep))
+                filePathStr = filePathStr.replace(sep, File.separator);
+        }
+
+        this.filePath = filePathStr != null ? Path.of(filePathStr).normalize() : null;
     }
 
     public String getHash() {

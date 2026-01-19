@@ -40,6 +40,7 @@ public class ModManifest extends ModMetadata {
      */
     public ModManifest() {
         super();
+        contentsArr = new ModFile[0];
     }
 
     /**
@@ -126,7 +127,7 @@ public class ModManifest extends ModMetadata {
         for (ModFile tmp : this.getContentsArr()) {
             arrLs.add((HashMap<String, Object>) tmp.toMap());
         }
-        map.put(Keys.FILES.toString(), arrLs);
+        map.put(Keys.FILES.key(), arrLs);
 
         return map;
     } // toMap()
