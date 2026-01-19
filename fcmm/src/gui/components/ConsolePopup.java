@@ -16,7 +16,8 @@ import java.nio.charset.StandardCharsets;
 import javax.swing.*;
 
 import core.utils.Logger;
-import gui.util.ConsoleRedirector;
+import gui.util.IconLoader;
+import gui.util.IconLoader.ICONS;
 
 /**
  * Creates a popup window that listens to the console.
@@ -56,7 +57,9 @@ public class ConsolePopup {
     /// /// ///
 
     private void setupGUI() {
-        frame = new JFrame("Installation Progress");
+        frame = new JFrame("FCMM Console");
+        frame.setIconImage(parentFrame.getIconImage()); // TODO
+        
         consoleArea = new JTextArea();
         consoleArea.setEditable(false);
         consoleArea.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
@@ -69,20 +72,18 @@ public class ConsolePopup {
 
         // Create close button
         closeButton = new JButton("Busy");
-        closeButton.setEnabled(false);
+        this.setButtonBusy();
         closeButton.addActionListener(e -> frame.dispose());
 
-        JButton clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> clearConsole());
-
         JButton copyButton = new JButton("Copy");
+        copyButton.setIcon(IconLoader.loadResourceIcon(ICONS.COPY_ALL, new Dimension(16, 16)));
+        copyButton.setToolTipText("Copy all to clipboard");
         copyButton.addActionListener(e -> copyToClipboard());
 
         // Create a panel for the button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(closeButton);
         buttonPanel.add(copyButton);
-        buttonPanel.add(clearButton);
 
         // Create main layout
         BorderLayout layout = new BorderLayout();
@@ -103,7 +104,16 @@ public class ConsolePopup {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    // Courtesy of Qwen3.
+    private void setButtonBusy() {
+        closeButton.setText("Busy");
+        closeButton.setIcon(IconLoader.loadResourceIcon(ICONS.BUSY, new Dimension(24, 24)));
+        closeButton.setToolTipText(null);
+        closeButton.setEnabled(false);
+    }
+
+    /// /// /// Logic /// /// ///
+
+    // Courtesy of DeepSeekV3.
     private void redirectSystemOut() {
         // Create a custom PrintStream that writes to both System.out and your GUI
         PrintStream consoleStream;
@@ -184,14 +194,10 @@ public class ConsolePopup {
 
     /// /// ///
 
-    private void clearConsole() {
-        ConsoleRedirector.getInstance().clear();
-    }
-    
     private void copyToClipboard() {
-        String text = ConsoleRedirector.getInstance().getText();
+        String text = consoleArea.getText();
         Toolkit.getDefaultToolkit().getSystemClipboard()
-            .setContents(new StringSelection(text), null);
+                .setContents(new StringSelection(text), null);
         JOptionPane.showMessageDialog(parentFrame, "Console content copied to clipboard");
     }
 
@@ -219,6 +225,8 @@ public class ConsolePopup {
     public void setDone() {
         SwingUtilities.invokeLater(() -> {
             closeButton.setText("Done");
+            closeButton.setIcon(IconLoader.loadResourceIcon(ICONS.DONE, new Dimension(24, 24)));
+            closeButton.setToolTipText("Click to close");
             closeButton.setEnabled(true);
         });
     }
@@ -226,8 +234,7 @@ public class ConsolePopup {
     // Method to reset button state (if needed)
     public void setBusy() {
         SwingUtilities.invokeLater(() -> {
-            closeButton.setText("Busy");
-            closeButton.setEnabled(false);
+            this.setButtonBusy();
         });
     }
 

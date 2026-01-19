@@ -37,6 +37,7 @@ public class App {
         mainFrame = new JFrame("Mod Manager");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setPreferredSize(new Dimension(1200, 800));
+        // mainFrame.setIconImage(null); // TODO
 
         // Initialize navigation
         navigator = new AppNavigator(mainFrame);

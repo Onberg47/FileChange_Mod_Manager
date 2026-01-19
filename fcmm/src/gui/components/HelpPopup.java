@@ -42,6 +42,7 @@ public class HelpPopup {
 
     private void setupGUI() {
         frame = new JFrame("Help - " + (parentFrame != null ? parentFrame.getTitle() : "Help"));
+        // frame.setIconImage(parentFrame.getIconImage()); // TODO
 
         helpContent = new JEditorPane();
         helpContent.setContentType("text/html");
