@@ -47,7 +47,7 @@ public class SettingsView extends FormView {
 
     public SettingsView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Edit Settings");
-        this.submitButton.setIcon(IconLoader.loadIcon(ICONS.SAVE, new Dimension(20,20)));
+        this.submitButton.setIcon(IconLoader.loadIcon(ICONS.SAVE, new Dimension(20, 20)));
         updateTrashSize();
     }
 
@@ -202,7 +202,21 @@ public class SettingsView extends FormView {
             int days = (Integer) daysToKeepSpinner.getValue();
             LocalDate cutoff = LocalDate.now().minusDays(days);
 
-            TrashUtil.cleanTrash(maxMB, cutoff);
+            SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+                @Override
+                protected Void doInBackground() throws Exception { // long-running task
+                    TrashUtil.cleanTrash(maxMB, cutoff);
+                    return null;
+                }
+
+                @Override
+                protected void done() { // Task completed - update GUI state
+                    updateTrashSize();
+                    finishConsole();
+                }
+            };
+            worker.execute();
+
         } catch (Exception e) {
             showError("Failed to compile Mod: " + e.getMessage(), e);
         } finally {

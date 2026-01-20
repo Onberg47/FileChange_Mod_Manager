@@ -27,7 +27,6 @@ import java.time.LocalDate;
 public class App {
     private JFrame mainFrame;
     private AppNavigator navigator;
-    private ConsolePopup console;
 
     public void start() {
         // Set look and feel
@@ -37,7 +36,7 @@ public class App {
         mainFrame = new JFrame("Mod Manager");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setPreferredSize(new Dimension(1200, 800));
-        mainFrame.setIconImage(IconLoader.loadIconImage(ICONS.LOGO, new Dimension(40,40)));
+        mainFrame.setIconImage(IconLoader.loadIconImage(ICONS.LOGO, new Dimension(40, 40)));
 
         // Initialize navigation
         navigator = new AppNavigator(mainFrame);
@@ -70,13 +69,6 @@ public class App {
         exitItem.setIcon(IconLoader.loadIcon(ICONS.EXIT, new Dimension(20, 20)));
         fileMenu.add(exitItem);
 
-        JMenuItem emptyTrashItem = new JMenuItem("Empty Trash");
-        emptyTrashItem.addActionListener(e -> quickCleanTrash());
-        emptyTrashItem.setToolTipText(
-                "Shortcut to clean trash to within 30 days and under 2Gib (go to settings for more control)");
-        emptyTrashItem.setIcon(IconLoader.loadIcon(ICONS.TRASH, new Dimension(20, 20)));
-        fileMenu.add(emptyTrashItem);
-
         // Navigation menu
         JMenu navMenu = new JMenu("Navigation");
         JMenuItem backItem = new JMenuItem("Back");
@@ -90,6 +82,14 @@ public class App {
         settingsItem.addActionListener(e -> navigator.navigateTo("settings"));
         settingsItem.setIcon(IconLoader.loadIcon(ICONS.SETTINGS, new Dimension(20, 20)));
         settingsMenu.add(settingsItem);
+
+        JMenuItem emptyTrashItem = new JMenuItem("Empty Trash");
+        emptyTrashItem.addActionListener(e -> quickCleanTrash());
+        emptyTrashItem.setToolTipText(
+                "Shortcut to clean trash to within 30 days and under 2Gib (go to settings for more control)");
+        emptyTrashItem.setIcon(IconLoader.loadIcon(ICONS.TRASH, new Dimension(20, 20)));
+        settingsMenu.addSeparator();
+        settingsMenu.add(emptyTrashItem);
 
         JMenu helpMenu = new JMenu("Help");
 
@@ -128,11 +128,22 @@ public class App {
         if (result == JOptionPane.YES_OPTION) {
             // Call your consolePopup or show progress
             try {
-                console = ConsolePopup.getInstance(mainFrame);
+                ConsolePopup console = ConsolePopup.getInstance(mainFrame);
                 console.show();
-                console.setBusy();
-                TrashUtil.cleanTrash(2000, LocalDate.now().minusDays(30));
-                console.setDone();
+
+                SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+                    @Override
+                    protected Void doInBackground() throws Exception { // long-running task
+                        TrashUtil.cleanTrash(2000, LocalDate.now().minusDays(30));
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() { // Task completed - update GUI state
+                        console.setDone();
+                    }
+                };
+                worker.execute();
 
             } catch (Exception f) {
                 Logger.getInstance().error("Failed to clean", f);

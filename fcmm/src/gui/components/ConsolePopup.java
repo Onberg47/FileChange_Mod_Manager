@@ -9,13 +9,9 @@ import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 
 import javax.swing.*;
 
-import core.utils.Logger;
 import gui.util.IconLoader;
 import gui.util.IconLoader.ICONS;
 
@@ -32,25 +28,34 @@ public class ConsolePopup {
     private JFrame parentFrame; // Store parent reference
     private JButton closeButton;
 
-    /// /// /// Singleton pattern /// /// ///
+    private static PrintStream originalOut = System.out;
+    private static PrintStream originalErr = System.err;
+    private static boolean isRedirecting = false;
+    private static ConsolePopup instance = null;
 
-    private static ConsolePopup instance;
+    /// /// /// Singleton pattern /// /// ///
 
     public static synchronized ConsolePopup getInstance(JFrame parentFrame) {
         if (instance == null) {
             instance = new ConsolePopup(parentFrame);
-        }
-
-        if (!instance.isVisible())
+        } else if (!instance.isVisible()) {
+            // If instance exists but is not visible, recreate it
+            instance.dispose();
             instance = new ConsolePopup(parentFrame);
+        }
+        return instance;
+    }
 
+    public static synchronized ConsolePopup getInstance() {
         return instance;
     }
 
     public ConsolePopup(JFrame parentFrame) {
         this.parentFrame = parentFrame;
         setupGUI();
-        redirectSystemOut();
+        if (!isRedirecting) {
+            redirectSystemOut();
+        }
         instance = this;
     }
 
@@ -59,7 +64,7 @@ public class ConsolePopup {
     private void setupGUI() {
         frame = new JFrame("FCMM Console");
         frame.setIconImage(parentFrame.getIconImage());
-        
+
         consoleArea = new JTextArea();
         consoleArea.setEditable(false);
         consoleArea.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
@@ -102,6 +107,14 @@ public class ConsolePopup {
             frame.setSize(1200, 800);
         }
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        // Add window listener to properly dispose when closed
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                dispose();
+            }
+        });
     }
 
     private void setButtonBusy() {
@@ -114,82 +127,78 @@ public class ConsolePopup {
     /// /// /// Logic /// /// ///
 
     // Courtesy of DeepSeekV3.
+
     private void redirectSystemOut() {
-        // Create a custom PrintStream that writes to both System.out and your GUI
-        PrintStream consoleStream;
-        try {
-            consoleStream = new PrintStream(new OutputStream() {
-                private final StringBuilder buffer = new StringBuilder();
-                private volatile boolean scheduled = false;
+        PrintStream consoleStream = new PrintStream(new OutputStream() {
+            private final StringBuilder buffer = new StringBuilder();
 
-                @Override
-                public void write(int b) throws IOException {
-                    buffer.append((char) b);
-                    scheduleFlush();
+            @Override
+            public void write(int b) throws IOException {
+                buffer.append((char) b);
+                // Flush on newline or when buffer is large
+                if (buffer.indexOf("\n") >= 0 || buffer.length() > 500) {
+                    flushBuffer();
                 }
+            }
 
-                @Override
-                public void write(byte[] b, int off, int len) throws IOException {
-                    buffer.append(new String(b, off, len, StandardCharsets.UTF_8));
-                    scheduleFlush();
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                buffer.append(new String(b, off, len, "UTF-8"));
+                flushBuffer(); // Always flush batch writes
+            }
+
+            private void flushBuffer() {
+                if (buffer.length() > 0) {
+                    final String content = buffer.toString();
+                    buffer.setLength(0);
+
+                    SwingUtilities.invokeLater(() -> {
+                        consoleArea.append(content);
+                        consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
+                    });
                 }
+            }
 
-                private synchronized void scheduleFlush() {
-                    // Only schedule once if not already scheduled
-                    if (!scheduled && buffer.length() > 0) {
-                        scheduled = true;
-                        SwingUtilities.invokeLater(this::flushToGUI);
-                    }
-                }
+            @Override
+            public void flush() throws IOException {
+                flushBuffer();
+            }
 
-                private void flushToGUI() {
-                    synchronized (this) {
-                        if (buffer.length() == 0) {
-                            scheduled = false;
-                            return;
-                        }
+            @Override
+            public void close() throws IOException {
+                flushBuffer();
+            }
+        });
 
-                        String textToAppend = buffer.toString();
-                        buffer.setLength(0);
-                        scheduled = false;
+        System.setOut(consoleStream);
+        System.setErr(consoleStream);
+    }
 
-                        // Now update the GUI
-                        consoleArea.append(textToAppend);
-
-                        // Scroll to bottom (but not on every update for performance)
-                        if (textToAppend.contains("\n")) {
-                            consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
-                        }
-                    }
-                }
-
-                @Override
-                public void flush() throws IOException {
-                    // Force immediate flush
-                    try {
-                        SwingUtilities.invokeAndWait(() -> {
-                            synchronized (this) {
-                                if (buffer.length() > 0) {
-                                    consoleArea.append(buffer.toString());
-                                    consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
-                                    buffer.setLength(0);
-                                    scheduled = false;
-                                }
-                            }
-                        });
-                    } catch (InvocationTargetException | InterruptedException e) {
-                        Logger.getInstance().error("Failed to flush stream", e);
-                    }
-                }
-            }, true, StandardCharsets.UTF_8.name());
-
-            // Redirect System.out and System.err
-            System.setOut(consoleStream);
-            System.setErr(consoleStream);
-
-        } catch (UnsupportedEncodingException e) {
-            Logger.getInstance().error("Failed to create console stream", e);
+    public void dispose() {
+        if (instance == this) {
+            // Restore original streams only if we're the active redirector
+            if (isRedirecting) {
+                System.setOut(originalOut);
+                System.setErr(originalErr);
+                isRedirecting = false;
+            }
+            if (frame != null) {
+                frame.dispose();
+            }
+            instance = null;
         }
+    }
+
+    // Add this method to properly handle console state
+    public static void ensureConsoleClosed() {
+        if (instance != null) {
+            instance.dispose();
+        }
+    }
+
+    // Add this method to check if console is active
+    public static boolean isConsoleActive() {
+        return instance != null && instance.isVisible();
     }
 
     /// /// ///
@@ -203,16 +212,21 @@ public class ConsolePopup {
 
     ///
 
+    public void hide() {
+        if (frame != null) {
+            frame.setVisible(false);
+        }
+    }
+
     public void show() {
-        frame.setVisible(true);
+        if (frame != null) {
+            frame.setVisible(true);
+        }
+        setBusy();
     }
 
     public boolean isVisible() {
         return frame.isVisible();
-    }
-
-    public void hide() {
-        frame.setVisible(false);
     }
 
     public void clear() {

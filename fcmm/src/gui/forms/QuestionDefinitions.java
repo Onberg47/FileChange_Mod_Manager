@@ -24,19 +24,18 @@ public class QuestionDefinitions {
          */
         public static List<FormQuestion> getGameQuestions() {
                 return Arrays.asList(
+                                FormQuestion.builder(Game.Keys.NAME.key(), "Game Name")
+                                                .required()
+                                                .tooltip("The display name of the game")
+                                                .build(),
+
                                 FormQuestion.builder(Game.Keys.ID.key(), "Game ID")
                                                 .required()
                                                 .defaultValue("game-name")
                                                 .tooltip("Unique identifier only interacted with by the user in CLI (no spaces, e.g., 'ghost-recon')")
                                                 .build(),
 
-                                FormQuestion.builder(Game.Keys.NAME.key(), "Game Name")
-                                                .required()
-                                                .tooltip("The display name of the game")
-                                                .build(),
-
                                 FormQuestion.builder(Game.Keys.RELEASE_VERSION.key(), "Release Version")
-                                                .required()
                                                 .tooltip("Used for version tracking and compatability (use the build-ID from steam-properties)")
                                                 .build(),
 

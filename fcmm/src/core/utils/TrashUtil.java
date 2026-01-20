@@ -61,7 +61,7 @@ public class TrashUtil {
             if (file.lastModified() < milliseconds) {
                 log.info(1, null, "Deleting old trash: " + file.getPath());
                 try {
-                    Files.deleteIfExists(fileLs.getFirst().toPath());
+                    Files.delete(fileLs.getFirst().toPath());
                     deleteCnt++;
                     continue;
                 } catch (IOException e) {
@@ -84,11 +84,11 @@ public class TrashUtil {
                     String.format("size %.3fMB / %dMB", size, maxMegabytes));
             try {
                 log.info(1, "Deleting overflow trash: " + fileLs.getFirst());
-                Files.deleteIfExists(fileLs.getFirst().toPath());
+                Files.delete(fileLs.getFirst().toPath());
                 deleteCnt++;
             } catch (IOException e) {
                 log.error("Could not delete file", e);
-                continue;
+                break;
             }
             size = megabyte(getDiskSize(config.getTrashDir()));
         }
