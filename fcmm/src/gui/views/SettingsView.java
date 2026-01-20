@@ -136,6 +136,7 @@ public class SettingsView extends FormView {
 
         gbc.gridx = 1;
         maxSizeSpinner = new JSpinner(new SpinnerNumberModel(100, 10, 10000, 10));
+        maxSizeSpinner.addChangeListener(e -> updateTrashSize());
         trashPanel.add(maxSizeSpinner, gbc);
 
         gbc.gridx = 0;
@@ -180,6 +181,9 @@ public class SettingsView extends FormView {
                 long sizeBytes = TrashUtil.getDiskSize(config.getTrashDir());
                 float sizeMB = sizeBytes / (1024f * 1024f);
 
+                Float progress = (sizeMB / Integer.parseInt(maxSizeSpinner.getValue().toString())) * trashUsageBar.getMaximum();
+
+                trashUsageBar.setValue(progress.intValue());
                 publish(String.format("Trash size: %.2f MB", sizeMB));
                 return null;
             }
@@ -231,6 +235,7 @@ public class SettingsView extends FormView {
         } catch (Exception e) {
             showError("Failed to compile Mod: " + e.getMessage(), e);
         } finally {
+            updateTrashSize();
             finishConsole();
         }
     }

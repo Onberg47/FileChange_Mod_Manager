@@ -19,7 +19,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Displays a FormView. Read an exsisting Game.json to auto-populate data and allow editting.
+ * Displays a FormView. Read an exsisting Game.json to auto-populate data and
+ * allow editting.
  * 
  * @author Stephanos B
  * @since v2
@@ -36,8 +37,15 @@ public class EditGameView extends FormView {
 
     @Override
     protected List<FormQuestion> getQuestions() {
-        // Get questions
-        return QuestionDefinitions.getGameQuestions();
+        List<FormQuestion> questions = QuestionDefinitions.getGameQuestions();
+        for (FormQuestion formQuestion : questions) {
+            if (formQuestion.getKey().equals(Game.Keys.ID.key())) {
+                int i = questions.indexOf(formQuestion);
+                questions.get(i).setEnabled(false);
+                break;
+            }
+        }
+        return questions;
     }
 
     @Override

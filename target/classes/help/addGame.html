@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adding a Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c5aa0;
+            border-bottom: 2px solid #2c5aa0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #4a86e8;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #5a9bd5;
+            margin-top: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .field {
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        .field-description {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .divider {
+            border-top: 1px solid #ccc;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Adding a Game</h1>
+    
+    <p>To add a game, simply fill out the fields and click "Add Game". Clicking cancel will discard any data.</p>
+    
+    <h2>Fields</h2>
+    
+    <p class="field">Game Name :</p>
+    <div class="field-description">The display name of the Game to add.</div>
+    
+    <p class="field">Game ID :</p>
+    <div class="field-description">This is an internal ID for the program to identify the Game by. If you want to use the CLI, this id is what you would use. Just set it to a lower-case only with no white-spaces version of the name. (This is done by default)</div>
+    
+    <p class="field">Release Version :</p>
+    <div class="field-description">Set this to the version of the game or the BuildID in Steam properties if you cannot find the actual version.</div>
+    
+    <p class="field">Game Install Directory :</p>
+    <div class="field-description">This is the <i>absolute</i> path from which Mods are <i>installed</i> to the game, depending on the game this might not be the game's root-directory.</div>
+    
+    <p class="field">Mod Storage Directory :</p>
+    <div class="field-description">This is the <i>absolute</i> path where Mods that are compiled for a game will be stored.<br>
+    By default, this is populated to your default Mod storage directory with an example game ID added. If you have not set this in settings yet, go do that first!<br>
+    <h3>GAMES CANNOT SHARE THIS DIRECOTRY!</h3></div>
+    
+    <p class="field">Icon File :</p>
+    <div class="field-description">Set this to an image (.png or .jpg) to set the Game's icon. This will only make a copy of that file in the program's files with an auto-generated name, not moving the original file.</div>
+</body>
+</html>

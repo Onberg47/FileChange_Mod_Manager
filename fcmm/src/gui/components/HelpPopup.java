@@ -15,7 +15,9 @@ import java.net.URISyntaxException;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import gui.util.ResourceLoader;
 
@@ -83,6 +85,13 @@ public class HelpPopup {
             helpContent.setText("<html><body><h2>Error Loading Help</h2>" +
                     "<p>Could not load help content: " + e.getMessage() + "</p></body></html>");
         }
+
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar verticalBar = scrollPane.getVerticalScrollBar();
+            if (verticalBar != null) {
+                verticalBar.setValue(0);
+            }
+        });
     }
 
     public static void openHelpInBrowser() {

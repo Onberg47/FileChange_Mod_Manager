@@ -16,6 +16,17 @@ At the top of the program window you will find a menu bar. This bar will be pres
     - Get Help --> Opens the in-application help popup.
     - Help in Browser --> Opens the web-based user manual in your default browser.
 
+## Tips
+
+- The help popup is contextual! It will automatically show the help for the page you are on.
+
+- You can drag-and-drop text, directory paths, and file in all input forms!
+
+- Using the canel or back buttons will always discard all data.
+
+---
+---
+
 ## Selecting a game
 All availaible games are shown as tiles with their display name and icon (if provided).
 - To select a Game to mod simply click the title.

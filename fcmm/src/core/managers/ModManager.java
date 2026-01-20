@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -453,7 +454,10 @@ public class ModManager {
             throw new InaccessibleObjectException("Game directory is locked by another process");
 
         try {
-            List<Mod> diff = mkGameStateDif(gState).getDeployedMods();
+            List<Mod> diff = mkGameStateDif(gState).getDeployedMods()
+                    .stream()
+                    .sorted(Comparator.comparing(Mod::isEnabled).reversed()) // Get disabled first
+                    .toList();
             int changeMax = diff.size();
             int i = 0;
             for (Mod mod : diff) {

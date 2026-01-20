@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit/Update/Delete a Mod</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c5aa0;
+            border-bottom: 2px solid #2c5aa0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #4a86e8;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #5a9bd5;
+            margin-top: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .field {
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        .field-description {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .divider {
+            border-top: 1px solid #ccc;
+            margin: 30px 0;
+        }
+        .highlight {
+            background-color: #e3f2fd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .important {
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit/Update/Delete a Mod</h1>
+    
+    <p>When in the edit Mod page, there is an additional option to toggle between <span class="highlight">Edit</span> or <span class="highlight">Update</span> modes. This is because some data requires the mod to be recompiled (which will automatically disable, re-compile, and re-enable)</p>
+    
+    <p>From a user's point of view, this simply means that updating can take longer for very large Mods, whereas editing will always be immediate and require no changes to the game.</p>
+    
+    <div class="warning">
+        <span class="important">Take note:</span> switching between Edit and Update mode will discard changes.
+    </div>
+    
+    <div class="divider"></div>
+    
+    <h2>Editing</h2>
+    <p>When in Edit mode, the Mod Description, Default load order, Download Source and URL, and tags may only be changed.</p>
+    <p>If only changing these, it is recommended to only edit.</p>
+    
+    <div class="divider"></div>
+    
+    <h2>Updating</h2>
+    <p>Mod updating or changing any of the non-edit fields is only provided with an Update operation.</p>
+    
+    <h3>Important Notes:</h3>
+    <ul>
+        <li>Leaving the Mod File field empty will re-use the existing data.</li>
+        <li>To update the files of a Mod (regular update) only then do you provide a path to a new <span class="highlight">pre-structured</span> directory, just like compiling a Mod. (Remember to update the version)</li>
+        <li>If you want to update a Mod but <i>keep</i> the old version, then this is <b>not</b> an update, instead compile it as a new version. Updating will delete the old version automatically.</li>
+    </ul>
+    
+    <div class="divider"></div>
+    
+    <h2>Deleting</h2>
+    <p>While editing, the delete button allows deleting of Mods that are not deployed. If a mod is deployed it will not allow deletion as a safety measure.</p>
+    
+    <div class="note">
+        <strong>Tip:</strong> Remember that all "delete" operations actually only trash the data. If you make a mistake you can retrieve it, the console or log will tell you <span class="highlight">exactly</span> where the trashed files are!
+    </div>
+</body>
+</html>

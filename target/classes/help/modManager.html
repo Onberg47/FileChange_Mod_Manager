@@ -1,16 +1,141 @@
+<!DOCTYPE html>
 <html>
 <head>
+    <title>Mod Manager</title>
     <style>
-        body { font-family: SansSerif; font-size: 13px; margin: 10px; }
-        h1 { color: #2c5aa0; }
-        h2 { color: #333; }
-        code { background-color: #f0f0f0; padding: 2px 4px; border-radius: 3px; }
-        pre { background-color: #f8f8f8; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        ul { margin: 10px 0; }
-        li { margin: 5px 0; }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c5aa0;
+            border-bottom: 2px solid #2c5aa0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #4a86e8;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #5a9bd5;
+            margin-top: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .field {
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        .field-description {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .divider {
+            border-top: 1px solid #ccc;
+            margin: 30px 0;
+        }
+        .highlight {
+            background-color: #e3f2fd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
-    <h1>Mod Manager View</h1>
+    <h1>Mod Manager</h1>
+    
+    <p>The Mod Manager view is the primary page for managing and editting Mods for a game.</p>
+    
+    <h3>Tips</h3>
+    <ul>
+        <li>The name of the game your modding is in the window title.</li>
+        <li>The top-row of buttons is the Utility panel. Below that is the Filters Panel.</li>
+        <li>You don't have to close the console popup! It will display all user-logs, even though by processes that would normally hide their logs.<br>
+            Also, It will stay where you move it or re-open at centre of the program if you close it.</li>
+    </ul>
+    
+    <div class="divider"></div>
+    
+    <h3>Add your first Mod</h3>
+    <p>To add a new Mod, click the <span class="highlight">"Compile New Mod"</span> button in the Utility Panel. This will navigate to the Compile Mod page.</p>
+    
+    <div class="divider"></div>
+    
+    <h2>The Mods Display</h2>
+    <p>The Mod view is where you can see all Mods for a game, what state they are in and make all changes.</p>
+    <p>The view is split into two section:</p>
+    <ol>
+        <li>Enabled Mods: These will have green outlines and backgrounds.</li>
+        <li>Disabled Mods: Outlined in red with a default background.</li>
+    </ol>
+    <p>Headers will denote the division of these categories.</p>
+    
+    <h3>The ModCard</h3>
+    <p>Mods are displayed as cards, providing all the information and functions you need for a Mod.</p>
+    <p>From left to right, the elements are:</p>
+    
+    <ul>
+        <li><span class="field">Enabled/Disabled toggle</span> : This is a quick way to immediately change the state of a Mod.</li>
+        <li><span class="field">The Load Order spinner</span> :<br>
+            Use the arrows to move the mod in the <i>direction</i> you want in the load order (up will decrease the load order to move the mod up)<br>
+            Alternatively you can click and type directly into the spinner's number display to set the load order on enter.</li>
+        <li><span class="field">The drag handle</span> : Click and drag the handle to use the <span class="highlight">Drag-to-order</span> feature, explained further down.</li>
+        <li><span class="field">Mod title</span> : The title of the Mod.</li>
+        <li><span class="field">Mod description</span> : Displays a text area of the description.</li>
+        <li><span class="field">Version indicator</span> : Displays the version of the Mod itself. (You can have multiple version of the same Mod)</li>
+        <li><span class="field">The Edit button</span> : Click this to navigate to the page for making any changes to the data of that Mod. (Edit/Update/Delete)</li>
+        <li><span class="field">The Download source label</span> : This displays the Download source of the Mod with an embedded hyperlink to the download link, clicking it will open in your default browser.</li>
+    </ul>
+    
+    <h3>Drag-to-order</h3>
+    <p>While using the Load Order spinner is great, dragging ModCards is far more satisfying and usually faster. (Plus I need to justify the effort it took to code)</p>
+    
+    <p>To use it, click and drag the ModCard you want to move on its drag handle and drop it where you want, even into another sections!</p>
+    
+    <h4>Points of interest:</h4>
+    <ul>
+        <li>The Mod being dragged will be outlined in yellow.</li>
+        <li>You can Enable/Disable Mods by dropping them in different sections.</li>
+        <li>The direction you are dragging matters!</li>
+        <li>Dropping onto a divider will place it at the top position of that divider's sections.</li>
+        <li>Dropping on the last enabled Mod will <i>push-up</i> the existing mod, placing the dropped Mod last</li>
+        <li>Dropping on white-space (spacers between cards) will cancel the move.</li>
+    </ul>
+    
+    <h2>Making changes</h2>
+    <p>Any load order changes you make will not take affect until you click the <span class="highlight">"Apply Changed"</span> button in the utility panel.</p>
+    <p>When you apply changes, a Console Popup will appear displaying the user-facing logs of all operations and indicate if the program is busy or idle.</p>
 </body>
 </html>

@@ -26,37 +26,42 @@ public class QuestionCard extends JPanel {
         initComponents();
     }
 
-        private void initComponents() {
+    private void initComponents() {
         // Use BorderLayout
         setLayout(new BorderLayout(15, 0));
-        
+
         // Left: Label with required indicator
         JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         JLabel label = new JLabel(question.getLabel());
-        
+
         if (question.isRequired()) {
             label.setText(label.getText() + " *");
             label.setForeground(new Color(200, 0, 0));
         }
-        
+
         if (!question.getTooltip().isEmpty()) {
             label.setToolTipText(question.getTooltip());
         }
-        
+
         labelPanel.add(label);
         add(labelPanel, BorderLayout.WEST);
-        
+
         // Right: Input component with proper sizing
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputComponent = createInputComponent();
+
+        if (!question.isEnabled()) {
+            label.setEnabled(false);
+            inputComponent.setEnabled(false);
+        }
         configureInputSizing(inputComponent);
         inputPanel.add(inputComponent, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.CENTER);
-        
+
         // Set preferred size based on input type
         setPreferredSize(getPreferredCardSize());
     }
-    
+
     private Dimension getPreferredCardSize() {
         int height;
         switch (question.getType()) {
@@ -72,18 +77,18 @@ public class QuestionCard extends JPanel {
         }
         return new Dimension(600, height); // Width will be stretched
     }
-    
+
     private void configureInputSizing(JComponent input) {
         // Let the input component decide its own preferred size
         input.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        
-        if (input instanceof JScrollPane && 
-            ((JScrollPane) input).getViewport().getView() instanceof JTextArea) {
+
+        if (input instanceof JScrollPane &&
+                ((JScrollPane) input).getViewport().getView() instanceof JTextArea) {
             JTextArea textArea = (JTextArea) ((JScrollPane) input).getViewport().getView();
             textArea.setRows(3);
             textArea.setLineWrap(true);
             textArea.setWrapStyleWord(true);
-            
+
             JScrollPane scrollPane = (JScrollPane) input;
             scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -188,8 +193,6 @@ public class QuestionCard extends JPanel {
 
     /// /// /// Layout /// /// ///
 
-
-    
     /// /// /// Getters /// /// ///
 
     public String getValue() {

@@ -82,7 +82,8 @@ public class QuestionDefinitions {
                                                 .tooltip("Mod version (semantic versioning recommended)")
                                                 .build(),
 
-                                FormQuestion.builder(ModMetadata.Keys.LOAD_ORDER.key(), "Default load Order")
+                                FormQuestion.builder(ModMetadata.Keys.LOAD_ORDER.key(), "Default load order")
+                                                .defaultValue(1)
                                                 .required()
                                                 .tooltip("The default load order from 0 to apply to this mod")
                                                 .build(),
@@ -118,7 +119,7 @@ public class QuestionDefinitions {
                                                 .tooltip("Description of what the mod does")
                                                 .build(),
 
-                                FormQuestion.builder(ModMetadata.Keys.LOAD_ORDER.key(), "Default load Order")
+                                FormQuestion.builder(ModMetadata.Keys.LOAD_ORDER.key(), "Default load order")
                                                 .required()
                                                 .tooltip("The default load order from 0 to apply to this mod")
                                                 .build(),

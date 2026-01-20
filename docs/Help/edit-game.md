@@ -9,7 +9,7 @@ This means that if you change them, the program will not re-make all mod data re
 - If you want to change the installation directory, diable all mods first.
 - If you want to change the Mod storage, make sure you move the old mods to the new location if that's what you want.
 
-# Delete a Game
+## Delete a Game
 
 To delete a Game, simply click the delete button and confirm.
 Note, this will uninstall all mods and trash all Mods for a game, including stored mods. Trashed data is still available temporarily.

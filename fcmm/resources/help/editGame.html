@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit a Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c5aa0;
+            border-bottom: 2px solid #2c5aa0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #4a86e8;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #5a9bd5;
+            margin-top: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning h3 {
+            color: #721c24;
+            margin-top: 0;
+        }
+        .field {
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        .field-description {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit a Game</h1>
+    
+    <p>Editing a Game is identical to adding a new one, simply change the values of each field and save the changes.</p>
+    <p>To change the icon, simply select a new one. To leave it unchanged, do not populate the icon field.</p>
+    
+    <div class="warning">
+        <h3>Note: Changing directory paths or the Game ID are destructive!</h3>
+        <p>This means that if you change them, the program will not re-make all mod data related to that game to apply the changes.</p>
+        <ul>
+            <li>If you want to change the installation directory, disable all mods first.</li>
+            <li>If you want to change the Mod storage, make sure you move the old mods to the new location if that's what you want.</li>
+        </ul>
+    </div>
+    
+    <h2>Delete a Game</h2>
+    <p>To delete a Game, simply click the delete button and confirm.</p>
+    <p>Note, this will uninstall all mods and trash all Mods for a game, including stored mods. Trashed data is still available temporarily.</p>
+</body>
+</html>

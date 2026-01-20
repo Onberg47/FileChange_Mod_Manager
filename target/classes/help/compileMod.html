@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add (Compile) a Mod</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c5aa0;
+            border-bottom: 2px solid #2c5aa0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #4a86e8;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #5a9bd5;
+            margin-top: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .field {
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        .field-description {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .divider {
+            border-top: 1px solid #ccc;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add (Compile) a Mod</h1>
+    
+    <p>In order for the Mod Manager to use a Mod, it must first be compiled. This collects the files and creates a manifest for deployment and to store related information.</p>
+    <p>Once a Mod is compiled it doesn't need to be remade from scratch again, even for updates. (Updating is an automated recompile)</p>
+    
+    <h2>General fields</h2>
+    
+    <ul>
+        <li><span class="field">Mod Name</span> : The display name and part of how the Mod ID is generated because of this you cannot <i>Edit</i> the name after creation, this is an <i>Update</i> operation.</li>
+        <li><span class="field">Description</span> : A general, multi-line description of the Mod. While this intentionally has no line-limit, more that 4 line will not be visible on the ModCard for quick-asses. Avoid more than 14 lines as this is not intended for full Mod descriptions/install instructions but it can store an unlimited size of text in case it is required.</li>
+        <li><span class="field">Version</span> : (Default "1.0") The current version of the Mod. Use the version provided by the Modder, do not just use the game version.</li>
+        <li><span class="field">Default load order</span> : (Default: 1) The preferred load-order of a Mod. This is only the initial value when enabling the Mod. Use it as a guideline for categorising Mods into priority groups.</li>
+        <li><span class="field">Download source</span> : The Source label that will be displayed on the ModCard. Only for reference.</li>
+        <li><span class="field">Download URL</span> : Any URL or your choice. For mods with a repeatable download link, use that. Otherwise, for example with Nexus Mods, the download link is different for each version, so rather use the link to the page.</li>
+        <li><span class="field">Tags</span> : Provided any comma separated tags for the Mod. Only for GUI filtering. Example: "textures, misc, resourcepack"</li>
+        <li><span class="field">Mod Files directory</span> : Provide an <i>absolute</i> path to what will be the Mod's <b>root</b> directory with <b>pre-structured</b> mod files that are ready for <i>direct installation</i>.</li>
+    </ul>
+    
+    <h2>How to ready your Mod Files</h2>
+    <p>As mentioned, the Mod Files need to be ready to install. What this means is they need to mimic the directory structure of the Game so each file is in the correct location already.</p>
+    <p>It is normal for mods to come pre-structured, but ensure you read the Mod's specific installation instructions as it is still up to you or the mod author to set this up.</p>
+    <p>Again, this is standard for mods.</p>
+    
+    <h3>What this looks like (if you've never manually modded before)</h3>
+    
+    <p>Lets make an example mod.</p>
+    <p>The mods has 2 file: <code>custom_model.obj</code> and <code>sounds_pack.pak</code></p>
+    <p>The mod instructions are: Put <code>custom_model.obj</code> in <code>/your_game_folder/data/models/</code> and <code>sounds_pack.pak</code> in <code>/your_game_folder/</code></p>
+    
+    <p>Then you need to make a fake game folder to put those files in the same places but not in your game.</p>
+    <p>So we'd make a new folder and it would have:</p>
+    
+    <div class="code-block">
+        /my_mod_folder<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;sounds_pack.pak<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;data/<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;models/<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;custom_model.obj
+    </div>
+    
+    <p>And that is ready! What the Mod Manager now want is where your <code>my_mod_folder</code> is!</p>
+    <p>So if the mod instructions say "Copy paste into game folder" then you don't need to do anything, just give it directly to the Manager.</p>
+</body>
+</html>

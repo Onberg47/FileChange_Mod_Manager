@@ -1,8 +1,35 @@
 # FileChange_Mod_Manager
 A Java program for managing Mods that require manual integration with the game files instead of in a dedicated Mod directory but works for both cases.
 
+* #### Key features
+    - Manages multiple games.
+    - Multi-platform (Windows and Linux)
+
+* #### 🔒 Safe by Design
+    - Game deplyment data is self-enclosed
+    - All operations happen in temporary directories first
+    - Only finalizes after successful completion
+    - Automatic backups of original game files
+    - Nothing touches your game until everything is verified
+    - Complete transaction rollback on failure possible
+
+* #### 📊 Smart File Management
+    - File hash verification to avoid unnecessary copies
+    - Load-order aware conflict resolution
+    - Mods can be reordered without redeploying everything
+    - Batch operations with minimal I/O
+
+* #### 🎨 User Experience
+    - Clean CLI with visual feedback
+    - GUI with real-time console output
+    - Comprehensive logging
+
+---
+
 #### A personal side note:
 The goal is to create a practical project for both real-world usage but also as practice and a showcase of my Java "know-how". This is why I opted to not use a virtual file system (VFS) (how platforms such as Vortex from Nexus works) as I wanted the added challenge of manual file integrity management, whereas with a VFS there would be no need to worry about file conflicts or even moving files.
+
+---
 
 # Features (Current and planned)
 ### General: 
@@ -93,10 +120,9 @@ delete          | Delete a mod from storage, cannot be installed
 
 In the docs for this project, I have created diagrams to fully explain the logical steps taken for various key methods and archutecture designs.
 
-Uses no build tools to be as ultra-lightweight and self-contained as possible. External libary: JSON.simple V1.1.1.jar `https://github.com/fangyidong/json-simple`
 Main mod functions are run by a ModManager class, meant to capable of recieving console and GUI commands and input.
 
-Mods are split into two types: Regular Mods (parent) have less fields to be more lightweight for easier storage and more efficent usage when the GUI needs to fetch Mod data to display but still needs the Mod_Id for functioning.
+Mods are split into two types: Regular Mods have less fields to be more lightweight for easier storage and more efficent usage when the GUI needs to fetch Mod data to display but still needs the Mod_Id for functioning.
 ModManifests are a child Mod that has the additional functionality of tracking Files, which themselves are stored as ModFile instances, storing integrity data.
 
 ### File integrity and order of operations:

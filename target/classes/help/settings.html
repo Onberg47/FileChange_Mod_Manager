@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c5aa0;
+            border-bottom: 2px solid #2c5aa0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #4a86e8;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #5a9bd5;
+            margin-top: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .field {
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        .field-description {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .divider {
+            border-top: 1px solid #ccc;
+            margin: 30px 0;
+        }
+        .highlight {
+            background-color: #e3f2fd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .important {
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .sub-section {
+            margin-left: 20px;
+            border-left: 2px solid #4a86e8;
+            padding-left: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Settings</h1>
+    
+    <p>Settings are important!</p>
+    
+    <div class="divider"></div>
+    
+    <h2>Normal settings</h2>
+    <p>Every user is expected to at least look at these settings. Ideally you should set them!</p>
+    
+    <div class="sub-section">
+        <h3>Default Mod storage directory</h3>
+        <p>The auto-populated path when adding a new game. This is if you want to store your mods in a central location. (Recommended)</p>
+        
+        <p>For example if you wanted to do:</p>
+        
+        <div class="code-block">
+            Documents/<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Mods/<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cyberpunk/<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fallout-4/<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ghost-recon/
+        </div>
+        
+        <p>Then make this setting <span class="highlight">Documents/Mods</span> so when you add a new game you can just add the game-specific directory.</p>
+    </div>
+    
+    <div class="sub-section">
+        <h3>Trash warning</h3>
+        <ul>
+            <li><span class="highlight">(Full)</span> Will warn you with a popup dialog prompting to clean when your trash size exceeds your limit.</li>
+            <li><span class="highlight">(Light)</span> Only a warning in the console will be logged when size is exceeded.</li>
+            <li><span class="highlight">(Off)</span> No warning <b>or</b> checks on trash. (default)</li>
+        </ul>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <h2>Advanced settings</h2>
+    <p>Changing these is for power users. It won't break <b>everything</b> but you must understand <b>why</b> you want to change it.</p>
+    
+    <div class="sub-section">
+        <h3>Deployment Manager directory</h3>
+        <p>This is where, inside the Game installation path, the Mod Manager will store all it's deployment files.</p>
+        <p>It won't break anything (expect all previous ModManager data in Games) Only set this if there is a conflict! (If a directory called <span class="highlight">.mod_manager</span> already exists in your game!?)</p>
+    </div>
+    
+    <div class="divider"></div>
+    
+    <h2>Expert settings (do not touch!)</h2>
+    <p>These will break the program if incorrect and are not for regular users! Changing these is only for very rare cases where you would want to re-organise key-parts of the program itself.</p>
+    
+    <p>The only useful scenario I can think of, is to store the <span class="highlight">temp</span> and/or <span class="highlight">trash</span> directories on the same <b>physical</b> storage devices as your games. (An idea with merit...)</p>
+    
+    <p>Due to this, if you are curious about these settings, read the technical documentation on the program first. This user-manual will not cover them.</p>
+    
+    <p>These settings may be moved off the GUI in future.</p>
+    
+    <div class="divider"></div>
+    
+    <h2>Trash management</h2>
+    <p>In the settings page is also the Trash manager. This is the only source of all true delete operations, if its deleted here, its gone!</p>
+    
+    <h3>The manager offers:</h3>
+    <ul>
+        <li>Displaying how many Megabytes of <i>actual</i> disk-space the trash currently is using.</li>
+        <li>A percentage read-out of how close the trash space used is to your set limit.</li>
+        <li>Setting a limit on the overall disk-size of trash.</li>
+        <li>Setting a limit on the maximum age (days old) files are to qualify for cleaning.</li>
+        <li>The ability to <span class="highlight">Clean</span> or <span class="highlight">Empty</span> trash.</li>
+        <li>A shortcut to open the trash directory in the default directory application (file manager usually)</li>
+    </ul>
+    
+    <h3>Cleaning your trash</h3>
+    <p>Cleaning is <b>not</b> done automatically to ensure data is retained unless explicit deleted.</p>
+    <p>When a clean is performed it will delete all files older than the specified number of days. If the total size still exceeds the limit, starting from the oldest, files will be deleted until the maximum size is reached.</p>
+    
+    <h3>Emptying your trash</h3>
+    <p><span class="important">The entire trash directory will simply be nuked.</span></p>
+</body>
+</html>
