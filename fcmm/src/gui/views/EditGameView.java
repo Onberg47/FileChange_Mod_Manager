@@ -30,7 +30,7 @@ public class EditGameView extends FormView {
 
     public EditGameView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Edit Game");
-        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.EDIT, new Dimension(20, 20)));
+        this.submitButton.setIcon(IconLoader.loadIcon(ICONS.EDIT, new Dimension(20, 20)));
         deleteButton.setVisible(true);
     }
 
@@ -91,7 +91,7 @@ public class EditGameView extends FormView {
 
             // Try add a new icon
             if (answers.containsKey("iconFile")) {
-                IconLoader.fetchIcon(Path.of(answers.get("iconFile")));
+                IconLoader.fetchGameIcon(Path.of(answers.get("iconFile")));
                 IconLoader.clearCache();
             }
 

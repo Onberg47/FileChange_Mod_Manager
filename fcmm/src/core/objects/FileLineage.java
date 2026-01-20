@@ -221,8 +221,6 @@ public class FileLineage implements MapSerializable {
             // Find insertion point
             int insertIndex = 0; // default to end
             for (int i = stack.size() - 1; i >= 0; i--) {
-                // System.out.printf("if l:%d >= g:%d\n", loadOrder,
-                // gameState.getLoadOrder(stack.get(i).getModId())); // TODO remove debug
                 if (loadOrder >= gameState.getLoadOrder(stack.get(i).getModId())) {
                     insertIndex = i + 1;
                     break;

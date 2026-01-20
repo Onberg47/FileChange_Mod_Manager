@@ -47,7 +47,7 @@ public class SettingsView extends FormView {
 
     public SettingsView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Edit Settings");
-        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.SAVE, new Dimension(20,20)));
+        this.submitButton.setIcon(IconLoader.loadIcon(ICONS.SAVE, new Dimension(20,20)));
         updateTrashSize();
     }
 

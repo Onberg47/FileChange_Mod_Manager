@@ -27,7 +27,7 @@ import java.util.Map;
 public class AddGameView extends FormView {
     public AddGameView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Add New Game");
-        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.ADD, new Dimension(20, 20)));
+        this.submitButton.setIcon(IconLoader.loadIcon(ICONS.ADD, new Dimension(20, 20)));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class AddGameView extends FormView {
 
             // Try add a new icon
             if (answers.containsKey("iconFile")) {
-                IconLoader.fetchIcon(Path.of((String) answers.get("iconFile")));
+                IconLoader.fetchGameIcon(Path.of((String) answers.get("iconFile")));
                 IconLoader.clearCache();
             }
 

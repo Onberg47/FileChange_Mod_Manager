@@ -42,7 +42,7 @@ public class EditModView extends FormView {
             isUpdate = true;
 
         super(navigator, params, "Edit Mod");
-        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.EDIT, new Dimension(20, 20)));
+        this.submitButton.setIcon(IconLoader.loadIcon(ICONS.EDIT, new Dimension(20, 20)));
         deleteButton.setVisible(true);
     }
 

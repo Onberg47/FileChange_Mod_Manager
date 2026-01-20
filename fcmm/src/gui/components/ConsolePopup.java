@@ -58,7 +58,7 @@ public class ConsolePopup {
 
     private void setupGUI() {
         frame = new JFrame("FCMM Console");
-        frame.setIconImage(parentFrame.getIconImage()); // TODO
+        frame.setIconImage(parentFrame.getIconImage());
         
         consoleArea = new JTextArea();
         consoleArea.setEditable(false);
@@ -76,7 +76,7 @@ public class ConsolePopup {
         closeButton.addActionListener(e -> frame.dispose());
 
         JButton copyButton = new JButton("Copy");
-        copyButton.setIcon(IconLoader.loadResourceIcon(ICONS.COPY_ALL, new Dimension(16, 16)));
+        copyButton.setIcon(IconLoader.loadIcon(ICONS.COPY_ALL, new Dimension(16, 16)));
         copyButton.setToolTipText("Copy all to clipboard");
         copyButton.addActionListener(e -> copyToClipboard());
 
@@ -106,7 +106,7 @@ public class ConsolePopup {
 
     private void setButtonBusy() {
         closeButton.setText("Busy");
-        closeButton.setIcon(IconLoader.loadResourceIcon(ICONS.BUSY, new Dimension(24, 24)));
+        closeButton.setIcon(IconLoader.loadIcon(ICONS.BUSY, new Dimension(24, 24)));
         closeButton.setToolTipText(null);
         closeButton.setEnabled(false);
     }
@@ -225,7 +225,7 @@ public class ConsolePopup {
     public void setDone() {
         SwingUtilities.invokeLater(() -> {
             closeButton.setText("Done");
-            closeButton.setIcon(IconLoader.loadResourceIcon(ICONS.DONE, new Dimension(24, 24)));
+            closeButton.setIcon(IconLoader.loadIcon(ICONS.DONE, new Dimension(24, 24)));
             closeButton.setToolTipText("Click to close");
             closeButton.setEnabled(true);
         });

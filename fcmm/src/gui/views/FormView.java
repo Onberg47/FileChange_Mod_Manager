@@ -68,7 +68,7 @@ public abstract class FormView extends BaseView {
 
         deleteButton = new JButton("Delete");
         deleteButton.setVisible(false);
-        this.deleteButton.setIcon(IconLoader.loadResourceIcon(ICONS.TRASH, new Dimension(18, 18)));
+        this.deleteButton.setIcon(IconLoader.loadIcon(ICONS.TRASH, new Dimension(18, 18)));
 
         try {
             buttonPanel.add(customButton());

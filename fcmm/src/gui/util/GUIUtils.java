@@ -95,11 +95,10 @@ public class GUIUtils {
 
             switch (statusFilter) {
                 case "Enabled":
-                    return true; // TODO mod.isEnabled();
+                    return true;
                 case "Disabled":
-                    return false; // TODO !mod.isEnabled();
+                    return false;
                 // case "Has Conflicts": return mod.hasConflicts(); // examples for future use
-                // case "Needs Update": return mod.needsUpdate();
                 default:
                     return true;
             }

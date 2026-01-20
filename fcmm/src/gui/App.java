@@ -37,7 +37,7 @@ public class App {
         mainFrame = new JFrame("Mod Manager");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setPreferredSize(new Dimension(1200, 800));
-        // mainFrame.setIconImage(null); // TODO
+        mainFrame.setIconImage(IconLoader.loadIconImage(ICONS.LOGO, new Dimension(40,40)));
 
         // Initialize navigation
         navigator = new AppNavigator(mainFrame);
@@ -67,38 +67,38 @@ public class App {
         JMenu fileMenu = new JMenu("File");
         JMenuItem exitItem = new JMenuItem("Exit");
         exitItem.addActionListener(e -> System.exit(0));
-        exitItem.setIcon(IconLoader.loadResourceIcon(ICONS.EXIT, new Dimension(20, 20)));
+        exitItem.setIcon(IconLoader.loadIcon(ICONS.EXIT, new Dimension(20, 20)));
         fileMenu.add(exitItem);
 
         JMenuItem emptyTrashItem = new JMenuItem("Empty Trash");
         emptyTrashItem.addActionListener(e -> quickCleanTrash());
         emptyTrashItem.setToolTipText(
                 "Shortcut to clean trash to within 30 days and under 2Gib (go to settings for more control)");
-        emptyTrashItem.setIcon(IconLoader.loadResourceIcon(ICONS.TRASH, new Dimension(20, 20)));
+        emptyTrashItem.setIcon(IconLoader.loadIcon(ICONS.TRASH, new Dimension(20, 20)));
         fileMenu.add(emptyTrashItem);
 
         // Navigation menu
         JMenu navMenu = new JMenu("Navigation");
         JMenuItem backItem = new JMenuItem("Back");
         backItem.addActionListener(e -> navigator.goBack());
-        backItem.setIcon(IconLoader.loadResourceIcon(ICONS.BACK, new Dimension(20, 20)));
+        backItem.setIcon(IconLoader.loadIcon(ICONS.BACK, new Dimension(20, 20)));
         navMenu.add(backItem);
 
         // Settings menu
         JMenu settingsMenu = new JMenu("Settings");
         JMenuItem settingsItem = new JMenuItem("Open Settings");
         settingsItem.addActionListener(e -> navigator.navigateTo("settings"));
-        settingsItem.setIcon(IconLoader.loadResourceIcon(ICONS.SETTINGS, new Dimension(20, 20)));
+        settingsItem.setIcon(IconLoader.loadIcon(ICONS.SETTINGS, new Dimension(20, 20)));
         settingsMenu.add(settingsItem);
 
         JMenu helpMenu = new JMenu("Help");
 
         JMenuItem helpItem = new JMenuItem("Get help");
         helpItem.addActionListener(e -> new HelpPopup(mainFrame, navigator.getViewId()).show());
-        helpItem.setIcon(IconLoader.loadResourceIcon(ICONS.HELP, new Dimension(22, 22)));
+        helpItem.setIcon(IconLoader.loadIcon(ICONS.HELP, new Dimension(22, 22)));
 
         JMenuItem helpBrowserItem = new JMenuItem("Help in Browser");
-        helpBrowserItem.setIcon(IconLoader.loadResourceIcon(ICONS.REDIRECT, new Dimension(20, 20)));
+        helpBrowserItem.setIcon(IconLoader.loadIcon(ICONS.REDIRECT, new Dimension(20, 20)));
         helpBrowserItem.addActionListener(e -> {
             HelpPopup.openHelpInBrowser();
         });

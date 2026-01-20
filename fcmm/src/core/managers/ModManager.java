@@ -103,7 +103,7 @@ public class ModManager {
      * @return Complete Mod that was created. Allows quick access to the exact data
      *         written without needing to read the JSON. (Mainly for data checking)
      */
-    public ModManifest compileMod(String dirName, Map<String, Object> metaMap) throws Exception {
+    public ModManifest compileMod(final String dirName, final Map<String, Object> metaMap) throws Exception {
         final Path tempDir = TEMP_DIR.resolve(dirName);
 
         /// 1. Verify Directory is valid.
@@ -182,7 +182,7 @@ public class ModManager {
      * @param metaMap  Expected Map of mod Data for compiler.
      * @throws Exception
      */
-    public ModManifest compileMod(Path filesDir, Map<String, Object> metaMap) throws Exception {
+    public ModManifest compileMod(final Path filesDir, final Map<String, Object> metaMap) throws Exception {
         /// Prepare mod files.
         System.out.println("Compiling from Files from: " + filesDir.toString());
 
@@ -285,7 +285,7 @@ public class ModManager {
      * @param modId The ID of the Mod to be removed.
      * @see Doc/diagrams/ModFile_trash_logic.png in Project for logic-breakdown.
      */
-    public void trashMod(String modId) throws Exception {
+    public void trashMod(final String modId) throws Exception {
         /// /// 1. Find the Mod's manifest from it's ID and read it.
         log.info(0, "🗑 Trashing mod: " + modId + "...");
         ModManifest manifest;
@@ -418,7 +418,6 @@ public class ModManager {
             Files.move(GAME_ROOT_PATH.resolve(manifestPath), targetDir.resolve(manifestPath));
 
             /// /// 3. Remove Mod from GameState
-            // this.gameStateRemoveMod(manifest.getAsMod()); // TODO
             gameState.removeMod(manifest.getAsMod());
             gameState.saveToFile(GAMESTATE_PATH);
 
@@ -490,7 +489,7 @@ public class ModManager {
      * @param metaMap Map of values to change.
      * @throws Exception
      */
-    public void editMod(String modId, HashMap<String, Object> metaMap) throws Exception {
+    public void editMod(final String modId, final HashMap<String, Object> metaMap) throws Exception {
         ModManifest manifest;
         Path path = game.getStoreDirectory().resolve(modId, MANIFEST_DIR.toString(), modId + ".json");
         int loadOrder = -1;
@@ -525,7 +524,7 @@ public class ModManager {
      * @param metaMap  Map of values to change.
      * @throws Exception
      */
-    public void updateMod(String modId, Path filesDir, Map<String, Object> metaMap) throws Exception {
+    public void updateMod(final String modId, Path filesDir, final Map<String, Object> metaMap) throws Exception {
         ModManifest manifest = new ModManifest();
         int loadOrder = -1;
         log.info(0, "Updating Mod: " + modId);
@@ -561,7 +560,7 @@ public class ModManager {
      * @param modId The ID of the Mod to be deleted.
      * @throws InaccessibleObjectException If the mod is currenlty installed.
      */
-    public void deleteMod(String modId) throws Exception {
+    public void deleteMod(final String modId) throws Exception {
         log.info(0, "Mod: " + modId + " is to be deleted...");
 
         /// 1. Check the mod is not installed anywhere.
@@ -600,7 +599,8 @@ public class ModManager {
      * 
      * @see Doc/diagrams/ModFile_copy_logic.png in Project for logic-breakdown.
      */
-    private void copyModFile(Path sourceDir, final Path targetDir, Path modFilePath, ModManifest mod) throws Exception {
+    private void copyModFile(Path sourceDir, final Path targetDir, Path modFilePath, final ModManifest mod)
+            throws Exception {
         final String modId = mod.getId();
         final int loadOrder = mod.getLoadOrder();
 
@@ -734,7 +734,7 @@ public class ModManager {
      * @throws IOException           File IO errors.
      * @throws Exception             A process error
      */
-    private void restoreBackup(Path modFilePath) throws Exception {
+    private void restoreBackup(final Path modFilePath) throws Exception {
         final Path backup = GAME_ROOT_PATH.resolve(BACKUP_DIR.resolve(modFilePath + ".backup"));
         final Path gameModFile = GAME_ROOT_PATH.resolve(modFilePath);
 
@@ -764,7 +764,7 @@ public class ModManager {
      * @param modFilePath ModFile path in manifest to fetch.
      * @throws Exception Throws is Mod Storage file or manifest is missing.
      */
-    private void restoreFromStorage(String modId, Path modFilePath) throws Exception {
+    private void restoreFromStorage(final String modId, final Path modFilePath) throws Exception {
         final Path source = game.getStoreDirectory().resolve(modId, modFilePath.toString());
         if (!Files.exists(source)) {
             throw new FileNotFoundException(
@@ -849,7 +849,7 @@ public class ModManager {
      * @param modId
      * @return Null if failed.
      */
-    public Mod getModById(String modId) throws Exception {
+    public Mod getModById(final String modId) throws Exception {
         Mod mod = new Mod();
         Path path = game.getStoreDirectory().resolve(modId, MANIFEST_DIR.toString(), modId + ".json");
 
@@ -872,7 +872,7 @@ public class ModManager {
      * @param modId
      * @return
      */
-    public ModManifest getModManifestById(String modId) throws Exception {
+    public ModManifest getModManifestById(final String modId) throws Exception {
         ModManifest mod = new ModManifest();
         Path path = game.getStoreDirectory().resolve(modId, MANIFEST_DIR.toString(), modId + ".json");
 

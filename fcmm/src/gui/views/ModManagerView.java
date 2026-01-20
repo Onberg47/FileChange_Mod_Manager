@@ -121,15 +121,15 @@ public class ModManagerView extends BaseView {
 
         applyButton = new JButton("Apply Changes");
         applyButton.setToolTipText("Apply the current mod layout to the game");
-        applyButton.setIcon(IconLoader.loadResourceIcon(ICONS.SYNC, new Dimension(20, 20)));
+        applyButton.setIcon(IconLoader.loadIcon(ICONS.SYNC, new Dimension(20, 20)));
 
         compileNewButton = new JButton("Compile New Mod");
         compileNewButton.setToolTipText("Create a new mod from files");
-        compileNewButton.setIcon(IconLoader.loadResourceIcon(ICONS.CREATE, new Dimension(20, 20)));
+        compileNewButton.setIcon(IconLoader.loadIcon(ICONS.CREATE, new Dimension(20, 20)));
 
         goBackButton = new JButton("← Back to Library");
         goBackButton.setToolTipText("Return to game library");
-        goBackButton.setIcon(IconLoader.loadResourceIcon(ICONS.LIBRARY, new Dimension(20, 20)));
+        goBackButton.setIcon(IconLoader.loadIcon(ICONS.LIBRARY, new Dimension(20, 20)));
 
         panel.add(applyButton);
         panel.add(Box.createHorizontalStrut(20));

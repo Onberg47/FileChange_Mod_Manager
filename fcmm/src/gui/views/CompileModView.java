@@ -30,7 +30,7 @@ import javax.swing.SwingWorker;
 public class CompileModView extends FormView {
     public CompileModView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Compile New Mod");
-        this.submitButton.setIcon(IconLoader.loadResourceIcon(ICONS.CREATE, new Dimension(20, 20)));
+        this.submitButton.setIcon(IconLoader.loadIcon(ICONS.CREATE, new Dimension(20, 20)));
     }
 
     @Override

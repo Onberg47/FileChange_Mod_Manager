@@ -45,7 +45,7 @@ public class GameManager {
      * 
      * @param metaMap
      */
-    public static Game addGame(HashMap<String, Object> metaMap) throws Exception {
+    public static Game addGame(final HashMap<String, Object> metaMap) throws Exception {
         log.info(0, "\n📦 Adding new game...");
         Game game = new Game();
 
@@ -106,7 +106,7 @@ public class GameManager {
      * @param metaMap An incomplete metaMap of ONLY the fields to override. Can
      *                support id-changes.
      */
-    public static void updateGame(String gameId, HashMap<String, Object> metaMap) throws Exception {
+    public static void updateGame(final String gameId, final HashMap<String, Object> metaMap) throws Exception {
         Game game = new Game();
         try {
             game = GameManager.getGameById(gameId);
@@ -130,7 +130,7 @@ public class GameManager {
      * 
      * @param gameId Game ID to remove.
      */
-    public static void removeGame(String gameId) throws Exception {
+    public static void removeGame(final String gameId) throws Exception {
         log.info(0, "🗑 Removing Game: " + gameId);
         Path targetDir = config.getTrashDir().resolve(gameId);
         Path gameFilePath = config.getGameDir().resolve(gameId + ".json");
@@ -195,7 +195,7 @@ public class GameManager {
      * @throws Exception
      */
     public static HashMap<String, Object> collectUserMetadata() throws Exception {
-        String[][] queryMatrix = {
+        final String[][] queryMatrix = {
                 {
                         "id",
                         "name",
@@ -217,8 +217,8 @@ public class GameManager {
      * 
      * @param game Game instance to save.
      */
-    public static void saveGame(Game game) throws Exception {
-        Path path = config.getGameDir().resolve(game.getId() + ".json");
+    public static void saveGame(final Game game) throws Exception {
+        final Path path = config.getGameDir().resolve(game.getId() + ".json");
         try {
             log.info(1, "Writing JSON file for Game " + game.getName());
             if (!Files.exists(path)) {
@@ -239,9 +239,9 @@ public class GameManager {
      * @param gameId Id of the game to read. (The name of the json file)
      * @return Complete Game instance if successful. Null on fail.
      */
-    public static Game getGameById(String gameId) throws Exception {
+    public static Game getGameById(final String gameId) throws Exception {
         Game tmp = new Game();
-        Path path = config.getGameDir().resolve(gameId + ".json");
+        final Path path = config.getGameDir().resolve(gameId + ".json");
         try {
             tmp = (Game) JsonIO.read(
                     path.toFile(),

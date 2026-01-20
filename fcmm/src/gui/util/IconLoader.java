@@ -34,6 +34,8 @@ public class IconLoader {
      * Register all icons here.
      */
     public enum ICONS {
+        LOGO("ic_logo.png"),
+
         ADD("ic_add.png"),
         ARCHIVE("ic_archive.png"),
         BACK("ic_back.png"),
@@ -135,7 +137,7 @@ public class IconLoader {
      * @param size
      * @return
      */
-    public static ImageIcon loadResourceIcon(ICONS icon, Dimension size) {
+    public static ImageIcon loadIcon(ICONS icon, Dimension size) {
         String cacheKey = "resource_" + icon.getFilename();
         // Check cache first
         if (iconCache.containsKey(cacheKey)) {
@@ -157,6 +159,24 @@ public class IconLoader {
         return iconImg;
     }
 
+    /// /// /// Helpers
+
+    /**
+     * Load icon as Image (new method)
+     */
+    public static Image loadIconImage(ICONS icon, Dimension size) {
+        ImageIcon iconImg = loadIcon(icon, size);
+        return iconImg.getImage();
+    }
+
+    /**
+     * Load game icon as Image
+     */
+    public static Image loadGameIconImage(String gameId, Dimension size) {
+        ImageIcon iconImg = loadGameIcon(gameId, size);
+        return iconImg.getImage();
+    }
+
     /// /// /// Icon Processes
 
     /**
@@ -176,6 +196,79 @@ public class IconLoader {
 
         return image.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
     }
+
+    /**
+     * Clear icon cache (call when games/mods are added/removed).
+     */
+    public static void clearCache() {
+        iconCache.clear();
+    }
+
+    /**
+     * Clear cache for specific game/mod.
+     */
+    public static void clearCache(String id) {
+        iconCache.remove("game_" + id);
+        iconCache.remove("mod_" + id);
+        iconCache.remove("resource_" + id);
+    }
+
+    /// /// /// Icon post-processes
+
+    /**
+     * Extracts a theme color from a game/mod icon for UI theming.
+     * 
+     * @param gameIcon  The game/mod icon image
+     * @param intensity Target brightness (0.3-0.7 recommended)
+     * @return A theme color derived from the icon
+     */
+    public static Color extractThemeColor(ImageIcon gameIcon, float intensity) {
+        if (gameIcon == null) {
+            return ColorExtractor.extractThemeColor(null, intensity);
+        }
+        return ColorExtractor.extractThemeColor(gameIcon.getImage(), intensity);
+    }
+
+    /// /// /// View Helpers /// /// ///
+
+    /**
+     * This is called to retried for program files a new Game Icon from a
+     * user-provided filepath.
+     * 
+     * @param icon
+     */
+    public static void fetchGameIcon(Path icon) {
+        System.out.println("Fetching icon...");
+        if (!Files.exists(icon))
+            return;
+        if (!Files.isRegularFile(icon))
+            return;
+
+        System.out.println("Icon: " + icon);
+        Path target = core.config.AppConfig.getInstance().getGameDir().resolve(
+                "icons");
+
+        if (icon.getFileName().toString().endsWith(".png"))
+            target = target.resolve(AppState.getInstance().getCurrentGame().getId() + ".png");
+        else if (icon.getFileName().toString().endsWith(".jpg"))
+            target = target.resolve(AppState.getInstance().getCurrentGame().getId() + ".jpg");
+        else {
+            System.err.println("File is not a known image!");
+            return;
+        }
+
+        // Not checking for direcotries because AppConfig handles all config
+        // directories.
+        try {
+            System.out.println("Copy from: " + icon + "-> " + target);
+            Files.copy(icon, target, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /// /// /// Icon drawers /// /// ///
 
     /**
      * Create a default game icon (programmatically drawn).
@@ -238,70 +331,6 @@ public class IconLoader {
         g2d.dispose();
 
         return new ImageIcon(image);
-    }
-
-    /**
-     * Clear icon cache (call when games/mods are added/removed).
-     */
-    public static void clearCache() {
-        iconCache.clear();
-    }
-
-    /**
-     * Clear cache for specific game/mod.
-     */
-    public static void clearCache(String id) {
-        iconCache.remove("game_" + id);
-        iconCache.remove("mod_" + id);
-    }
-
-    /// /// /// Icon post-processes
-
-    /**
-     * Extracts a theme color from a game/mod icon for UI theming.
-     * 
-     * @param gameIcon  The game/mod icon image
-     * @param intensity Target brightness (0.3-0.7 recommended)
-     * @return A theme color derived from the icon
-     */
-    public static Color extractThemeColor(ImageIcon gameIcon, float intensity) {
-        if (gameIcon == null) {
-            return ColorExtractor.extractThemeColor(null, intensity);
-        }
-        return ColorExtractor.extractThemeColor(gameIcon.getImage(), intensity);
-    }
-
-    /// /// /// View Helpers /// /// ///
-
-    public static void fetchIcon(Path icon) {
-        System.out.println("Fetching icon...");
-        if (!Files.exists(icon))
-            return;
-        if (!Files.isRegularFile(icon))
-            return;
-
-        System.out.println("Icon: " + icon);
-        Path target = core.config.AppConfig.getInstance().getGameDir().resolve(
-                "icons");
-
-        if (icon.getFileName().toString().endsWith(".png"))
-            target = target.resolve(AppState.getInstance().getCurrentGame().getId() + ".png");
-        else if (icon.getFileName().toString().endsWith(".jpg"))
-            target = target.resolve(AppState.getInstance().getCurrentGame().getId() + ".jpg");
-        else {
-            System.err.println("File is not a known image!");
-            return;
-        }
-
-        // Not checking for direcotries because AppConfig handles all config
-        // directories.
-        try {
-            System.out.println("Copy from: " + icon + "-> " + target);
-            Files.copy(icon, target, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
 } // Class

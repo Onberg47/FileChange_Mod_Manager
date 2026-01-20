@@ -10,6 +10,7 @@
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/io/JsonIO.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/io/MapSerializableHelper.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/managers/GameManager.java
+/home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/managers/LockManager.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/managers/ModManager.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/objects/FileLineage.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/objects/FileVersion.java
@@ -20,6 +21,7 @@
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/objects/ModManifest.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/objects/ModMetadata.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/DateUtil.java
+/home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/DirectoryLocker.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/FileUtil.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/HashUtil.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/Logger.java
