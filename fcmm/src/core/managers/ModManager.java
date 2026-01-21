@@ -456,7 +456,7 @@ public class ModManager {
         try {
             List<Mod> diff = mkGameStateDif(gState).getDeployedMods()
                     .stream()
-                    .sorted(Comparator.comparing(Mod::isEnabled).reversed()) // Get disabled first
+                    .sorted(Comparator.comparing(Mod::isEnabled)) // Get disabled first
                     .toList();
             int changeMax = diff.size();
             int i = 0;

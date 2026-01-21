@@ -127,6 +127,8 @@ public class ModManagerView extends BaseView {
         compileNewButton.setToolTipText("Create a new mod from files");
         compileNewButton.setIcon(IconLoader.loadIcon(ICONS.CREATE, new Dimension(20, 20)));
 
+        // TODO Add a dropdown for GameState (Profile) Selector
+
         goBackButton = new JButton("← Back to Library");
         goBackButton.setToolTipText("Return to game library");
         goBackButton.setIcon(IconLoader.loadIcon(ICONS.LIBRARY, new Dimension(20, 20)));
