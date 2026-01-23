@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
+import core.config.AppConfig;
+import core.config.AppPreferences;
 import core.config.defaultConfig;
 import core.interfaces.MapSerializable;
 import core.io.JsonIO;
@@ -68,6 +70,14 @@ public class generalTests {
 
         // sampleModTest();
         // moveFromTempTest();
+
+        AppConfig config = AppConfig.getInstance();
+        // config.setPreference("saves", 5);
+        AppPreferences prefs = AppConfig.getInstance().preferences; // changes persist due to singleton link
+        prefs.set("themes", "Arc-Dark Material");
+        // config.saveConfig();
+
+        System.out.println(config.toString());
 
     } // psvm()
 
@@ -189,7 +199,7 @@ public class generalTests {
         Path path = Path.of("mod_manager/config.json");
         // JsonIO.readHashMap(path.toFile());
 
-        HashMap<String, String> hMap = new HashMap<>();
+        HashMap<String, Object> hMap = new HashMap<>();
         hMap.put("BACKUP_DIR", defaultConfig.getBackupDir().toString());
         hMap.put("LINEAGE_DIR", defaultConfig.getLineageDir().toString());
         hMap.put("MANAGER_DIR", defaultConfig.getManagerDir().toString());

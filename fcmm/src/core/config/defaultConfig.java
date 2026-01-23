@@ -6,6 +6,7 @@ package core.config;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Contains configuration settings for AppConfig.
@@ -42,10 +43,10 @@ public abstract class defaultConfig {
     /// /// /// Getters /// /// ///
 
     /**
-     * @return A HashMap of what the default config file would read to.
+     * @return A Map of what the default config file would read to.
      */
-    static HashMap<String, String> getDefaultMap() {
-        HashMap<String, String> hMap = new HashMap<>();
+    static Map<String, String> getDefaultMap() {
+        Map<String, String> hMap = new HashMap<>();
 
         hMap.put("GAME_DIR", GAME_DIR.toString());
         hMap.put("TEMP_DIR", TEMP_DIR.toString());

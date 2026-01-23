@@ -112,6 +112,14 @@ public abstract class FormView extends BaseView {
         // For simplicity, only validates on submit
     }
 
+    protected FormQuestion getQuestionByKey(String key) {
+        for (FormQuestion question : getQuestions()) {
+            if (question.getKey().equals(key))
+                return question;
+        }
+        return null;
+    }
+
     protected abstract List<FormQuestion> getQuestions();
 
     protected abstract String getSubmitButtonText();

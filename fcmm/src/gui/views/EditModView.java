@@ -8,11 +8,11 @@ import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
-import gui.util.GUIUtils;
 import gui.util.IconLoader;
 import gui.util.IconLoader.ICONS;
 import core.managers.ModManager;
 import core.objects.Mod;
+import core.utils.MapUtil;
 
 import java.awt.Dimension;
 import java.nio.file.Path;
@@ -76,7 +76,7 @@ public class EditModView extends FormView {
             }
         }
 
-        HashMap<String, String> modData = (HashMap<String, String>) GUIUtils.toStringOnlyMap(mod.toMap());
+        HashMap<String, String> modData = (HashMap<String, String>) MapUtil.toStringOnlyMap(mod.toMap());
         formPanel.setAnswers(modData);
         submitButton.setEnabled(true);
         setTitle("Edit Mod: " + mod.getName());

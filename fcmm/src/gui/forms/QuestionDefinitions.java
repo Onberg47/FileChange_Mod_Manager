@@ -151,6 +151,13 @@ public class QuestionDefinitions {
                                                 .tooltip("Where to set store mods per a game by default")
                                                 .build(),
 
+                                FormQuestion.builder(AppConfig.prefsPrefix + "TRASH_SIZE_WARNING",
+                                                "(Normal) Trash size warning")
+                                                .type(FormQuestion.QuestionType.COMBO_BOX)
+                                                .tooltip("What to do when the Trash directory reaches the max size limit")
+                                                .defaultValue(new String[] { "Off", "Log warning", "Prompt clean" })
+                                                .build(),
+
                                 FormQuestion.builder("MANAGER_DIR", "(Advanced) Deployment Manager Direcotry")
                                                 .type(FormQuestion.QuestionType.DIRECTORY_CHOOSER)
                                                 .tooltip("Where the manager stores its files within a Game")

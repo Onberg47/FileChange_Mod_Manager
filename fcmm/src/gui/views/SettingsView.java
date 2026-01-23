@@ -7,10 +7,9 @@ package gui.views;
 import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
-import gui.state.AppState;
-import gui.util.GUIUtils;
 import gui.util.IconLoader;
 import gui.util.IconLoader.ICONS;
+import gui.util.ToastNotification;
 import core.config.AppConfig;
 import core.utils.Logger;
 import core.utils.TrashUtil;
@@ -43,7 +42,7 @@ import javax.swing.SwingWorker;
  * @since v2
  */
 public class SettingsView extends FormView {
-    private AppConfig config;
+    private AppConfig config = AppConfig.getInstance();
 
     public SettingsView(AppNavigator navigator, Map<String, Object> params) {
         super(navigator, params, "Edit Settings");
@@ -66,7 +65,7 @@ public class SettingsView extends FormView {
     protected void loadExistingData() {
         this.config = AppConfig.getInstance();
 
-        HashMap<String, String> data = config.toMap();
+        HashMap<String, String> data = (HashMap<String, String>) config.toFlatMap();
 
         formPanel.setAnswers(data);
         submitButton.setEnabled(true);
@@ -79,13 +78,18 @@ public class SettingsView extends FormView {
             return;
 
         try {
-            HashMap<String, String> map = (HashMap<String, String>) GUIUtils.toStringOnlyMap(formPanel.getAnswers());
-            System.out.println(formPanel.getAnswers());
-            config.updateAndSaveConfig(map);
+            HashMap<String, Object> map = (HashMap<String, Object>) formPanel.getAnswers();
 
-            // Navigate back to library
-            AppState.getInstance().setCurrentGame(null);
-            loadExistingData();
+            config.preferences.set("TRASH_SIZE_LIMIT", maxSizeSpinner.getValue());
+            config.preferences.set("TRASH_DAYS_OLD", daysToKeepSpinner.getValue());
+
+            // TODO rather store the index of the value or use an enum
+            config.preferences.set("TRASH_SIZE_WARNING", map.get(AppConfig.prefsPrefix + "TRASH_SIZE_WARNING"));
+
+            config.updateAndSaveConfig(map);
+            ToastNotification.showNotification(navigator.getMainFrame(), "Settings saved successfully!");
+
+            // loadExistingData();
         } catch (Exception e) {
             showError("Failed to update config: " + e.getMessage(), e);
         }
@@ -135,7 +139,8 @@ public class SettingsView extends FormView {
         trashPanel.add(new JLabel("Max trash size (MB):"), gbc);
 
         gbc.gridx = 1;
-        maxSizeSpinner = new JSpinner(new SpinnerNumberModel(100, 10, 10000, 10));
+        maxSizeSpinner = new JSpinner(new SpinnerNumberModel(
+                AppConfig.getInstance().preferences.getAsInt("TRASH_SIZE_LIMIT", 100), 10, 10000, 10));
         maxSizeSpinner.addChangeListener(e -> updateTrashSize());
         trashPanel.add(maxSizeSpinner, gbc);
 
@@ -144,7 +149,8 @@ public class SettingsView extends FormView {
         trashPanel.add(new JLabel("Keep files for (days):"), gbc);
 
         gbc.gridx = 1;
-        daysToKeepSpinner = new JSpinner(new SpinnerNumberModel(30, 1, 365, 1));
+        daysToKeepSpinner = new JSpinner(
+                new SpinnerNumberModel(AppConfig.getInstance().preferences.getAsInt("TRASH_DAYS_OLD", 30), 1, 365, 1));
         trashPanel.add(daysToKeepSpinner, gbc);
 
         // Action buttons
@@ -181,7 +187,8 @@ public class SettingsView extends FormView {
                 long sizeBytes = TrashUtil.getDiskSize(config.getTrashDir());
                 float sizeMB = sizeBytes / (1024f * 1024f);
 
-                Float progress = (sizeMB / Integer.parseInt(maxSizeSpinner.getValue().toString())) * trashUsageBar.getMaximum();
+                Float progress = (sizeMB / Integer.parseInt(maxSizeSpinner.getValue().toString()))
+                        * trashUsageBar.getMaximum();
 
                 trashUsageBar.setValue(progress.intValue());
                 publish(String.format("Trash size: %.2f MB", sizeMB));

@@ -54,6 +54,7 @@ public interface MapSerializable {
         public static final String GAME = "Game";
         public static final String GAME_STATE = "GameState";
         public static final String FILE_LINEAGE = "FileLineage";
+        public static final String PREFERENCES = "Preferences";
     }
 
 } // Class

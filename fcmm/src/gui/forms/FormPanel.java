@@ -8,6 +8,9 @@ import gui.components.QuestionCard;
 import gui.layouts.FormCardLayout;
 
 import javax.swing.*;
+
+import core.config.AppConfig;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -102,12 +105,15 @@ public class FormPanel extends JPanel {
                 String key = card.getKey();
                 if (values.containsKey(key)) {
                     String value = values.get(key);
-                    if (value != null) {
+                    if (value != null)
                         card.setValue(value);
-                    } else {
-                        card.clear();
-                    }
-                } else {
+
+                    // TODO clean this up
+                } else if (key.startsWith(AppConfig.prefsPrefix)){
+                    key = key.replaceFirst(AppConfig.prefsPrefix, "");
+                    card.setValue(AppConfig.getInstance().preferences.getAsString(key, null));
+
+                }else {
                     card.clear();
                 }
             } catch (Exception e) {

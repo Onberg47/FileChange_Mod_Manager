@@ -5,6 +5,7 @@
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/cli/ModCommandHandler.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/cli/TrashCommandHandler.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/config/AppConfig.java
+/home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/config/AppPreferences.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/config/defaultConfig.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/interfaces/MapSerializable.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/io/JsonIO.java
@@ -25,6 +26,7 @@
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/FileUtil.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/HashUtil.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/Logger.java
+/home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/MapUtil.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/ScannerUtil.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/core/utils/TrashUtil.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/gui/App.java
@@ -46,6 +48,7 @@
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/gui/util/GUIUtils.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/gui/util/IconLoader.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/gui/util/ResourceLoader.java
+/home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/gui/util/ToastNotification.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/gui/views/AddGameView.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/gui/views/BaseView.java
 /home/hdd700/Programming/java/JarProjects/fcmm/fcmm/src/gui/views/CompileModView.java

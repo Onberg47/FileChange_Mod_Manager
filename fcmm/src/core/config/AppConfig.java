@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 
 import core.io.JsonIO;
+import core.utils.MapUtil;
 
 /**
  * Immutable configuration snapshot
@@ -20,8 +22,8 @@ public final class AppConfig {
     /// Core:
     // #region
 
-    private final String AppVersion = "4.0.1"; // Program's version
-    
+    private final String AppVersion = "4.0.2"; // Program's version
+
     private static final Path configPath = defaultConfig.CONFIG_FILE_PATH;
 
     /// Program Paths:
@@ -60,6 +62,9 @@ public final class AppConfig {
      */
     private final Path MANIFEST_DIR;
 
+    public AppPreferences preferences;
+    public static final String prefsPrefix = "prefs.";
+
     // #endregion
 
     /**
@@ -76,29 +81,45 @@ public final class AppConfig {
 
         private Path managerDir;
 
-        public Builder fromMap(HashMap<String, String> hMap) {
-            this.appVersion = hMap.getOrDefault("APP_VERSION", "0.0");
-            this.gameDir = Path.of(hMap.getOrDefault("GAME_DIR", defaultConfig.GAME_DIR.toString())).normalize();
-            this.tempDir = Path.of(hMap.getOrDefault("TEMP_DIR", defaultConfig.TEMP_DIR.toString())).normalize();
-            this.trashDir = Path.of(hMap.getOrDefault("TRASH_DIR", defaultConfig.TRASH_DIR.toString())).normalize();
+        private AppPreferences preferences = new AppPreferences();
 
-            this.logDir = Path.of(hMap.getOrDefault("LOG_DIR", defaultConfig.LOG_DIR.toString())).normalize();
+        public Builder fromMap(HashMap<String, Object> hMap) {
+            this.appVersion = (String) hMap.getOrDefault("APP_VERSION",
+                    instance == null ? "0.0" : instance.getAppVersion());
+
+            this.gameDir = Path.of((String) hMap.getOrDefault("GAME_DIR",
+                    instance == null ? defaultConfig.GAME_DIR.toString() : instance.getGameDir())).normalize();
+            this.tempDir = Path.of((String) hMap.getOrDefault("TEMP_DIR",
+                    instance == null ? defaultConfig.TEMP_DIR.toString() : instance.getTempDir())).normalize();
+            this.trashDir = Path.of((String) hMap.getOrDefault("TRASH_DIR",
+                    instance == null ? defaultConfig.TRASH_DIR.toString() : instance.getTrashDir())).normalize();
+
+            this.logDir = Path.of((String) hMap.getOrDefault("LOG_DIR",
+                    instance == null ? defaultConfig.LOG_DIR.toString() : instance.getLogDir())).normalize();
             this.defaultModDir = Path
-                    .of(hMap.getOrDefault("DEFAULT_MOD_DIR", defaultConfig.DEFAULT_MOD_DIR.toString()))
+                    .of((String) hMap.getOrDefault("DEFAULT_MOD_DIR",
+                            instance == null ? defaultConfig.DEFAULT_MOD_DIR.toString()
+                                    : instance.getDefaultModStorage()))
                     .normalize();
 
-            this.managerDir = Path.of(hMap.getOrDefault("MANAGER_DIR", defaultConfig.MANAGER_DIR.toString()))
-                    .normalize();
+            this.managerDir = Path.of((String) hMap.getOrDefault("MANAGER_DIR",
+                    instance == null ? defaultConfig.MANAGER_DIR.toString() : instance.getManagerDir())).normalize();
+
+            this.preferences = instance == null
+                    ? new AppPreferences(hMap.get("preferences"))
+                    : instance.getAppPreferences();
+
             return this;
-        }
+        } // fromMap()
 
         public Builder fromConfigFile(Path configIn) {
-            HashMap<String, String> hMap;
+            HashMap<String, Object> hMap;
             try {
                 hMap = JsonIO.readHashMap(configIn.toFile());
             } catch (Exception e) {
                 System.err.println("❌ Failed to initialize config! " + e.getMessage());
-                hMap = defaultConfig.getDefaultMap(); // Use hard-coded fallback HashMap of the default config file.
+                hMap = (HashMap<String, Object>) MapUtil.toGenericMap(defaultConfig.getDefaultMap());
+                // Use hard-coded fallback HashMap of the default config file.
                 e.printStackTrace();
             }
             this.fromMap(hMap);
@@ -124,15 +145,17 @@ public final class AppConfig {
 
         this.MANAGER_DIR = builder.managerDir;
 
-        // constants
+        // constants / derived
         this.LINEAGE_DIR = MANAGER_DIR.resolve("lineages").normalize();
         this.BACKUP_DIR = MANAGER_DIR.resolve("backups").normalize();
         this.MANIFEST_DIR = MANAGER_DIR.resolve("manifests").normalize();
 
+        this.preferences = builder.preferences;
+
         // Config file version is not the same, re-write
         if (!builder.appVersion.equalsIgnoreCase(this.AppVersion)) {
             try {
-                System.out.println("Version mismatch.");
+                System.out.println("Version mismatch: Current: " + AppVersion + " old: " + builder.appVersion);
                 if (instance == null)
                     instance = this;
                 this.saveConfig();
@@ -149,7 +172,8 @@ public final class AppConfig {
     private AppConfig() {
         this(new Builder().fromConfigFile(configPath));
 
-        /// Create program directories.
+        /// Post ///
+        // Create program directories.
         try {
             if (!Files.exists(this.GAME_DIR)) {
                 // Files.createDirectories(this.GAME_DIR);
@@ -172,7 +196,7 @@ public final class AppConfig {
         }
     } // AppConfig(Path)
 
-    public AppConfig(HashMap<String, String> hMap) {
+    public AppConfig(HashMap<String, Object> hMap) {
         this(new Builder().fromMap(hMap));
     }
 
@@ -201,7 +225,7 @@ public final class AppConfig {
      * @param hMap new values
      * @return New instance
      */
-    private AppConfig getInstance(HashMap<String, String> hMap) {
+    private AppConfig getInstance(HashMap<String, Object> hMap) {
         synchronized (AppConfig.class) {
             instance = new AppConfig(hMap);
         }
@@ -227,14 +251,14 @@ public final class AppConfig {
      * Reload configuration from file.
      */
     public void reloadConfig() throws Exception {
-        HashMap<String, String> loadedMap = JsonIO.readHashMap(configPath.toFile());
+        HashMap<String, Object> loadedMap = JsonIO.readHashMap(configPath.toFile());
         this.getInstance(loadedMap);
     }
 
     /**
      * Update config with new values and save immediately.
      */
-    public void updateAndSaveConfig(HashMap<String, String> newValues) throws Exception {
+    public void updateAndSaveConfig(HashMap<String, Object> newValues) throws Exception {
         this.getInstance(newValues);
         saveConfig();
     }
@@ -242,8 +266,8 @@ public final class AppConfig {
     /**
      * @return A hashMap of all set-able config values.
      */
-    public HashMap<String, String> toMap() {
-        HashMap<String, String> hMap = new HashMap<String, String>();
+    public HashMap<String, Object> toMap() {
+        HashMap<String, Object> hMap = new HashMap<String, Object>();
 
         hMap.put("APP_VERSION", AppVersion);
         hMap.put("GAME_DIR", GAME_DIR.toString());
@@ -253,11 +277,30 @@ public final class AppConfig {
         hMap.put("DEFAULT_MOD_DIR", DEFAULT_MOD_DIR.toString());
         hMap.put("MANAGER_DIR", MANAGER_DIR.toString());
 
+        hMap.put("preferences", preferences.toMap());
+
         return hMap;
     }
 
+    /**
+     * Creates a flat Map of only Strings, adding prefixes to flattened nested data.
+     * 
+     * @return
+     */
+    public Map<String, String> toFlatMap() {
+        Map<String, String> flatMap = new HashMap<String, String>();
+        flatMap = MapUtil.toStringOnlyMap(toMap());
+
+        flatMap.remove("preferences");
+        for (String key : preferences.getPreferences().keySet()) {
+            flatMap.put(key + prefsPrefix, preferences.getAsString(key, null));
+        }
+
+        return flatMap;
+    }
+
     /// /// /// Getters /// /// ///
-    // #region
+    // #region System
 
     /**
      * {@code /home/game_root/}
@@ -342,13 +385,6 @@ public final class AppConfig {
     }
 
     /**
-     * The current version of the application.
-     */
-    public String getAppVersion() {
-        return AppVersion;
-    }
-
-    /**
      * {@code ~Program/mods/} {add the game_id}
      * <br>
      * <br>
@@ -358,7 +394,20 @@ public final class AppConfig {
         return DEFAULT_MOD_DIR;
     }
 
+    /**
+     * The current version of the application.
+     */
+    public String getAppVersion() {
+        return AppVersion;
+    }
+
     // #endregion
+
+    public AppPreferences getAppPreferences() {
+        return this.preferences;
+    }
+
+    /// /// /// Methods /// /// ///
 
     /**
      * Get information about th current config.
@@ -375,6 +424,8 @@ public final class AppConfig {
         str.append(String.format("\t%-15s : %s\n", "logging dir", LOG_DIR));
 
         str.append(String.format("Game Structure:\n\t%-15s : %s\n", "Manager data dir", MANAGER_DIR));
+
+        str.append(preferences.toString());
 
         return str.toString();
     } // toString()

@@ -15,6 +15,7 @@ import gui.util.IconLoader.ICONS;
 
 import javax.swing.*;
 
+import core.config.AppConfig;
 import core.utils.Logger;
 import core.utils.TrashUtil;
 
@@ -86,7 +87,7 @@ public class App {
         JMenuItem emptyTrashItem = new JMenuItem("Empty Trash");
         emptyTrashItem.addActionListener(e -> quickCleanTrash());
         emptyTrashItem.setToolTipText(
-                "Shortcut to clean trash to within 30 days and under 2Gib (go to settings for more control)");
+                "Shortcut to clean trash using last saved settings");
         emptyTrashItem.setIcon(IconLoader.loadIcon(ICONS.TRASH, new Dimension(20, 20)));
         settingsMenu.addSeparator();
         settingsMenu.add(emptyTrashItem);
@@ -120,7 +121,11 @@ public class App {
     private void quickCleanTrash() {
         int result = JOptionPane.showConfirmDialog(
                 mainFrame,
-                "Permanently delete all files in trash older than 30 days?",
+                "Permanently delete all files in trash older than "
+                        + AppConfig.getInstance().preferences.getAsString("TRASH_DAYS_OLD", "30")
+                        + " days and trim to under "
+                        + AppConfig.getInstance().preferences.getAsString("TRASH_SIZE_LIMIT", "100")
+                        + "MB?",
                 "Clean Trash",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);

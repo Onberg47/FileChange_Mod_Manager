@@ -63,20 +63,7 @@ public class JsonIO {
      *                                  file (path or extension)
      */
     public static MapSerializable read(File file, String type_string, String cast_type) throws Exception {
-        if (!file.exists()) {
-            throw new InvalidObjectException("File path is not a valid .json path: " + file.toPath().toString());
-        }
-        if (!file.isFile()) { // Check if it's actually a file (not a directory)
-            throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
-        }
-        if (file.length() == 0) { // Check if file has content (optional, depending on your needs)
-            throw new IllegalArgumentException("File is empty: " + file.getAbsolutePath());
-        }
-        if (!file.getName().toLowerCase().endsWith(".json")) { // appends the `.json` extension if needed
-            file = file.toPath().getParent().resolve(
-                    file.toPath().getFileName() + ".json").toFile();
-        }
-        // end of checks...
+        checkReadFile(file);
 
         JsonObject json;
         try (FileReader fileReader = new FileReader(file)) {
@@ -156,29 +143,16 @@ public class JsonIO {
      * This is for simple (non-nested) Json files for non-JsonSerializable objects.
      * 
      * @param file File to read. Can handle missing {@code .json} extension.
-     * @return HashMap<String, String>
+     * @return HashMap<String, Object>
      * @throws IllegalArgumentException If the file provided is not a regualr file
      *                                  or is empty.
      * @throws FileNotFoundException    The provided file does not exsist.
      * @throws Exception                Fatal Json errors.
      */
-    public static HashMap<String, String> readHashMap(File file) throws Exception {
-        if (!file.exists()) {
-            throw new FileNotFoundException("File path is not a valid .json path.");
-        }
-        if (!file.isFile()) {
-            throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
-        }
-        if (file.length() == 0) {
-            throw new IllegalArgumentException("File is empty: " + file.getAbsolutePath());
-        }
-        if (!file.getName().toLowerCase().endsWith(".json")) {
-            file = file.toPath().getParent().resolve(
-                    file.toPath().getFileName() + ".json").toFile();
-        }
-        // end of checks...
+    public static HashMap<String, Object> readHashMap(File file) throws Exception {
+        checkReadFile(file); // using a helper to make this cleaner
 
-        HashMap<String, String> hMap = new HashMap<>();
+        HashMap<String, Object> hMap = new HashMap<>();
 
         JsonObject json;
         try (FileReader fileReader = new FileReader(file)) {
@@ -188,7 +162,7 @@ public class JsonIO {
         }
 
         for (Map.Entry<String, Object> entry : json.entrySet()) {
-            hMap.put(entry.getKey(), entry.getValue().toString());
+            hMap.put(entry.getKey(), entry.getValue());
         }
         return hMap;
     } // readHashMap()
@@ -200,11 +174,11 @@ public class JsonIO {
      * 
      * @param file File to write. Can handle missing {@code .json} extension. Will
      *             create the file.
-     * @param hMap A HashMap<String, String> to write to Json.
+     * @param hMap A HashMap<String, Object> to write to Json.
      * @throws IllegalArgumentException If hMap or file is empty/null
      * @throws Exception                If the file directories do not exsist.
      */
-    public static void writeHashMap(File file, HashMap<String, String> hMap) throws Exception {
+    public static void writeHashMap(File file, HashMap<String, Object> hMap) throws Exception {
         if (hMap == null || hMap.isEmpty()) {
             throw new IllegalArgumentException("HashMap cannot be null or empty");
         }
@@ -218,7 +192,7 @@ public class JsonIO {
         // end of checks...
 
         JsonObject json = new JsonObject();
-        for (Map.Entry<String, String> entry : hMap.entrySet()) {
+        for (Map.Entry<String, Object> entry : hMap.entrySet()) {
             json.put(entry.getKey(), entry.getValue());
         }
 
@@ -233,4 +207,22 @@ public class JsonIO {
         }
     } // writeHasMap()
 
-} // Class
+    /// /// /// Helpers
+
+    private static void checkReadFile(File file) throws Exception {
+        if (!file.exists()) {
+            throw new InvalidObjectException("File path is not a valid .json path: " + file.toPath().toString());
+        }
+        if (!file.isFile()) { // Check if it's actually a file (not a directory)
+            throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
+        }
+        if (file.length() == 0) { // Check if file has content (optional, depending on your needs)
+            throw new IllegalArgumentException("File is empty: " + file.getAbsolutePath());
+        }
+        if (!file.getName().toLowerCase().endsWith(".json")) { // appends the `.json` extension if needed
+            file = file.toPath().getParent().resolve(
+                    file.toPath().getFileName() + ".json").toFile();
+        }
+    }
+}
+// Class

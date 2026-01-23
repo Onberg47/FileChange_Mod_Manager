@@ -8,11 +8,11 @@ import gui.forms.FormQuestion;
 import gui.forms.QuestionDefinitions;
 import gui.navigator.AppNavigator;
 import gui.state.AppState;
-import gui.util.GUIUtils;
 import gui.util.IconLoader;
 import gui.util.IconLoader.ICONS;
 import core.managers.GameManager;
 import core.objects.Game;
+import core.utils.MapUtil;
 
 import java.awt.Dimension;
 import java.nio.file.Path;
@@ -68,7 +68,7 @@ public class EditGameView extends FormView {
             }
         }
 
-        HashMap<String, String> gameData = (HashMap<String, String>) GUIUtils.toStringOnlyMap(game.toMap());
+        HashMap<String, String> gameData = (HashMap<String, String>) MapUtil.toStringOnlyMap(game.toMap());
 
         // Special handling for paths - convert to absolute if relative
         if (gameData.containsKey("installDirectory") && !gameData.get("installDirectory").isEmpty()) {
@@ -91,7 +91,7 @@ public class EditGameView extends FormView {
         if (!validateAndCollect())
             return;
 
-        answers = (HashMap<String, String>) GUIUtils.toStringOnlyMap(formPanel.getAnswers());
+        answers = (HashMap<String, String>) MapUtil.toStringOnlyMap(formPanel.getAnswers());
         try {
             // Update game from answers
             game.setFromMap(formPanel.getAnswers());
