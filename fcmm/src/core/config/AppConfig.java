@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import core.io.JsonIO;
+import core.utils.Logger;
 import core.utils.MapUtil;
 
 /**
@@ -22,7 +23,7 @@ public final class AppConfig {
     /// Core:
     // #region
 
-    private final String AppVersion = "4.0.2"; // Program's version
+    private final String AppVersion = "4.0.3"; // Program's version
 
     private static final Path configPath = defaultConfig.CONFIG_FILE_PATH;
 
@@ -238,12 +239,13 @@ public final class AppConfig {
      * Saves the current Config to the default config location
      */
     public void saveConfig() throws Exception {
+        Logger.getInstance().info(1, null, "Saved new config:\n" + instance.toString());
+
         // Ensure parent directories exist
         Path parent = configPath.getParent();
         if (parent != null && !Files.exists(parent)) {
             Files.createDirectories(parent);
         }
-
         JsonIO.writeHashMap(configPath.toFile(), instance.toMap());
     }
 

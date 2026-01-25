@@ -17,6 +17,47 @@ import core.interfaces.MapSerializable;
  * maintain concurrency.
  */
 public class AppPreferences implements MapSerializable {
+
+    /**
+     * Properties of all listed preferences.
+     */
+    public enum properties {
+        FS_LOCKS("FS_LOCK", "File-System locks", false),
+
+        TRASH_SIZE_WARNING("TRASH_SIZE_WARNING", "Trash size limit warning", "off"),
+        TRASH_SIZE_LIMIT("TRASH_SIZE_LIMIT", "Trash size limit", 100),
+        TRASH_DAYS_OLD("TRASH_DAYS_OLD", "Trash days old limit", 30);
+
+        ///
+
+        private String key; // The key written to the Map
+        private String name; // User-facing display name
+        private Object defaultValue;
+
+        private properties(String key, String name, Object defaultValue) {
+            this.key = key;
+            this.name = name;
+            this.defaultValue = defaultValue;
+        }
+
+        public String key() {
+            return this.key;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public Object getDefaultValue() {
+            return this.defaultValue;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
+    } // enum
+
     private Map<String, Object> preferences = new HashMap<>();
 
     public AppPreferences() {
@@ -70,11 +111,21 @@ public class AppPreferences implements MapSerializable {
         preferences.put(key, value);
     }
 
+    public Object getOrDefault(String key, String defaultValue) {
+        Object value = preferences.get(key);
+        return value instanceof Object ? value : defaultValue;
+    }
+
     public boolean getAsBoolean(String key, boolean defaultValue) {
         Object value = preferences.get(key);
         return value instanceof Boolean ? (Boolean) value : defaultValue;
     }
 
+    /**
+     * If the key is linked to a String Object, then it will return that value.<br>
+     * <br>
+     * This is NOT a toString() converstion!
+     */
     public String getAsString(String key, String defaultValue) {
         Object value = preferences.get(key);
         return value instanceof String ? (String) value : defaultValue;

@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+import core.config.AppConfig;
+import core.config.AppPreferences.properties;
+
 /**
  * @since v4.0.1
  */
@@ -41,17 +44,20 @@ public class DirectoryLocker {
             return false;
         }
 
-        try {
-            // Layer 2: File system lock
-            boolean acquired = acquireFileSystemLock();
-            if (acquired) {
-                activeLocks.put(lockDir, this);
+        if (AppConfig.getInstance().preferences.getAsBoolean(properties.FS_LOCKS.key(), (boolean) properties.FS_LOCKS.getDefaultValue())) {
+            try {
+                // Layer 2: File system lock
+                boolean acquired = acquireFileSystemLock();
+                if (acquired) {
+                    activeLocks.put(lockDir, this);
+                }
+                return acquired;
+            } catch (Exception e) {
+                jvmLock.unlock();
+                return false;
             }
-            return acquired;
-        } catch (Exception e) {
-            jvmLock.unlock();
-            return false;
-        }
+        } else
+            return true;
     }
 
     private boolean acquireFileSystemLock() {

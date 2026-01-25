@@ -16,6 +16,7 @@ import gui.util.IconLoader.ICONS;
 import javax.swing.*;
 
 import core.config.AppConfig;
+import core.config.AppPreferences.properties;
 import core.utils.Logger;
 import core.utils.TrashUtil;
 
@@ -122,9 +123,13 @@ public class App {
         int result = JOptionPane.showConfirmDialog(
                 mainFrame,
                 "Permanently delete all files in trash older than "
-                        + AppConfig.getInstance().preferences.getAsString("TRASH_DAYS_OLD", "30")
+                        + AppConfig.getInstance().preferences.getOrDefault(
+                                properties.TRASH_DAYS_OLD.key(),
+                                properties.TRASH_DAYS_OLD.getDefaultValue().toString())
                         + " days and trim to under "
-                        + AppConfig.getInstance().preferences.getAsString("TRASH_SIZE_LIMIT", "100")
+                        + AppConfig.getInstance().preferences.getOrDefault(
+                                properties.TRASH_SIZE_LIMIT.key(),
+                                properties.TRASH_SIZE_LIMIT.getDefaultValue().toString())
                         + "MB?",
                 "Clean Trash",
                 JOptionPane.YES_NO_OPTION,

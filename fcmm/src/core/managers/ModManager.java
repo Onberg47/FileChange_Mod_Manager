@@ -219,7 +219,7 @@ public class ModManager {
         final Path storedDir = game.getStoreDirectory().resolve(modId);
 
         log.info(0, "📦 Attempting to deploy Mod " + modId + "...");
-        if (!LockManager.lockTempDir(config.getTempDir()))
+        if (!LockManager.lockTempDir(tempDir))
             throw new Exception("Could not lock temporary directory");
         try {
 
@@ -274,7 +274,7 @@ public class ModManager {
         } catch (Exception e) {
             throw new Exception("Fatal Error!\n" + e.getMessage() + "\nTemp files remain for review/recovery.", e);
         } finally {
-            LockManager.unlockTempDir(config.getTempDir());
+            LockManager.unlockTempDir(tempDir);
         }
     } // deployMod()
 
@@ -286,7 +286,7 @@ public class ModManager {
      * @param modId The ID of the Mod to be removed.
      * @see Doc/diagrams/ModFile_trash_logic.png in Project for logic-breakdown.
      */
-    public void trashMod(final String modId) throws Exception {
+    public void disableMod(final String modId) throws Exception {
         /// /// 1. Find the Mod's manifest from it's ID and read it.
         log.info(0, "🗑 Trashing mod: " + modId + "...");
         ModManifest manifest;
@@ -470,7 +470,7 @@ public class ModManager {
                     // Passes the updated (re-ordered) version from the GameState.
                 } else {
                     // log.logEntry("Trashing disabled mod: " + mod.getId());
-                    trashMod(mod.getId());
+                    disableMod(mod.getId());
                 }
                 i++;
                 log.info(0, "\n" + Logger.progressBar(i, changeMax));
@@ -502,7 +502,7 @@ public class ModManager {
         /// Trash old if was installed
         if (gameState.containsMod(modId)) {
             loadOrder = gameState.getLoadOrder(modId);
-            trashMod(modId);
+            disableMod(modId);
         }
 
         /// Write file with changes
@@ -536,7 +536,7 @@ public class ModManager {
         /// Trash if was installed.
         if (gameState.containsMod(modId)) {
             loadOrder = gameState.getLoadOrder(modId);
-            trashMod(modId);
+            disableMod(modId);
         }
 
         /// Compile new Manifest.
@@ -945,15 +945,18 @@ public class ModManager {
      * 
      * @throws Exception
      */
-    public void trashAll() throws Exception {
-        // trash them in load order (from 0) to reduce total file remove/restore
-        // operations. Instead the highest priority (true file owners) are removed last
-        // and only then are there file changes.
-        if (gameState.getDeployedMods() == null || gameState.getDeployedMods().isEmpty())
-            return;
+    public void disableAllMods() throws Exception {
+        if (!LockManager.lockDirectory(game.getId(), game.getInstallDirectory()))
+            throw new InaccessibleObjectException("Game directory is locked by another process");
+        try {
+            if (gameState.getDeployedMods() == null || gameState.getDeployedMods().isEmpty())
+                return;
 
-        for (int i = 0; i < this.gameState.getDeployedMods().size(); i++) {
-            this.trashMod(this.gameState.getDeployedMods().get(i).getId());
+            while (gameState.getDeployedMods().size() > 0) {
+                this.disableMod(gameState.getDeployedMods().getFirst().getId());
+            }
+        } finally {
+            LockManager.unlockDirectory(game.getId());
         }
     } // trashAll()
 

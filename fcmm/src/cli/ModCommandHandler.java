@@ -67,9 +67,9 @@ public class ModCommandHandler {
 
     private void removeMod() throws Exception {
         if (cli.hasFlag("all"))
-            manager.trashAll();
+            manager.disableAllMods();
         else
-            manager.trashMod(
+            manager.disableMod(
                     cli.getRequired("id"));
     }
 

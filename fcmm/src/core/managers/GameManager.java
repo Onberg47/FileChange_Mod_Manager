@@ -145,7 +145,7 @@ public class GameManager {
             ModManager manager = new ModManager(game);
 
             log.info(1, "Trashing Enabled Mods if present...");
-            manager.trashAll();
+            manager.disableAllMods();
 
             log.info(1, "Trashing Disabled Mods if present...");
             if (game.getStoreDirectory().toFile().list().length > 0) {

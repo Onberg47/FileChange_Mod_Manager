@@ -11,6 +11,8 @@ import gui.util.IconLoader;
 import gui.util.IconLoader.ICONS;
 import gui.util.ToastNotification;
 import core.config.AppConfig;
+//import core.config.AppPreferences;
+import core.config.AppPreferences.properties;
 import core.utils.Logger;
 import core.utils.TrashUtil;
 
@@ -80,11 +82,14 @@ public class SettingsView extends FormView {
         try {
             HashMap<String, Object> map = (HashMap<String, Object>) formPanel.getAnswers();
 
-            config.preferences.set("TRASH_SIZE_LIMIT", maxSizeSpinner.getValue());
-            config.preferences.set("TRASH_DAYS_OLD", daysToKeepSpinner.getValue());
+            config.preferences.set(properties.TRASH_SIZE_LIMIT.key(), maxSizeSpinner.getValue());
+            config.preferences.set(properties.TRASH_DAYS_OLD.key(), daysToKeepSpinner.getValue());
 
-            // TODO rather store the index of the value or use an enum
-            config.preferences.set("TRASH_SIZE_WARNING", map.get(AppConfig.prefsPrefix + "TRASH_SIZE_WARNING"));
+            // Get the index of the value, not the raw value.
+            String key = AppConfig.prefsPrefix + properties.TRASH_SIZE_WARNING.key();
+            List<String> options = List.of((String[]) getQuestionByKey(key).getDefaultValue());
+            config.preferences.set(
+                    properties.TRASH_SIZE_WARNING.key(), options.indexOf(map.get(key)));
 
             config.updateAndSaveConfig(map);
             ToastNotification.showNotification(navigator.getMainFrame(), "Settings saved successfully!");
@@ -140,7 +145,7 @@ public class SettingsView extends FormView {
 
         gbc.gridx = 1;
         maxSizeSpinner = new JSpinner(new SpinnerNumberModel(
-                AppConfig.getInstance().preferences.getAsInt("TRASH_SIZE_LIMIT", 100), 10, 10000, 10));
+                AppConfig.getInstance().preferences.getAsInt(properties.TRASH_SIZE_LIMIT.key(), 100), 10, 10000, 10));
         maxSizeSpinner.addChangeListener(e -> updateTrashSize());
         trashPanel.add(maxSizeSpinner, gbc);
 
@@ -150,7 +155,8 @@ public class SettingsView extends FormView {
 
         gbc.gridx = 1;
         daysToKeepSpinner = new JSpinner(
-                new SpinnerNumberModel(AppConfig.getInstance().preferences.getAsInt("TRASH_DAYS_OLD", 30), 1, 365, 1));
+                new SpinnerNumberModel(
+                        AppConfig.getInstance().preferences.getAsInt(properties.TRASH_DAYS_OLD.key(), 30), 1, 365, 1));
         trashPanel.add(daysToKeepSpinner, gbc);
 
         // Action buttons
