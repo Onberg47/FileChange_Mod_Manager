@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import core.interfaces.MapSerializable;
+import core.utils.Logger;
 
 /**
  * Represents a Mod.JSON file for tracking contents and metadata of a Mod.
@@ -55,7 +56,7 @@ public abstract class ModMetadata implements MapSerializable {
             this.key = key;
         }
 
-        public String key(){
+        public String key() {
             return this.key;
         }
     } // JsonFields enum
@@ -144,14 +145,21 @@ public abstract class ModMetadata implements MapSerializable {
         if (map.containsKey(Keys.GAME_ID.key))
             this.setGameId((String) map.get(Keys.GAME_ID.key));
 
+        if (map.containsKey(Keys.VERSION.key))
+            this.setVersion((String) map.get(Keys.VERSION.key));
+
+        if (map.containsKey(Keys.LOAD_ORDER.key)) {
+            try {
+                this.setLoadOrder(Integer.parseInt(map.get(Mod.Keys.LOAD_ORDER.key).toString()));
+            } catch (ClassCastException e) {
+                Logger.getInstance().error("Casting error, failed to set LoadOrder", e);
+            }
+        }
         if (map.containsKey(Keys.NAME.key))
             this.setName((String) map.get(Keys.NAME.key));
 
         if (map.containsKey(Keys.DESCRIPTION.key))
             this.setDescription((String) map.get(Keys.DESCRIPTION.key));
-
-        if (map.containsKey(Keys.VERSION.key))
-            this.setVersion((String) map.get(Keys.VERSION.key));
 
         if (map.containsKey(Keys.DOWNLOAD_SOURCE.key))
             this.setDownloadSource((String) map.get(Keys.DOWNLOAD_SOURCE.key));
@@ -162,13 +170,24 @@ public abstract class ModMetadata implements MapSerializable {
         if (map.containsKey(Keys.DOWNLOAD_DATE.key))
             this.setDownloadDate(LocalDateTime.parse(map.get(Keys.DOWNLOAD_DATE.key).toString()));
 
-        if (map.containsKey(Keys.LOAD_ORDER.key)) {
+        if (map.containsKey(Keys.TAGS.key)) {
             try {
-                this.setLoadOrder(Integer.parseInt(map.get(Mod.Keys.LOAD_ORDER.key).toString()));
+                Object rawValue = map.get(Keys.TAGS.key);
+                if (rawValue != null && rawValue instanceof Map) {
+                    Map<?, ?> rawList = (Map<?, ?>) rawValue;
+                    Set<String> set = new HashSet<>();
+                    for (Object key : rawList.keySet()) {
+                        if (key instanceof String) {
+                            set.add(rawList.get(key.toString()).toString());
+                        }
+                    }
+                    this.setTagSet(set);
+                }
             } catch (ClassCastException e) {
-                System.err.println("Casting error, failed to set LoadOrder. " + e.getMessage());
+                Logger.getInstance().error("Casting error, failed to set Tags", e);
             }
         }
+
         return this;
     } // setFromMap()
 
@@ -187,6 +206,8 @@ public abstract class ModMetadata implements MapSerializable {
         map.put(Keys.DOWNLOAD_DATE.key, this.getDownloadDate().toString());
         map.put(Keys.DOWNLOAD_SOURCE.key, this.getDownloadSource());
         map.put(Keys.DOWNLOAD_LINK.key, this.getDownloadLink());
+
+        map.put(Keys.TAGS.key, this.getTagSet());
 
         return map;
     } // toMap()

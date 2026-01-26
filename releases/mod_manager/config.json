@@ -1,1 +1,1 @@
-{"preferences":{},"MANAGER_DIR":".mod_manager","GAME_DIR":"mod_manager\\games","TRASH_DIR":"mod_manager\\.temp\\trash","DEFAULT_MOD_DIR":"E:\\Mods\\#_FCMM","TEMP_DIR":"mod_manager\\.temp","APP_VERSION":"4.0.2","LOG_DIR":"mod_manager\\logs"}
+{"preferences":{"TRASH_DAYS_OLD":10,"TRASH_SIZE_LIMIT":50,"TRASH_SIZE_WARNING":0},"MANAGER_DIR":".mod_manager","GAME_DIR":"mod_manager\\games","TRASH_DIR":"mod_manager\\.temp\\trash","DEFAULT_MOD_DIR":"E:\\Mods\\#_FCMM","TEMP_DIR":"mod_manager\\.temp","APP_VERSION":"4.0.2","LOG_DIR":"mod_manager\\logs"}

@@ -10,6 +10,7 @@ import core.objects.Mod;
 import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.nio.file.Path;
 
 /**
  * GUI state instance.
@@ -19,9 +20,13 @@ import java.beans.PropertyChangeSupport;
 public class AppState {
     private static AppState instance;
 
+    // Essential
     private Game currentGame;
     private Mod currentMod;
-    private Color themeColor;
+
+    // Non-essential
+    private Color themeColor; // for dynamic themes (not in use)
+    private Path lastPickedDir = null; // For file/directory pickers to remember the last picked directory.
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -47,6 +52,8 @@ public class AppState {
         pcs.firePropertyChange("currentMod", old, mod);
     }
 
+    /// Non-essnetial
+
     public Color getThemeColor() {
         return themeColor;
     }
@@ -55,6 +62,16 @@ public class AppState {
         Color old = this.themeColor;
         this.themeColor = colorPalette;
         pcs.firePropertyChange("colorPalette", old, colorPalette);
+    }
+
+    public Path getLastPickedDir() {
+        return lastPickedDir;
+    }
+
+    public void setLastPickedDir(Path lastPickedDir) {
+        Path old = this.lastPickedDir;
+        this.lastPickedDir = lastPickedDir;
+        pcs.firePropertyChange("lastPickedDir", old, lastPickedDir);
     }
 
     /// /// /// Property Change Support /// /// ///

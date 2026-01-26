@@ -5,10 +5,14 @@
 package gui.components;
 
 import gui.forms.FormQuestion;
+import gui.state.AppState;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 /**
@@ -155,6 +159,14 @@ public class QuestionCard extends JPanel {
         browseButton.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
 
+            // get the last picked directory and ensure valid.
+            Path dir = AppState.getInstance().getLastPickedDir();
+            if (dir == null || !Files.exists(dir)) // null check to avoid error from checking if null path exists.
+                dir = null;
+            else if (!Files.isDirectory(dir))
+                dir = dir.getParent();
+            chooser.setCurrentDirectory(dir == null ? null : dir.toFile());
+
             if (question.getType() == FormQuestion.QuestionType.DIRECTORY_CHOOSER) {
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 chooser.setDialogTitle("Select Directory");
@@ -165,6 +177,7 @@ public class QuestionCard extends JPanel {
 
             if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 pathField.setText(chooser.getSelectedFile().getAbsolutePath());
+                AppState.getInstance().setLastPickedDir(chooser.getSelectedFile().toPath().toAbsolutePath());
             }
         });
 
@@ -318,6 +331,7 @@ public class QuestionCard extends JPanel {
 
     /// /// /// File Transfer /// /// ///
 
+    // TODO does not work on Windows 11, reason unknown
     /**
      * Custom TransferHandler for file/directory dropping.
      */

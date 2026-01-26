@@ -1,5 +1,7 @@
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import core.io.JsonIO;
 import core.managers.ModManager;
@@ -42,18 +44,16 @@ public class JsonTest {
 
         /// /// ///
 
-        Path path = Path.of("fcmm/test/files/manifest.json");
-        ModManifest man = (ModManifest) JsonIO.read(path.toFile(), null);
+        /// TODO Make this into a block-test
+        Path manPath = Path.of("fcmm/test/files/manifest.json");
+        Path flPath = Path.of("fcmm/test/files/fileLineage.json");
+        Path gsPath = Path.of("fcmm/test/files/game_state.json");
+
+        ModManifest man = (ModManifest) JsonIO.read(manPath.toFile(), null);
         System.out.println("Manifest: " + man.toString());
 
         man.setFromMap(mod.toMap());
         System.out.println("\nModded Manifest: " + man.toString());
-
-        /// TODO Make this into a block-test
-
-        Path manPath = Path.of("fcmm/test/files/manifest.json");
-        Path flPath = Path.of("fcmm/test/files/fileLineage.json");
-        Path gsPath = Path.of("fcmm/test/files/game_state.json");
 
         FileLineage fileLineage = (FileLineage) JsonIO.read(flPath.toFile(), null);
         GameState gameState = (GameState) JsonIO.read(gsPath.toFile(), null);
@@ -65,7 +65,19 @@ public class JsonTest {
 
         gameState.appendModOnly(manifest.getAsMod());
         System.out.println("\nTest Sorted: " + gameState.toString());
-        JsonIO.write(fileLineage, path.getParent().resolve("tmp").toFile());
+        JsonIO.write(fileLineage, manPath.getParent().resolve("fileLineage_result").toFile());
+
+        ///
+
+        Set<String> tags = new HashSet<>();
+        tags.add("test");
+        tags.add("manifest");
+        tags.add("fcmm");
+        man.setTagSet(tags);
+        System.out.println("\nUpdated manifest: " + man.toString());
+        JsonIO.write(man, manPath.getParent().resolve("manifest_result").toFile());
+
+        ///
 
         List<Mod> modLs = modManager.getAllMods();
         for (Mod mod2 : modLs) {
