@@ -12,6 +12,7 @@ import gui.util.IconLoader;
 import gui.util.IconLoader.ICONS;
 import core.managers.ModManager;
 import core.objects.Mod;
+import core.objects.ModMetadata;
 import core.utils.MapUtil;
 
 import java.awt.Dimension;
@@ -75,8 +76,12 @@ public class EditModView extends FormView {
                 mod = null;
             }
         }
-
         HashMap<String, String> modData = (HashMap<String, String>) MapUtil.toStringOnlyMap(mod.toMap());
+
+        // Format Tags to not have brackets and add spaces.
+        String tagStr = modData.get(ModMetadata.Keys.TAGS.key()).toString();
+        modData.put(ModMetadata.Keys.TAGS.key(), tagStr.substring(1, tagStr.length() - 1).replace(",", ", "));
+
         formPanel.setAnswers(modData);
         submitButton.setEnabled(true);
         setTitle("Edit Mod: " + mod.getName());

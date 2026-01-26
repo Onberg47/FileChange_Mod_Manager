@@ -1,10 +1,13 @@
 package core.objects;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import core.interfaces.MapSerializable;
 import core.utils.Logger;
@@ -76,7 +79,7 @@ public abstract class ModMetadata implements MapSerializable {
         this.downloadSource = "unkown";
         this.downloadDate = LocalDateTime.now(); // Set to current date/time
         this.downloadLink = "No link provided.";
-        this.tagSet = new HashSet<>(); // TODO revise this
+        this.tagSet = new HashSet<>();
     }
 
     /**
@@ -172,19 +175,9 @@ public abstract class ModMetadata implements MapSerializable {
 
         if (map.containsKey(Keys.TAGS.key)) {
             try {
-                Object rawValue = map.get(Keys.TAGS.key);
-                if (rawValue != null && rawValue instanceof Map) {
-                    Map<?, ?> rawList = (Map<?, ?>) rawValue;
-                    Set<String> set = new HashSet<>();
-                    for (Object key : rawList.keySet()) {
-                        if (key instanceof String) {
-                            set.add(rawList.get(key.toString()).toString());
-                        }
-                    }
-                    this.setTagSet(set);
-                }
+                this.setTagSet(TagParser.parseTags(map.get(Keys.TAGS.key)));
             } catch (ClassCastException e) {
-                Logger.getInstance().error("Casting error, failed to set Tags", e);
+                Logger.getInstance().error("Parsing error, failed to set Tags", e);
             }
         }
 
@@ -337,6 +330,42 @@ public abstract class ModMetadata implements MapSerializable {
     } // generateModId()
 
     /**
+     * For parsing Tag input
+     */
+    private class TagParser {
+
+        public static Set<String> parseTags(Object input) {
+            if (input == null) {
+                return Collections.emptySet();
+            }
+
+            String inputString = input.toString().trim().toLowerCase();
+
+            // Handle empty input
+            if (inputString.isEmpty()) {
+                return Collections.emptySet();
+            }
+
+            // Remove surrounding brackets if present
+            if (inputString.startsWith("[") && inputString.endsWith("]")) {
+                inputString = inputString.substring(1, inputString.length() - 1);
+            }
+
+            // Split by comma and process each tag
+            return Arrays.stream(inputString.split(","))
+                    .map(String::trim) // Remove leading/trailing whitespace from each tag
+                    .filter(tag -> !tag.isEmpty()) // Remove empty tags
+                    .map(TagParser::normalizeTag) // Remove internal spaces
+                    .collect(Collectors.toSet());
+        }
+
+        private static String normalizeTag(String tag) {
+            // Remove all internal whitespace characters
+            return tag.replaceAll("\\s+", "_");
+        }
+    }
+
+    /**
      * Uses the Mod's Name, and Version (hashcode) Ensure all feilds are
      * defined first otherwise default values are used.
      * 
@@ -359,9 +388,9 @@ public abstract class ModMetadata implements MapSerializable {
     @Override
     public String toString() {
         return String.format(
-                "Mod Details:\nID: %s | Game ID: %s\n\tVersion: %s\n\tDownload Source: %s\n\tName: %s | Description: %s\n\tLoad Order: %d\n\tDownload Date: %s | Download Link: %s",
+                "Mod Details:\nID: %s | Game ID: %s\n\tVersion: %s\n\tDownload Source: %s\n\tName: %s | Description: %s\n\tLoad Order: %d\n\tDownload Date: %s | Download Link: %s\n\tTags: %s",
                 getId(), gameId, version, downloadSource, name, description, loadOrder,
-                downloadDate.toString(), downloadLink);
+                downloadDate.toString(), downloadLink, tagSet.toString());
     } // toString()
 
 } // Class
