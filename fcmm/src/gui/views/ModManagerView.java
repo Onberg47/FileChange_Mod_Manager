@@ -17,6 +17,8 @@ import gui.util.IconLoader.ICONS;
 //import gui.util.ColorExtractor;
 import gui.components.ModCard;
 import gui.components.DividerCard;
+import core.config.AppConfig;
+import core.config.AppPreferences.properties;
 import core.managers.ModManager;
 import core.objects.GameState;
 import core.objects.Mod;
@@ -250,81 +252,104 @@ public class ModManagerView extends BaseView {
      * filtering.
      */
     private void loadMods() {
-        try {
-            // Load all mods for this game. No need to reload.
-            if (allMods == null) {
-                // Async / background loading of all Mods when needed.
-                SwingWorker<Void, List<Mod>> worker = new SwingWorker<>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        Logger.getInstance().info(0, null, "fetching all mods...");
-                        allMods = manager.getAllMods();
-                        publish(allMods);
-                        return null;
-                    }
+        // Load all mods for this game. No need to reload.
+        if (allMods == null) {
+            // Async / background loading of all Mods when needed.
+            SwingWorker<Void, List<Mod>> worker = new SwingWorker<>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    Logger.getInstance().info(0, null, "fetching all mods...");
+                    allMods = manager.getAllMods();
+                    publish(allMods);
+                    return null;
+                }
 
-                    @Override
-                    protected void process(List<List<Mod>> chunks) {
-                        Logger.getInstance().info(0, null, "mods retrieved");
-                        allMods.sort(Comparator.comparingInt(Mod::getLoadOrder));
-                        updateEnabledModsOrder(); // re-order for consistency when dragging.
-                        loadMods();
-                    }
-                };
-                worker.execute();
-                // allMods = null;
-                modListPanel.add(new DividerCard("Loading...", Color.GRAY)); // show while loading.
-                return;
+                @Override
+                protected void process(List<List<Mod>> chunks) {
+                    Logger.getInstance().info(0, null, "mods retrieved");
+                    allMods.sort(Comparator.comparingInt(Mod::getLoadOrder));
+                    loadMods();
+                }
+            };
+            worker.execute();
+            // allMods = null;
+            modListPanel.add(new DividerCard("Loading...", Color.GRAY)); // show while loading.
+            return; // don't procceed further because of loading
+        }
+
+        SwingWorker<Void, List<Mod>> worker = new SwingWorker<>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                try {
+                    /// Filters
+                    String statusFilter = (String) filterStatusComboBox.getSelectedItem();
+                    String nameFilter = filterNameTextField.getText().toLowerCase();
+                    String tagsFilter = filterTagsTextField.getText().toLowerCase();
+                    // Parse tags
+                    Set<String> tagFilters = Arrays.stream(tagsFilter.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .collect(Collectors.toSet());
+
+                    // Logging for future testing.
+                    Logger.getInstance().info(0, null,
+                            "Filteres aplied: \n\tStatus: " + statusFilter
+                                    + "\n\tName: " + nameFilter
+                                    + "\n\tTags: " + tagFilters.toString());
+
+                    /// Separate enabled/disabled
+                    enabledMods = allMods.stream()
+                            .filter(Mod::isEnabled)
+                            .sorted(Comparator.comparingInt(Mod::getLoadOrder))
+                            .collect(Collectors.toList());
+
+                    disabledMods = allMods.stream()
+                            .filter(m -> !m.isEnabled())
+                            .sorted(Comparator.comparing(Mod::getName))
+                            .collect(Collectors.toList());
+
+                    allMods.clear(); // recombine allMods to now be made of the pre-sorted sections.
+                    allMods.addAll(enabledMods);
+                    allMods.addAll(disabledMods);
+
+                    /// Filter enabled mods
+                    enabledMods = enabledMods.stream()
+                            .filter(mod -> matchesStatus(mod, statusFilter))
+                            .filter(mod -> matchesName(mod, nameFilter))
+                            .filter(mod -> matchesTags(mod, tagFilters))
+                            .collect(Collectors.toList());
+                    disabledMods = disabledMods.stream()
+                            .filter(mod -> matchesStatus(mod, statusFilter))
+                            .filter(mod -> matchesName(mod, nameFilter))
+                            .filter(mod -> matchesTags(mod, tagFilters))
+                            .collect(Collectors.toList());
+
+                    publish(allMods, enabledMods, disabledMods); // required!
+
+                } catch (Exception e) {
+                    showError("Failed to load mods: " + e.getMessage(), e);
+                    enabledMods = new ArrayList<>();
+                    disabledMods = new ArrayList<>();
+                }
+                return null;
             }
 
-            /// Filters
-            String statusFilter = (String) filterStatusComboBox.getSelectedItem();
-            String nameFilter = filterNameTextField.getText().toLowerCase();
-            String tagsFilter = filterTagsTextField.getText().toLowerCase();
-            // Parse tags
-            Set<String> tagFilters = Arrays.stream(tagsFilter.split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toSet());
+            @Override
+            protected void process(List<List<Mod>> chunks) {
+                displayModList();
+            }
 
-            // Logging for future testing.
-            Logger.getInstance().info(0, null,
-                    "Filteres aplied: \n\tStatus: " + statusFilter
-                            + "\n\tName: " + nameFilter
-                            + "\n\tTags: " + tagFilters.toString());
-
-            /// Filter enabled mods
-            List<Mod> modLs = allMods.stream()
-                    .filter(mod -> matchesStatus(mod, statusFilter))
-                    .filter(mod -> matchesName(mod, nameFilter))
-                    .filter(mod -> matchesTags(mod, tagFilters))
-                    .collect(Collectors.toList());
-
-            /// Separate enabled/disabled
-            enabledMods = modLs.stream()
-                    .filter(Mod::isEnabled)
-                    .sorted(Comparator.comparingInt(Mod::getLoadOrder))
-                    .collect(Collectors.toList());
-
-            disabledMods = modLs.stream()
-                    .filter(m -> !m.isEnabled())
-                    .sorted(Comparator.comparing(Mod::getName))
-                    .collect(Collectors.toList());
-
-        } catch (Exception e) {
-            showError("Failed to load mods: " + e.getMessage(), e);
-            enabledMods = new ArrayList<>();
-            disabledMods = new ArrayList<>();
-        }
-        displayModList();
-    }
+        };
+        worker.execute();
+    } // loadMods()
 
     /**
      * Displays the final mod lists.
      */
     private void displayModList() {
-        modListPanel.removeAll();
         int scroll = modCardScrollPane.getVerticalScrollBar().getValue();
+        modListPanel.removeAll();
 
         // Add enabled mods section
         if (!enabledMods.isEmpty()) {
@@ -359,9 +384,9 @@ public class ModManagerView extends BaseView {
             modListPanel.add(noModsLabel);
         }
 
-        scrollTo(scroll);
         modListPanel.revalidate();
         modListPanel.repaint();
+        scrollTo(scroll);
     }
 
     private ModCard createModCard(Mod mod) {
@@ -402,8 +427,8 @@ public class ModManagerView extends BaseView {
 
             for (Mod modTemp : allMods) {
                 if (modTemp.getId().equals(mod.getId())) {
-                    allMods.add(allMods.indexOf(modTemp), mod);
-                    allMods.remove(modTemp);
+                    this.allMods.add(allMods.indexOf(modTemp), mod);
+                    this.allMods.remove(modTemp);
                     break;
                 }
             }
@@ -479,11 +504,8 @@ public class ModManagerView extends BaseView {
             Logger.getInstance().info(null, "\tDropped on: " + targetMod.getName());
 
             if (targetMod != null && !targetMod.getId().equals(draggedMod.getId())) {
-                // Move draggedMod to position before targetMod in allMods
-                moveDraggedMod(draggedMod, targetMod);
-
-                // Refresh display
-                loadMods();
+                moveDraggedMod(draggedMod, targetMod); // Move draggedMod to position before targetMod in allMods
+                loadMods(); // Refresh display
             }
         }
         draggedMod = null;
@@ -527,36 +549,64 @@ public class ModManagerView extends BaseView {
      * @param targetMod Target Mod to determine where to move to.
      */
     private void moveDraggedMod(Mod modToMove, Mod targetMod) {
-        allMods.remove(modToMove);
         int index = targetMod.getLoadOrder();
-
         modToMove.setEnabled(targetMod.isEnabled());
-        if (targetMod.isEnabled())
-            modToMove.setLoadOrder(index);
 
-        // ensure mod is added to the end is index is too large
-        if (index > allMods.size())
-            allMods.add(modToMove);
-        else
-            allMods.add(index, modToMove);
+        if (!AppConfig.getInstance().preferences.is(properties.NORMALISE_BY_GROUP)) {
 
-        Logger.getInstance().info(null, "Dragger Mod " + modToMove.getId() + " to [" + modToMove.isEnabled()
+            allMods.remove(modToMove);
+            index = allMods.indexOf(targetMod) + 1;
+            if (index < modToMove.getLoadOrder() && index > 0) // makes the swapping behavior directional.
+                index--;
+
+            modToMove.setEnabled(targetMod.isEnabled());
+            if (targetMod.isEnabled())
+                modToMove.setLoadOrder(index);
+
+            // ensure mod is added to the end is index is too large
+            if (index > allMods.size())
+                allMods.add(modToMove);
+            else
+                allMods.add(index, modToMove);
+            normaliseLoadOrder();
+        } else {
+            if (targetMod.isEnabled())
+                modToMove.setLoadOrder(index);
+        }
+
+        Logger.getInstance().info(0, null, "Dragger Mod " + modToMove.getId() + " to [" + modToMove.isEnabled()
                 + "] : " + modToMove.getLoadOrder());
-        updateEnabledModsOrder(); // must change load orders to take affect.
     }
 
     /**
      * Update all Enabled Mod loadOrders based on their current GUI ordering.
+     * This will enforces load orders are sequential, from 1 and have no duplicates.
      */
-    private void updateEnabledModsOrder() {
+    private void normaliseLoadOrder() {
         List<Mod> enabledModsList = allMods.stream()
                 .filter(Mod::isEnabled)
                 .collect(Collectors.toList());
 
-        for (int i = 0; i < enabledModsList.size(); i++) {
-            enabledModsList.get(i).setLoadOrder(i + 1);
+        if (AppConfig.getInstance().preferences.is(properties.NORMALISE_BY_GROUP)) {
+            // this allows duplicate loadorder values. All it does is ensure each group of
+            // duplicates is sequential. (1,2,3...) to avoid oddly-high numbers (1,2,8...)
+            int index = 0, groupCnt = 0;
+            for (int i = 0; i < enabledModsList.size(); i++) {
+
+                if (index != enabledModsList.get(i).getLoadOrder()) {
+                    groupCnt++;
+                    enabledModsList.get(i).setLoadOrder(groupCnt);
+                    index = enabledModsList.get(i).getLoadOrder();
+                } else
+                    enabledModsList.get(i).setLoadOrder(groupCnt);
+            }
+        } else {
+            // simply orders in sequence
+            for (int i = 0; i < enabledModsList.size(); i++) {
+                enabledModsList.get(i).setLoadOrder(i + 1);
+            }
         }
-    }
+    } // normaliseLoadOrder()
 
     /// /// /// Button Events /// /// ///
 
@@ -580,8 +630,12 @@ public class ModManagerView extends BaseView {
     private void applyChanges() {
         try {
             // Apply to currentGameState
+            normaliseLoadOrder(); // clean up load order values
+
             GameState gameState = new GameState();
-            gameState.setOrderedMods(enabledMods);
+            gameState.setOrderedMods(allMods.stream()
+                    .filter(Mod::isEnabled)
+                    .collect(Collectors.toList()));
 
             // Apply to Game
             showConsole();

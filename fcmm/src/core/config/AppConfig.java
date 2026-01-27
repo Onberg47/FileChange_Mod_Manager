@@ -23,7 +23,7 @@ public final class AppConfig {
     /// Core:
     // #region
 
-    private final String AppVersion = "4.0.3"; // Program's version
+    private final String AppVersion = "4.0.4"; // Program's version
 
     private static final Path configPath = defaultConfig.CONFIG_FILE_PATH;
 

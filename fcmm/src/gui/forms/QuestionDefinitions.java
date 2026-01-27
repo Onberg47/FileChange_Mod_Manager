@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import core.config.AppConfig;
+import core.config.AppPreferences.properties;
 import core.objects.Game;
 import core.objects.ModMetadata;
 
@@ -151,10 +152,17 @@ public class QuestionDefinitions {
                                                 .tooltip("Where to set store mods per a game by default")
                                                 .build(),
 
-                                FormQuestion.builder(AppConfig.prefsPrefix + "TRASH_SIZE_WARNING",
-                                                "(Normal) Trash size warning")
+                                FormQuestion.builder(AppConfig.prefsPrefix + properties.TRASH_SIZE_WARNING.key(),
+                                                "(Normal) " + properties.TRASH_SIZE_WARNING.getName())
                                                 .type(FormQuestion.QuestionType.COMBO_BOX)
                                                 .tooltip("What to do when the Trash directory reaches the max size limit")
+                                                .defaultValue(new String[] { "Off", "Log warning", "Prompt clean" })
+                                                .build(),
+
+                                FormQuestion.builder(AppConfig.prefsPrefix + properties.NORMALISE_BY_GROUP.key(),
+                                                "(Normal) " + properties.NORMALISE_BY_GROUP.getName())
+                                                .type(FormQuestion.QuestionType.CHECKBOX)
+                                                .tooltip("How to normalise Mod load orders.\nOff (default): will number mods sequentially with no duplicates.\nOn: Allows grouping through duplicate load orders")
                                                 .defaultValue(new String[] { "Off", "Log warning", "Prompt clean" })
                                                 .build(),
 

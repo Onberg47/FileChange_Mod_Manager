@@ -118,6 +118,20 @@
         </ul>
     </div>
     
+    <div class="Normalise Mods by Group">
+        <h3>Trash warning</h3>
+        <ul>
+            <li><span class="highlight">default (Off)</span> This will normalise all Mods sequentially, ensuring no duplicate load orders and are counting from 1 up with no missing numbers. <span class="highlight">[0,4,5,12,100] -> [1,2,3,4,5]</span><br>
+                This works best with drag-to-order instead of the load spinner. Will only normalise on commit and drag.</li>
+            <li><span class="highlight">(On)</span> This allows duplicate lodd order values. It assumes that duplicates are *grouped* and simply ensures that group numbers are sequential. <span class="highlight">[1,1,1,4,8,8] -> [1,1,1,2,3,3]</span><br>
+                Drag-to-order will change to set load order to match where it was dropped. Will only normalise on commit.</li>
+        </ul>
+        <p>
+            What works best will depend on the specific game but it is recommended to set the default load order of mods by group and use groups when dealing with large-scale mod deployments that need a layered approach.
+            For loose/unrelated mods, rather use sequential.
+        </p>
+    </div>
+
     <div class="divider"></div>
     
     <h2>Advanced settings</h2>

@@ -80,7 +80,7 @@ public class EditModView extends FormView {
 
         // Format Tags to not have brackets and add spaces.
         String tagStr = modData.get(ModMetadata.Keys.TAGS.key()).toString();
-        modData.put(ModMetadata.Keys.TAGS.key(), tagStr.substring(1, tagStr.length() - 1).replace(",", ", "));
+        modData.put(ModMetadata.Keys.TAGS.key(), tagStr.substring(1, tagStr.length() - 1));
 
         formPanel.setAnswers(modData);
         submitButton.setEnabled(true);

@@ -24,6 +24,8 @@ public class AppPreferences implements MapSerializable {
     public enum properties {
         FS_LOCKS("FS_LOCK", "File-System locks", false),
 
+        NORMALISE_BY_GROUP("NORMALISE_BY_GROUP", "Normalise mods by groups", false),
+
         TRASH_SIZE_WARNING("TRASH_SIZE_WARNING", "Trash size limit warning", "off"),
         TRASH_SIZE_LIMIT("TRASH_SIZE_LIMIT", "Trash size limit", 100),
         TRASH_DAYS_OLD("TRASH_DAYS_OLD", "Trash days old limit", 30);
@@ -103,22 +105,23 @@ public class AppPreferences implements MapSerializable {
 
     /// /// /// Getters and Setters /// /// ///
 
-    public Object get(String key) {
-        return preferences.get(key);
+    public Object get(properties property) {
+        Object value = preferences.get(property.key);
+        return value instanceof Object ? value : property.defaultValue;
     }
 
-    public void set(String key, Object value) {
-        preferences.put(key, value);
-    }
-
-    public Object getOrDefault(String key, String defaultValue) {
+    public Object get(String key, String defaultValue) {
         Object value = preferences.get(key);
         return value instanceof Object ? value : defaultValue;
     }
 
-    public boolean getAsBoolean(String key, boolean defaultValue) {
-        Object value = preferences.get(key);
-        return value instanceof Boolean ? (Boolean) value : defaultValue;
+    public boolean is(properties property) {
+        Object value = preferences.get(property.key);
+        return value instanceof Boolean ? (boolean) value : (boolean) property.defaultValue;
+    }
+
+    public void set(String key, Object value) {
+        preferences.put(key, value);
     }
 
     /**
@@ -131,14 +134,13 @@ public class AppPreferences implements MapSerializable {
         return value instanceof String ? (String) value : defaultValue;
     }
 
-    public int getAsInt(String key, int defaultValue) {
-        Object value = preferences.get(key);
-        return value instanceof Number ? ((Number) value).intValue() : defaultValue;
+    public Number getAsNumber(properties property) {
+        Object value = preferences.get(property.key);
+        return value instanceof Number ? (Number) value : (Number) property.defaultValue;
     }
 
-    public Number getAsNumber(String key, Number defaultValue) {
-        Object value = preferences.get(key);
-        return value instanceof Number ? (Number) value : defaultValue;
+    public int getAsInt(properties property) {
+        return getAsNumber(property).intValue();
     }
 
     ///

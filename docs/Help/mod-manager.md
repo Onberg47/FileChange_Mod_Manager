@@ -58,7 +58,7 @@ To use it, click and drag the ModCard you want to move on its drag handle and dr
 - The Mod being dragged will be outlined in yellow.
 - You can Enable/Disable Mods by dropping them in differet sections.
 - The direction you are dragging matters!
-- Dropping onto a divider will place it at the top position of that divider's sections.
+- Dropping onto a divider will place it at the top position of that divider's sections. Tip: Doing this with sequential normalising will also force mods to be normalised.
 - Dropping on the last enabled Mod will *push-up* the exsisting mod, placing the dropped Mod last
 - Dropping on white-space (spacers between cards) will cancel the move.
 

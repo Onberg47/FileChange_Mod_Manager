@@ -111,7 +111,7 @@ public class FormPanel extends JPanel {
                     // TODO clean this up
                 } else if (key.startsWith(AppConfig.prefsPrefix)){
                     key = key.replaceFirst(AppConfig.prefsPrefix, "");
-                    card.setValue(AppConfig.getInstance().preferences.getAsString(key, null));
+                    card.setValue(AppConfig.getInstance().preferences.get(key, null).toString());
 
                 }else {
                     card.clear();

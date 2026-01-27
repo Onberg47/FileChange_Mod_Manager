@@ -123,13 +123,9 @@ public class App {
         int result = JOptionPane.showConfirmDialog(
                 mainFrame,
                 "Permanently delete all files in trash older than "
-                        + AppConfig.getInstance().preferences.getOrDefault(
-                                properties.TRASH_DAYS_OLD.key(),
-                                properties.TRASH_DAYS_OLD.getDefaultValue().toString())
+                        + AppConfig.getInstance().preferences.get(properties.TRASH_DAYS_OLD).toString()
                         + " days and trim to under "
-                        + AppConfig.getInstance().preferences.getOrDefault(
-                                properties.TRASH_SIZE_LIMIT.key(),
-                                properties.TRASH_SIZE_LIMIT.getDefaultValue().toString())
+                        + AppConfig.getInstance().preferences.get(properties.TRASH_SIZE_LIMIT).toString()
                         + "MB?",
                 "Clean Trash",
                 JOptionPane.YES_NO_OPTION,

@@ -31,6 +31,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
@@ -91,6 +92,9 @@ public class SettingsView extends FormView {
             config.preferences.set(
                     properties.TRASH_SIZE_WARNING.key(), options.indexOf(map.get(key)));
 
+            key = AppConfig.prefsPrefix + properties.NORMALISE_BY_GROUP.key();
+            config.preferences.set(properties.NORMALISE_BY_GROUP.key(), map.get(key).equals("true"));
+
             config.updateAndSaveConfig(map);
             ToastNotification.showNotification(navigator.getMainFrame(), "Settings saved successfully!");
 
@@ -145,7 +149,7 @@ public class SettingsView extends FormView {
 
         gbc.gridx = 1;
         maxSizeSpinner = new JSpinner(new SpinnerNumberModel(
-                AppConfig.getInstance().preferences.getAsInt(properties.TRASH_SIZE_LIMIT.key(), 100), 10, 10000, 10));
+                AppConfig.getInstance().preferences.getAsInt(properties.TRASH_SIZE_LIMIT), 10, 10000, 10));
         maxSizeSpinner.addChangeListener(e -> updateTrashSize());
         trashPanel.add(maxSizeSpinner, gbc);
 
@@ -156,7 +160,7 @@ public class SettingsView extends FormView {
         gbc.gridx = 1;
         daysToKeepSpinner = new JSpinner(
                 new SpinnerNumberModel(
-                        AppConfig.getInstance().preferences.getAsInt(properties.TRASH_DAYS_OLD.key(), 30), 1, 365, 1));
+                        AppConfig.getInstance().preferences.getAsInt(properties.TRASH_DAYS_OLD), 1, 365, 1));
         trashPanel.add(daysToKeepSpinner, gbc);
 
         // Action buttons
@@ -235,23 +239,32 @@ public class SettingsView extends FormView {
             worker.execute();
 
         } catch (Exception e) {
-            showError("Failed to compile Mod: " + e.getMessage(), e);
+            showError("Failed to clean trash", e);
         } finally {
             finishConsole();
         }
-    }
+    } // cleanTrash()
 
     private void emptyTrash() {
-        showConsole();
-        try {
-            TrashUtil.emptyTrash();
-        } catch (Exception e) {
-            showError("Failed to compile Mod: " + e.getMessage(), e);
-        } finally {
-            updateTrashSize();
-            finishConsole();
+        int result = JOptionPane.showConfirmDialog(
+                navigator.getMainFrame(),
+                "Permanently delete ALL files in trash?",
+                "Empty Trash",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (result == JOptionPane.YES_OPTION) {
+            showConsole();
+            try {
+                TrashUtil.emptyTrash();
+            } catch (Exception e) {
+                showError("Failed to empty trash", e);
+            } finally {
+                updateTrashSize();
+                finishConsole();
+            }
         }
-    }
+    } // emptyTrash()
 
     private void openTrashFolder() {
         try {

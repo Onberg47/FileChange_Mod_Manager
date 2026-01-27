@@ -44,7 +44,7 @@ public class DirectoryLocker {
             return false;
         }
 
-        if (AppConfig.getInstance().preferences.getAsBoolean(properties.FS_LOCKS.key(), (boolean) properties.FS_LOCKS.getDefaultValue())) {
+        if (AppConfig.getInstance().preferences.is(properties.FS_LOCKS)) {
             try {
                 // Layer 2: File system lock
                 boolean acquired = acquireFileSystemLock();
