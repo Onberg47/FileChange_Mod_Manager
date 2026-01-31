@@ -25,6 +25,8 @@ public class DateUtil {
     // For display in GUI: Dec 13, 2024 7:26 PM
     private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a");
 
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a");
+
     // For JSON (ISO): 2024-12-13T19:26:00Z (keep this for serialization!)
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
@@ -47,8 +49,15 @@ public class DateUtil {
     /**
      * @return {@date Jan 13, 2026 1:10 pm}
      */
-    public static String getDisplayTimestamp(LocalDateTime time) {
+    public static String getDisplayTime(LocalDateTime time) {
         return time.format(DISPLAY_FORMATTER);
+    }
+
+    /**
+     * @return {@date Jan 13, 2026 1:10:12}
+     */
+    public static String getDisplayTimestamp(LocalDateTime time) {
+        return time.format(TIMESTAMP_FORMATTER);
     }
 
     /**

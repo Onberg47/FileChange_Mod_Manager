@@ -3,7 +3,7 @@ A Java program for managing Mods that require manual integration with the game f
 
 * **Want to use my program? Then skim-read this first: [User-manual](docs/Manual.md)**<br>
 
-* **Got any gneral questions? Check this first: [FAQ](docs/FAQ.md)**
+* **Got any general questions? Check this first: [FAQ](docs/FAQ.md)**
 
 <details>
 <summary>A personal side note:</summary>
@@ -23,7 +23,7 @@ The goal is to create a practical project for both real-world usage but also as 
 * #### 🔒 Safe by Design
     - Game deployment data is self-enclosed
     - All operations happen in temporary directories first
-    - Only finalizes after successful completion
+    - Only finalises after successful completion
     - Automatic backups of original game files
     - Nothing touches your game until everything is verified
     - Complete transaction rollback on failure possible
@@ -94,18 +94,18 @@ The goal is to create a practical project for both real-world usage but also as 
 
 ### CLI Usage:
 The CLI offers an interactive interface to perform all the core operations for managing Games and Mods.
-While this is fully capable, it lacks the bulk-operation (tempory GameState) handling that the GUI offers, simply because it would be too tedious for a CLI.
+While this is fully capable, it lacks the bulk-operation (temporary GameState) handling that the GUI offers, simply because it would be too tedious for a CLI.
 
-**See full coammnds here: [CLI Commands](docs/CLI_Commands.md)**
+**See full commands here: [CLI Commands](docs/CLI_Commands.md)**
 
 <br>
 
 ---
 # Behind the scenes...
 
-In the docs for this project, I have created diagrams to fully explain the logical steps taken for various key methods and archutecture designs.<br>
+In the docs for this project, I have created diagrams to fully explain the logical steps taken for various key methods and architecture designs.<br>
 
-Mods are split into two types: Regular Mods have less fields to be more lightweight for easier storage and more efficent usage when the GUI needs to fetch Mod data to display but still needs the Mod_Id for functioning.
+Mods are split into two types: Regular Mods have less fields to be more lightweight for easier storage and more efficient usage when the GUI needs to fetch Mod data to display but still needs the Mod_Id for functioning.
 ModManifests are a child Mod that has the additional functionality of tracking Files, which themselves are stored as ModFile instances, storing integrity data.
 
 ### File integrity and order of operations:

@@ -98,7 +98,7 @@ How a Mod is safely deployed to the at the logical level:
 4. Update the GameState.json, just add a new Mod entry. (`Mod` and `ModManifest` of different children of a `ModMetadata` class. A Mod is lighter, no file details. Used for GUI and other light processes. The ModManifest is only fully used for core Mod operations.)
 
 
-Of course, this doesn't really tell you how I do it. 😇 This next diagram is how step 2 works, the `copyModFile()` method that actually has the brains. Here's my digram for how that works:
+Of course, this doesn't really tell you how I do it. 😇 This next diagram is how step 2 works, the `copyModFile()` method that actually has the brains. Here's my diagram for how that works:
 
 ```mermaid
 %% Author Stephanos B
@@ -205,10 +205,10 @@ Key takeaways:
 ## Remove a Mod
 This process is rather simple, here's just some worthy mentions:
 - Every file MUST have a FileLineage, that's part of the deployment "rules".
-- I run removeAll as a redundant error-prevention, ontop of deploy-mod doing the same.
+- I run removeAll as a redundant error-prevention, on top of deploy-mod doing the same.
 - A complete copy of all the files at the time the mod was removed is made in trash (also timestamped), the idea is that just like with mod deployment, that temp mod is a complete instance of every file that mod used at the time it was trashed and could be pasted directly back into the game files for a perfect restore.
 
-```mmd
+```mermaid
 %% Author: Stephanos B
 %% Date: 24/12/2025
 flowchart TD
@@ -279,5 +279,117 @@ To deploy a batch, you pass a GameState, A file that contains a list of deployed
 So we have a GameState that we want the game to be set to, what I do is make a GameState Diff, comparing the request to the current GameState. The difference is the Diff instance uses additional Mod fields, stating if a Mod is enabled or disabled, whereas a GameState normally only contains enabled Mods.
 This tells the batch processor to trash disabled entries and deploy enabled entries.
 
-When a Mod is added/removed to/from a GameState it is ordered by load order, to the gameState also has a natrual order, so when a GameState is deployed is also deploys in the order with the LEAST file conflicts, *eliminating* extra overhead from any file-repairs/restorations.
+When a Mod is added/removed to/from a GameState it is ordered by load order, to the gameState also has a natural order, so when a GameState is deployed is also deploys in the order with the LEAST file conflicts, *eliminating* extra overhead from any file-repairs/restorations.
 
+
+# Log
+Logging is done carefully to avoid oversaturated information but is also richly formatted to be as functional as possible for both Power users and Developers (me)
+
+Here is a snippet of a log file:
+```log
+Log file created at: Jan 31, 2026 10:35 pm
+Operating system: Linux
+Current configuration
+	Version: 4.0.4
+Manager:
+	Game data dir   : mod_manager/games
+	Temp dir        : mod_manager/.temp
+	Trash dir       : mod_manager/.temp/trash
+	logging dir     : mod_manager/logs
+Game Structure:
+	Manager data dir : .mod_manager
+Preferences:
+	TRASH_DAYS_OLD  : 20
+	TRASH_SIZE_LIMIT : 50
+	NORMALISE_BY_GROUP : true
+	TRASH_SIZE_WARNING : 0
+
+========================
+Program started logging...
+[Jan 31, 2026 10:35 pm] - [Info] : Loading GameState from: /home/hdd700/Programming/java/JarProjects/fcmm/TEST_FILE_SYSTEM/Games/test-game/.mod_manager/game_state.json
+[Jan 31, 2026 10:35 pm] - [Info] : Fetching all mods...
+[Jan 31, 2026 10:35 pm] - [Info] : Mods retrieved
+[Jan 31, 2026 10:35 pm] - [Info] : Filteres aplied: 
+	Status: All
+	Name: 
+	Tags: []
+[Jan 31, 2026 10:35 pm] - [Info] : 	Dropped on: Additional Mod 3
+[Jan 31, 2026 10:35 pm] - [Info] : Dragger Mod functi-12441-48563 to [true] : 2
+[Jan 31, 2026 10:35 pm] - [Info] : Filteres aplied: 
+	Status: All
+	Name: 
+	Tags: []
+[Jan 31, 2026 10:35 pm] - [Info] : Filteres aplied: 
+	Status: All
+	Name: 
+	Tags: []
+[Jan 31, 2026 10:35 pm] - [Info] : Filteres aplied: 
+	Status: All
+	Name: 
+	Tags: []
+[Jan 31, 2026 10:35 pm] - [Info] : Normalising by group
+[Jan 31, 2026 10:35 pm] - [Info] : 
+🗄 Starting to deploying GameState...
+[Jan 31, 2026 10:35 pm] - [Info] : 🔒 Lock granted on Directory: /home/hdd700/Programming/java/JarProjects/fcmm/TEST_FILE_SYSTEM/Games/test-game
+[Jan 31, 2026 10:35 pm] - [Info] : Making GameState Diff.
+[Jan 31, 2026 10:35 pm] - [Info] : Finished GameState Diff: 🗂  Game State:
+	Last Modified: 2026-01-31T22:35:54.606943683
+	Deployed Mods:
+		⚫ ID: additi-23582-50485 | Name: Additional Mod 3                         | Order : 1    | true
+		⚫ ID: functi-12441-48563 | Name: Function Test                            | Order : 1    | false
+
+[Jan 31, 2026 10:36 pm] - [Info] : Normalising by group
+[Jan 31, 2026 10:36 pm] - [Info] : 
+🗄 Starting to deploying GameState...
+[Jan 31, 2026 10:36 pm] - [Info] : 🔒 Lock granted on Directory: /home/hdd700/Programming/java/JarProjects/fcmm/TEST_FILE_SYSTEM/Games/test-game
+[Jan 31, 2026 10:36 pm] - [Info] : Making GameState Diff.
+[Jan 31, 2026 10:36 pm] - [Info] : Finished GameState Diff: 🗂  Game State:
+	Last Modified: 2026-01-31T22:36:09.626793169
+	Deployed Mods:
+		⚫ ID: functi-12441-48563 | Name: Function Test                            | Order : 2    | true
+
+[Jan 31, 2026 10:36 pm] - [Info] : 📦 Attempting to deploy Mod functi-12441-48563...
+[Jan 31, 2026 10:36 pm] - [Info] : 🔒 Lock granted on Directory: mod_manager/.temp/functi-12441-48563__20260131_223609
+[Jan 31, 2026 10:36 pm] - [Info] : Copying files to temp...
+[Jan 31, 2026 10:36 pm] - [Info] : ⚪ No found File conflicts.
+[Jan 31, 2026 10:36 pm] - [Info] : Creating Directories for lineage at: mod_manager/.temp/functi-12441-48563__20260131_223609/.mod_manager/lineages
+[Jan 31, 2026 10:36 pm] - [Info] : Writing updated lineage at: mod_manager/.temp/functi-12441-48563__20260131_223609/.mod_manager/lineages/ic_file_text.png.json
+[Jan 31, 2026 10:36 pm] - [Info] : ✔ File copied from: /home/hdd700/Programming/java/JarProjects/fcmm/TEST_FILE_SYSTEM/Mods/test-game/functi-12441-48563/ic_file_text.png to mod_manager/.temp/functi-12441-48563__20260131_223609/ic_file_text.png
+
+[Jan 31, 2026 10:36 pm] - [Info] : ⚫ Found file conflict, resolving...
+[Jan 31, 2026 10:36 pm] - [Info] : ✔ Exsisting Lineage found.
+[Jan 31, 2026 10:36 pm] - [Info] : ✔ Pushed as new owner in lineage.
+[Jan 31, 2026 10:36 pm] - [Info] : Creating Directories for lineage at: mod_manager/.temp/functi-12441-48563__20260131_223609/.mod_manager/lineages
+[Jan 31, 2026 10:36 pm] - [Info] : Writing updated lineage at: mod_manager/.temp/functi-12441-48563__20260131_223609/.mod_manager/lineages/ic_home.png.json
+[Jan 31, 2026 10:36 pm] - [Info] : ✔ File copied from: /home/hdd700/Programming/java/JarProjects/fcmm/TEST_FILE_SYSTEM/Mods/test-game/functi-12441-48563/ic_home.png to mod_manager/.temp/functi-12441-48563__20260131_223609/ic_home.png
+
+[Jan 31, 2026 10:36 pm] - [Info] : ⚪ No found File conflicts.
+[Jan 31, 2026 10:36 pm] - [Info] : Creating Directories for lineage at: mod_manager/.temp/functi-12441-48563__20260131_223609/.mod_manager/lineages
+[Jan 31, 2026 10:36 pm] - [Info] : Writing updated lineage at: mod_manager/.temp/functi-12441-48563__20260131_223609/.mod_manager/lineages/ic_image_placeholder.png.json
+[Jan 31, 2026 10:36 pm] - [Info] : ✔ File copied from: /home/hdd700/Programming/java/JarProjects/fcmm/TEST_FILE_SYSTEM/Mods/test-game/functi-12441-48563/ic_image_placeholder.png to mod_manager/.temp/functi-12441-48563__20260131_223609/ic_image_placeholder.png
+
+[Jan 31, 2026 10:36 pm] - [Info] : Mod copied from temp to: /home/hdd700/Programming/java/JarProjects/fcmm/TEST_FILE_SYSTEM/Games/test-game
+[Jan 31, 2026 10:36 pm] - [Info] : Cleaning temp...
+[Jan 31, 2026 10:36 pm] - [Info] : 📦 Mod functi-12441-48563 successfully deployed!
+[Jan 31, 2026 10:36 pm] - [Info] : Saving GameState to: /home/hdd700/Programming/java/JarProjects/fcmm/TEST_FILE_SYSTEM/Games/test-game/.mod_manager/game_state.json
+[Jan 31, 2026 10:36 pm] - [Info] : 🔓 Lock released: temp:/home/hdd700/Programming/java/JarProjects/fcmm/mod_manager/.temp/functi-12441-48563__20260131_223609
+[Jan 31, 2026 10:36 pm] - [Info] : 
+Progress: 100% [##################################################]
+
+[Jan 31, 2026 10:36 pm] - [Info] : 🔓 Lock released: test-game
+[Jan 31, 2026 10:36 pm] - [Info] : 
+🗄 Done deploying GameState.
+[Jan 31, 2026 10:36 pm] - [Info] : Fetching all mods...
+[Jan 31, 2026 10:36 pm] - [Info] : Mods retrieved
+[Jan 31, 2026 10:36 pm] - [Info] : Filteres aplied: 
+	Status: All
+	Name: 
+	Tags: []
+[Jan 31, 2026 10:36 pm] - [Info] : Loading GameState from: /home/hdd700/Programming/java/JarProjects/fcmm/TEST_FILE_SYSTEM/Games/fallout-4/.mod_manager/game_state.json
+[Jan 31, 2026 10:36 pm] - [Info] : Fetching all mods...
+[Jan 31, 2026 10:36 pm] - [Info] : Mods retrieved
+[Jan 31, 2026 10:36 pm] - [Info] : Filteres aplied: 
+	Status: All
+	Name: 
+	Tags: []
+```

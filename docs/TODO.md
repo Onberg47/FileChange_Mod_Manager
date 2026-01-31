@@ -1,4 +1,4 @@
-# My TODO (In order of priority/favor)
+# My TODO (In order of priority/favour)
 
 ## Upcoming changes
 
@@ -6,18 +6,20 @@
     I added this feature to the user-manual but does not exists yet.
 
 - Resolve the drag-and-drop files not working on Windows 11 (Works on Linux flawlessly) Error appears to be Windows is not passing any contents.
-    May have to make a seperate system for Windows that instead auto-copies the dropped files to `temp/` and gets the path manually.
+    May have to make a separate system for Windows that instead auto-copies the dropped files to `temp/` and gets the path manually.
 
 - Finally get around to adding FlatLaf themes! (Needs user preferences first)
 
 
 ## Low priority improvements
 
+- Fix the error/warning the directory cleaner throws when it cannot clean. This is not a real error. Centralise the empty directory cleaner, clean all empty directories.
+
 - GameState could use a lighter version of a Mod, it has more info than needed.
 
 - Add/test Game and Mod edit and update features in the CLI. These are not fully supported in the CLI currently.
 
-- Add pereference to reduce user-facing logging to only a progress display.
+- Add preference to reduce user-facing logging to only a progress display.
 
 
 ## Longer-term changes/features
@@ -34,11 +36,11 @@
     Or, could do that but provided an advanced GUI selection for dependencies to make it easy.
 
 - NEW IDEA! For group managment, expand upon the DividerCard use. Add a button to add a new divider, this just needs a name and a starting load-order to position it.
-    In the type (all/disabled/enabled) dorpdown, add all dividers as options to then filter per a custom divider (group).
+    In the type (all/disabled/enabled) dropdown, add all dividers as options to then filter per a custom divider (group).
     Internally, dividers will need to track their size, number of mods part of the group. When loaded, the next *x* number of mods are added to that group. Mods themselves don't need to track group.
     Custom Divider cards are removable.
     Add a drop-down menu to divider cards. Options:
         - Disable all (disables all mods in the group)
         - empty group (sets group size to 0 but keeps the divider)
         - ungroup (deleted the group without affecting the mods) Only for custom dividers!
-    To add a mod to a custom group, drop it onto the divider card. This will +1 to the divider's group size and set the mod's load order to the divider's. (Try to keep compatability with sequential load order)
+    To add a mod to a custom group, drop it onto the divider card. This will +1 to the divider's group size and set the mod's load order to the divider's. (Try to keep compatibility with sequential load order)

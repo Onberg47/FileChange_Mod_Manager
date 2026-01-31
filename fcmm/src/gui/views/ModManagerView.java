@@ -258,12 +258,12 @@ public class ModManagerView extends BaseView {
 
         // Load all mods for this game. No need to reload.
         if (allMods == null) {
+            modsLoading = true;
             // Async / background loading of all Mods when needed.
             SwingWorker<Void, List<Mod>> worker = new SwingWorker<>() {
                 @Override
                 protected Void doInBackground() throws Exception {
-                    Logger.getInstance().info(0, null, "fetching all mods...");
-                    modsLoading = true;
+                    Logger.getInstance().info(0, null, "Fetching all mods...");
                     allMods = manager.getAllMods();
                     publish(allMods);
                     return null;
@@ -271,7 +271,7 @@ public class ModManagerView extends BaseView {
 
                 @Override
                 protected void process(List<List<Mod>> chunks) {
-                    Logger.getInstance().info(0, null, "mods retrieved");
+                    Logger.getInstance().info(0, null, "Mods retrieved");
                     modsLoading = false;
                     loadMods();
                 }
@@ -592,7 +592,7 @@ public class ModManagerView extends BaseView {
                 .collect(Collectors.toList());
 
         if (AppConfig.getInstance().preferences.is(properties.NORMALISE_BY_GROUP)) {
-            Logger.getInstance().info("Normalising by group");
+            Logger.getInstance().info(null, "Normalising by group");
             // this allows duplicate loadorder values. All it does is ensure each group of
             // duplicates is sequential. (1,2,3...) to avoid oddly-high numbers (1,2,8...)
 
@@ -607,7 +607,7 @@ public class ModManagerView extends BaseView {
                     enabledModsList.get(i).setLoadOrder(groupCnt);
             }
         } else {
-            Logger.getInstance().info("Normalising sequentially");
+            Logger.getInstance().info(null, "Normalising sequentially");
             // simply orders in sequence
             for (int i = 0; i < enabledModsList.size(); i++) {
                 enabledModsList.get(i).setLoadOrder(i + 1);

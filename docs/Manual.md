@@ -5,7 +5,7 @@ Need to find out how to do something? This is the place!
 <details open>
 <summary>Take note:</summary>
 The full manual is actually within the program itself in HTML format. This is the original MarkDown version.<br>
-Always assume this version is more current as edditing in MD is much easier, so I will make any imidate changes here.<br>
+Always assume this version is more current as editing in MD is much easier, so I will make any immediate changes here.<br>
 These are also the files from which the HTML version are generated.
 </details>
 

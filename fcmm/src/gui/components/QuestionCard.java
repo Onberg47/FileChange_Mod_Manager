@@ -13,7 +13,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Displays a FormQuestion instance graphically.
@@ -331,7 +331,6 @@ public class QuestionCard extends JPanel {
 
     /// /// /// File Transfer /// /// ///
 
-    // TODO does not work on Windows 11, reason unknown
     /**
      * Custom TransferHandler for file/directory dropping.
      */
@@ -362,8 +361,8 @@ public class QuestionCard extends JPanel {
 
             try {
                 // Get the dropped files
-                ArrayList<File> files = new ArrayList<File>();
-                files = (ArrayList<File>) support.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                List<File> files = (List<File>) support.getTransferable()
+                        .getTransferData(DataFlavor.javaFileListFlavor);
 
                 if (files.isEmpty()) {
                     return false;

@@ -78,6 +78,7 @@ public class Logger {
                 if (!fileFound) {
                     writer.write("Log file created at: "
                             + DateUtil.getDisplayTimestamp(LocalDateTime.now())
+                            + "\nOperating system: " + System.getProperty("os.name")
                             + "\n" + config.toString() + "\n" + "=".repeat(24));
                 }
                 writer.write("\nProgram started logging...\n");

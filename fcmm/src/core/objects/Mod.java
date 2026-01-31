@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class Mod extends ModMetadata {
 
-    private Boolean enabled;
+    private Boolean enabled = false;
 
     /**
      * Empty constructor for Mod.
