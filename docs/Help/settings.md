@@ -20,10 +20,10 @@ Then make this setting `Documents/Mods` so when you add a new game you can just 
     - (Off) No warning **or** checks on trash. (default)
 
 - Normalise Mods by Group:
-    - default (Off) This will normalise all Mods sequentially, ensuring no duplicate load orders and are counting from 1 up with no missing numbers. [0,4,5,12,100] -> [1,2,3,4,5]<br>
-    This works best with drag-to-order instead of the load spinner. Will only normalise on commit and drag.
-    - (On) This allows duplicate load order values. It assumes that duplicates are *grouped* and simply ensures that group numbers are sequential. [1,1,1,4,8,8] -> [1,1,1,2,3,3]<br>
+    - (On) Recommended. This allows duplicate load order values. It assumes that duplicates are *grouped* and simply ensures that group numbers are sequential. [1,1,1,4,8,8] -> [1,1,1,2,3,3]<br>
     Drag-to-order will change to set load order to match where it was dropped. Will only normalise on commit.
+    - (Off) This will normalise all Mods sequentially, ensuring no duplicate load orders and are counting from 1 up with no missing numbers. [0,4,5,12,100] -> [1,2,3,4,5]<br>
+    This works best with drag-to-order instead of the load spinner. Will only normalise on commit and drag.
 
     What works best will depend on the specific game but it is recommended to set the default load order of mods by group and use groups when dealing with large-scale mod deployments that need a layered approach.
     For loose/unrelated mods, rather use sequential.

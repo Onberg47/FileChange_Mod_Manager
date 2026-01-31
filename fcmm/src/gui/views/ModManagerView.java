@@ -34,6 +34,7 @@ import core.utils.Logger;
 public class ModManagerView extends BaseView {
     // Globals
     private final ModManager manager;
+    private boolean modsLoading;
 
     // UI Components
     private JPanel utilityPanel;
@@ -252,6 +253,9 @@ public class ModManagerView extends BaseView {
      * filtering.
      */
     private void loadMods() {
+        if (modsLoading)
+            return; // busy lock.
+
         // Load all mods for this game. No need to reload.
         if (allMods == null) {
             // Async / background loading of all Mods when needed.
@@ -259,6 +263,7 @@ public class ModManagerView extends BaseView {
                 @Override
                 protected Void doInBackground() throws Exception {
                     Logger.getInstance().info(0, null, "fetching all mods...");
+                    modsLoading = true;
                     allMods = manager.getAllMods();
                     publish(allMods);
                     return null;
@@ -267,12 +272,11 @@ public class ModManagerView extends BaseView {
                 @Override
                 protected void process(List<List<Mod>> chunks) {
                     Logger.getInstance().info(0, null, "mods retrieved");
-                    allMods.sort(Comparator.comparingInt(Mod::getLoadOrder));
+                    modsLoading = false;
                     loadMods();
                 }
             };
             worker.execute();
-            // allMods = null;
             modListPanel.add(new DividerCard("Loading...", Color.GRAY)); // show while loading.
             return; // don't procceed further because of loading
         }
@@ -588,8 +592,10 @@ public class ModManagerView extends BaseView {
                 .collect(Collectors.toList());
 
         if (AppConfig.getInstance().preferences.is(properties.NORMALISE_BY_GROUP)) {
+            Logger.getInstance().info("Normalising by group");
             // this allows duplicate loadorder values. All it does is ensure each group of
             // duplicates is sequential. (1,2,3...) to avoid oddly-high numbers (1,2,8...)
+
             int index = 0, groupCnt = 0;
             for (int i = 0; i < enabledModsList.size(); i++) {
 
@@ -601,6 +607,7 @@ public class ModManagerView extends BaseView {
                     enabledModsList.get(i).setLoadOrder(groupCnt);
             }
         } else {
+            Logger.getInstance().info("Normalising sequentially");
             // simply orders in sequence
             for (int i = 0; i < enabledModsList.size(); i++) {
                 enabledModsList.get(i).setLoadOrder(i + 1);
@@ -611,8 +618,12 @@ public class ModManagerView extends BaseView {
     /// /// /// Button Events /// /// ///
 
     private void toEditModPage(Mod mod) {
-        AppState.getInstance().setCurrentMod(mod);
-        navigator.navigateTo("editMod", Map.of("modId", mod.getId()));
+        try {
+            AppState.getInstance().setCurrentMod(manager.getModById(mod.getId())); // Fetch the original for editting.
+            navigator.navigateTo("editMod", Map.of("modId", mod.getId()));
+        } catch (Exception e) {
+            showError("Could not load Mod to edit", e);
+        }
     }
 
     private void toggleMod(Mod mod) {
@@ -633,7 +644,8 @@ public class ModManagerView extends BaseView {
             normaliseLoadOrder(); // clean up load order values
 
             GameState gameState = new GameState();
-            gameState.setOrderedMods(allMods.stream()
+            // gameState.setOrderedMods(allMods.stream()
+            gameState.setDeployedMods(allMods.stream()
                     .filter(Mod::isEnabled)
                     .collect(Collectors.toList()));
 

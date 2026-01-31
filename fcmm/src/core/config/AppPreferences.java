@@ -24,7 +24,7 @@ public class AppPreferences implements MapSerializable {
     public enum properties {
         FS_LOCKS("FS_LOCK", "File-System locks", false),
 
-        NORMALISE_BY_GROUP("NORMALISE_BY_GROUP", "Normalise mods by groups", false),
+        NORMALISE_BY_GROUP("NORMALISE_BY_GROUP", "Normalise mods by groups", true),
 
         TRASH_SIZE_WARNING("TRASH_SIZE_WARNING", "Trash size limit warning", "off"),
         TRASH_SIZE_LIMIT("TRASH_SIZE_LIMIT", "Trash size limit", 100),

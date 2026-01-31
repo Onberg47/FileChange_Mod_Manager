@@ -134,6 +134,7 @@ public class GameState implements MapSerializable {
      * the loadOrder values of each Mod.
      * 
      * @param deployedMods List<Mod> pre-sorted.
+     * @deprecated // no longer used
      */
     public void setOrderedMods(List<Mod> deployedMods) {
         this.deployedMods = deployedMods;
