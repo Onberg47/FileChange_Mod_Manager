@@ -34,7 +34,7 @@ import core.utils.Logger;
 public class ModManagerView extends BaseView {
     // Globals
     private final ModManager manager;
-    private boolean modsLoading;
+    private boolean modsLoading = false;
 
     // UI Components
     private JPanel utilityPanel;
@@ -264,7 +264,12 @@ public class ModManagerView extends BaseView {
                 @Override
                 protected Void doInBackground() throws Exception {
                     Logger.getInstance().info(0, null, "Fetching all mods...");
-                    allMods = manager.getAllMods();
+                    try {
+                        allMods = manager.getAllMods();
+                    } catch (Exception e) {
+                        allMods.clear();
+                        showError("Failed to load mods", e);
+                    }
                     publish(allMods);
                     return null;
                 }
@@ -272,8 +277,10 @@ public class ModManagerView extends BaseView {
                 @Override
                 protected void process(List<List<Mod>> chunks) {
                     Logger.getInstance().info(0, null, "Mods retrieved");
-                    modsLoading = false;
-                    loadMods();
+                    SwingUtilities.invokeLater(() -> {
+                        modsLoading = false;
+                        loadMods(); // This will now be called on EDT
+                    });
                 }
             };
             worker.execute();

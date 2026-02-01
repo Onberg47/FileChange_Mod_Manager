@@ -25,20 +25,20 @@ public abstract class defaultConfig {
 
     // Program:
     // static final Path WORKING_DIR = Path.of("mod_manager/");
-    static final Path GAME_DIR = Path.of("mod_manager/games/");
-    static final Path TEMP_DIR = Path.of("mod_manager/.temp/");
-    static final Path TRASH_DIR = Path.of("mod_manager/.temp/trash/");
-    static final Path LOG_DIR = Path.of("mod_manager/logs/");
+    static final Path GAME_DIR = Path.of("mod_manager", "games");
+    static final Path TEMP_DIR = Path.of("mod_manager", ".temp");
+    static final Path TRASH_DIR = Path.of("mod_manager", ".temp", "trash");
+    static final Path LOG_DIR = Path.of("mod_manager", "logs");
 
     // Mod Manager:
     // static final Path TEMP_DIR = Path.of("mod_manager/.temp/");
     // static final Path TRASH_DIR = Path.of("mod_manager/.temp/trash/");
-    static final Path MANAGER_DIR = Path.of(".mod_manager/");
-    static final Path MANIFEST_DIR = MANAGER_DIR.resolve("manifests/");
-    static final Path BACKUP_DIR = MANAGER_DIR.resolve("backups/");
-    static final Path LINEAGE_DIR = MANAGER_DIR.resolve("lineages/");
+    static final Path MANAGER_DIR = Path.of(".mod_manager");
+    static final Path MANIFEST_DIR = MANAGER_DIR.resolve("manifests");
+    static final Path BACKUP_DIR = MANAGER_DIR.resolve("backups");
+    static final Path LINEAGE_DIR = MANAGER_DIR.resolve("lineages");
 
-    static final Path DEFAULT_MOD_DIR = Path.of("mod_manager/mods/");
+    static final Path DEFAULT_MOD_DIR = Path.of("mod_manager", "mods");
 
     /// /// /// Getters /// /// ///
 
