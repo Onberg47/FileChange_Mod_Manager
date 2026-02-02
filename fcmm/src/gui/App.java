@@ -120,12 +120,15 @@ public class App {
     ///
 
     private void quickCleanTrash() {
+        int daysOld = AppConfig.getInstance().preferences.getAsInt(properties.TRASH_DAYS_OLD);
+        int trashLimit = AppConfig.getInstance().preferences.getAsInt(properties.TRASH_SIZE_LIMIT);
+
         int result = JOptionPane.showConfirmDialog(
                 mainFrame,
                 "Permanently delete all files in trash older than "
-                        + AppConfig.getInstance().preferences.get(properties.TRASH_DAYS_OLD).toString()
+                        + daysOld
                         + " days and trim to under "
-                        + AppConfig.getInstance().preferences.get(properties.TRASH_SIZE_LIMIT).toString()
+                        + trashLimit
                         + "MB?",
                 "Clean Trash",
                 JOptionPane.YES_NO_OPTION,
@@ -140,7 +143,7 @@ public class App {
                 SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
                     @Override
                     protected Void doInBackground() throws Exception { // long-running task
-                        TrashUtil.cleanTrash(2000, LocalDate.now().minusDays(30));
+                        TrashUtil.cleanTrash(trashLimit, LocalDate.now().minusDays(daysOld));
                         return null;
                     }
 

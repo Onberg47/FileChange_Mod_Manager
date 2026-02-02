@@ -6,7 +6,7 @@
 
     <groupId>onberg</groupId>
     <artifactId>fcmm</artifactId>
-    <version>4.0.4</version>
+    <version>4.0.5</version>
 
     <build>
         <sourceDirectory>fcmm/src</sourceDirectory>

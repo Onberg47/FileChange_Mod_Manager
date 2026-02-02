@@ -51,6 +51,7 @@ The goal is to create a practical project for both real-world usage but also as 
   - Verify files Hashes match to detect changes and avoid unnecessary file system operations.
 - In case of final write failures, data stored in temp is recoverable (temp/ cleaning only takes place when no errors occur)
 - Visual feedback (Console) Actions are carefully logged, allowing exact failure pinpointing.
+- Trash utility: Manage the max size and number of days old trash files can be with automatic warnings and prompts to clean or empty trash files.
 
 ### Mods: 
 - Track, add, remove and update Mods deployed into a game.
@@ -63,6 +64,9 @@ The goal is to create a practical project for both real-world usage but also as 
   - Version number.
   - Download information. Store a download URL and tag the download source (eg: Nexus, ModDB, Steam, custom...)
   - Add tags to mods for GUI sorting and filtering.
+- Intuative updating. Mods can be updated easily at anytime, handling re-deployment automatically.
+  Updates can provide new files or the exsisting files will be re-compiled.
+  For modders, this makes tweaking/updating mods on the go for testing fast and painless. See the [FAQ](docs/FAQ.md) for more.
 
 ### Games: 
 - Stores a current GameState with the game, all data needed to track and remove deployed Mods is stored within the game directory.
@@ -86,11 +90,11 @@ The goal is to create a practical project for both real-world usage but also as 
 ### GUI
 - Tile view of games with icons.
 - Manage Mods with a Card design to display mod info clearly.
-- Download link for mods will be a clickable link.
 - Interactive way to reorder mods by dragging mod tiles.
 - Enable/disable mods by dragging them to and from the deployed/stored containers.
+- Download link for mod are a clickable hyper-link.
 - All file/directory input fields allow Drag-and-Drop.
-- Write changes to a temp GameState or pick from saved profiles. Then Apply the GameState when ready. (TODO)
+- Write changes to a temp GameState or pick from saved profiles. Then Apply the GameState when ready.
 
 ### CLI Usage:
 The CLI offers an interactive interface to perform all the core operations for managing Games and Mods.

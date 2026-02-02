@@ -6,6 +6,7 @@ package gui.views;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,11 +19,13 @@ import gui.util.IconLoader.ICONS;
 import gui.components.ModCard;
 import gui.components.DividerCard;
 import core.config.AppConfig;
+import core.config.AppPreferences;
 import core.config.AppPreferences.properties;
 import core.managers.ModManager;
 import core.objects.GameState;
 import core.objects.Mod;
 import core.utils.Logger;
+import core.utils.TrashUtil;
 
 /**
  * This is the primary view responsible for displaying and managing Mods.
@@ -35,6 +38,7 @@ public class ModManagerView extends BaseView {
     // Globals
     private final ModManager manager;
     private boolean modsLoading = false;
+    private final Logger log = Logger.getInstance();
 
     // UI Components
     private JPanel utilityPanel;
@@ -260,30 +264,35 @@ public class ModManagerView extends BaseView {
         if (allMods == null) {
             modsLoading = true;
             // Async / background loading of all Mods when needed.
-            SwingWorker<Void, List<Mod>> worker = new SwingWorker<>() {
+            SwingWorker<List<Mod>, Void> worker = new SwingWorker<>() {
                 @Override
-                protected Void doInBackground() throws Exception {
-                    Logger.getInstance().info(0, null, "Fetching all mods...");
-                    try {
-                        allMods = manager.getAllMods();
-                    } catch (Exception e) {
-                        allMods.clear();
-                        showError("Failed to load mods", e);
-                    }
-                    publish(allMods);
-                    return null;
+                protected List<Mod> doInBackground() throws Exception {
+                    return manager.getAllMods();
                 }
 
                 @Override
-                protected void process(List<List<Mod>> chunks) {
-                    Logger.getInstance().info(0, null, "Mods retrieved");
-                    SwingUtilities.invokeLater(() -> {
-                        modsLoading = false;
-                        loadMods(); // This will now be called on EDT
+                protected void done() {
+                    try {
+                        allMods = get();
+                    } catch (Exception e) {
+                        allMods = new ArrayList<>();
+                    }
+
+                    // Listen for property changes (including state changes)
+                    addPropertyChangeListener(evt -> {
+                        if ("state".equals(evt.getPropertyName())
+                                && evt.getNewValue() == SwingWorker.StateValue.DONE) {
+
+                            SwingUtilities.invokeLater(() -> {
+                                modsLoading = false;
+                                loadMods();
+                            });
+                        }
                     });
                 }
             };
             worker.execute();
+            modListPanel.removeAll();
             modListPanel.add(new DividerCard("Loading...", Color.GRAY)); // show while loading.
             return; // don't procceed further because of loading
         }
@@ -304,7 +313,7 @@ public class ModManagerView extends BaseView {
                             .collect(Collectors.toSet());
 
                     // Logging for future testing.
-                    Logger.getInstance().info(0, null,
+                    log.info(0, null,
                             "Filteres aplied: \n\tStatus: " + statusFilter
                                     + "\n\tName: " + nameFilter
                                     + "\n\tTags: " + tagFilters.toString());
@@ -348,7 +357,7 @@ public class ModManagerView extends BaseView {
 
             @Override
             protected void process(List<List<Mod>> chunks) {
-                displayModList();
+                displayModList(); // This populates modListPanel and repaints once all the processing is done.
             }
 
         };
@@ -512,7 +521,7 @@ public class ModManagerView extends BaseView {
             Mod targetMod = findModAtPosition(mousePos);
             if (targetMod == null)
                 return;
-            Logger.getInstance().info(null, "\tDropped on: " + targetMod.getName());
+            log.info(null, "\tDropped on: " + targetMod.getName());
 
             if (targetMod != null && !targetMod.getId().equals(draggedMod.getId())) {
                 moveDraggedMod(draggedMod, targetMod); // Move draggedMod to position before targetMod in allMods
@@ -585,7 +594,7 @@ public class ModManagerView extends BaseView {
                 modToMove.setLoadOrder(index);
         }
 
-        Logger.getInstance().info(0, null, "Dragger Mod " + modToMove.getId() + " to [" + modToMove.isEnabled()
+        log.info(0, null, "Dragger Mod " + modToMove.getId() + " to [" + modToMove.isEnabled()
                 + "] : " + modToMove.getLoadOrder());
     }
 
@@ -599,7 +608,7 @@ public class ModManagerView extends BaseView {
                 .collect(Collectors.toList());
 
         if (AppConfig.getInstance().preferences.is(properties.NORMALISE_BY_GROUP)) {
-            Logger.getInstance().info(null, "Normalising by group");
+            log.info(null, "Normalising by group");
             // this allows duplicate loadorder values. All it does is ensure each group of
             // duplicates is sequential. (1,2,3...) to avoid oddly-high numbers (1,2,8...)
 
@@ -614,7 +623,7 @@ public class ModManagerView extends BaseView {
                     enabledModsList.get(i).setLoadOrder(groupCnt);
             }
         } else {
-            Logger.getInstance().info(null, "Normalising sequentially");
+            log.info(null, "Normalising sequentially");
             // simply orders in sequence
             for (int i = 0; i < enabledModsList.size(); i++) {
                 enabledModsList.get(i).setLoadOrder(i + 1);
@@ -662,6 +671,39 @@ public class ModManagerView extends BaseView {
                 @Override
                 protected Void doInBackground() throws Exception { // long-running task
                     manager.deployGameState(gameState);
+
+                    // check for trash size limit warning
+                    int warning = AppConfig.getInstance().preferences
+                            .getAsInt(AppPreferences.properties.TRASH_SIZE_WARNING);
+                    if (warning != 0) {
+
+                        long trashLimit = AppConfig.getInstance().preferences
+                                .getAsInt(AppPreferences.properties.TRASH_SIZE_LIMIT);
+                        float trashSize = TrashUtil
+                                .megabyte(TrashUtil.getDiskSize(AppConfig.getInstance().getTrashDir()));
+
+                        if (trashLimit <= trashSize) {
+
+                            if (warning == 1) { // 1. log warning
+                                log.info(0, "ALERT: Trash Size limit of " + trashLimit + "MB has been reached!");
+                            } else if (warning == 2) { // 2. prompt
+                                // popup with options to clean trash
+
+                                int daysOld = AppConfig.getInstance().preferences.getAsInt(properties.TRASH_DAYS_OLD);
+                                String msg = String.format(
+                                        "Your trash disk-size is %.2fMB out of your limit of %dMB\nWould you like to clean now?",
+                                        trashSize, trashLimit);
+
+                                int result = JOptionPane.showConfirmDialog(
+                                        navigator.getMainFrame(), msg, "Trash Limit warning",
+                                        JOptionPane.YES_NO_OPTION,
+                                        JOptionPane.WARNING_MESSAGE);
+                                if (result == JOptionPane.YES_OPTION) {
+                                    TrashUtil.cleanTrash(trashLimit, LocalDate.now().minusDays(daysOld));
+                                }
+                            }
+                        } // if limit reached
+                    } // if warning not off
                     return null;
                 }
 

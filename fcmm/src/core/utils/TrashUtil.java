@@ -101,10 +101,15 @@ public class TrashUtil {
 
     /// /// /// Utilities /// /// ///
 
-    private static float megabyte(Long bytes) {
+    public static float megabyte(Long bytes) {
         return bytes / (1000000.0f);
     }
 
+    /**
+     * 
+     * @param dir
+     * @return Size in bytes
+     */
     public static long getDiskSize(Path dir) {
         Long size = 0L;
         try {

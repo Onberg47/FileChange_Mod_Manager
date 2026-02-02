@@ -1,15 +1,1 @@
-{
-    "preferences": {
-        "TRASH_DAYS_OLD": 20,
-        "TRASH_SIZE_LIMIT": 50,
-        "NORMALISE_BY_GROUP": true,
-        "TRASH_SIZE_WARNING": 0
-    },
-    "MANAGER_DIR": ".mod_manager",
-    "GAME_DIR": "mod_manager/games",
-    "TRASH_DIR": "mod_manager/.temp/trash",
-    "DEFAULT_MOD_DIR": "/home/hdd700/Mods/#_FCMM",
-    "TEMP_DIR": "mod_manager/.temp",
-    "APP_VERSION": "4.0.4",
-    "LOG_DIR": "mod_manager/logs"
-}
+{"preferences":{"TRASH_DAYS_OLD":20,"TRASH_SIZE_LIMIT":50,"NORMALISE_BY_GROUP":true,"TRASH_SIZE_WARNING":2},"MANAGER_DIR":".mod_manager","GAME_DIR":"mod_manager/games","TRASH_DIR":"mod_manager/.temp/trash","DEFAULT_MOD_DIR":"/home/hdd700/Mods/#_FCMM","TEMP_DIR":"mod_manager/.temp","APP_VERSION":"4.0.5","LOG_DIR":"mod_manager/logs"}

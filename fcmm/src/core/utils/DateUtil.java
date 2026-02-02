@@ -25,7 +25,7 @@ public class DateUtil {
     // For display in GUI: Dec 13, 2024 7:26 PM
     private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a");
 
-    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm a");
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy h:mm:ss");
 
     // For JSON (ISO): 2024-12-13T19:26:00Z (keep this for serialization!)
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_INSTANT;

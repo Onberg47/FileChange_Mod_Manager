@@ -278,7 +278,15 @@ public class QuestionCard extends JPanel {
                     return;
                 }
             }
-            // If not found, try to add it
+            // If not found, check if its a number (index)
+            try {
+                combo.setSelectedIndex(Integer.parseInt(value));
+                return;
+            } catch (Exception e) {
+                // Do nothing
+            }
+
+            // if still not found, try to add it
             try {
                 setComboBoxValue(combo, value);
                 combo.setSelectedItem(value);

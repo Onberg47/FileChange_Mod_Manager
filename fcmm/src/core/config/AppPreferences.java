@@ -26,7 +26,7 @@ public class AppPreferences implements MapSerializable {
 
         NORMALISE_BY_GROUP("NORMALISE_BY_GROUP", "Normalise mods by groups", true),
 
-        TRASH_SIZE_WARNING("TRASH_SIZE_WARNING", "Trash size limit warning", "off"),
+        TRASH_SIZE_WARNING("TRASH_SIZE_WARNING", "Trash size limit warning", 0),
         TRASH_SIZE_LIMIT("TRASH_SIZE_LIMIT", "Trash size limit", 100),
         TRASH_DAYS_OLD("TRASH_DAYS_OLD", "Trash days old limit", 30);
 
