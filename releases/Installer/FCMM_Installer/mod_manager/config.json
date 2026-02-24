@@ -1,0 +1,15 @@
+{
+    "preferences": {
+        "TRASH_DAYS_OLD": 10,
+        "TRASH_SIZE_LIMIT": 50,
+        "NORMALISE_BY_GROUP": true,
+        "TRASH_SIZE_WARNING": 1
+    },
+    "MANAGER_DIR": ".mod_manager",
+    "GAME_DIR": "mod_manager\\games",
+    "TRASH_DIR": "mod_manager\\.temp\\trash",
+    "DEFAULT_MOD_DIR": "C:\\Users\\User\\Documents\\My Mods",
+    "TEMP_DIR": "mod_manager\\.temp",
+    "APP_VERSION": "4.0.5",
+    "LOG_DIR": "mod_manager\\logs"
+}
